@@ -46,6 +46,7 @@ internal object CloudUserMerge {
                     else -> c.name.ifEmpty { lp.name }
                 }
                 val order = mergeOrderMetadata(c, lp)
+                val favOrder = mergeFavOrderMetadata(c, lp)
                 byId[lp.id] = c.copy(
                     name = name,
                     songs = songs.toMutableList(),
@@ -57,7 +58,9 @@ internal object CloudUserMerge {
                     playCount = maxOf(c.playCount, lp.playCount),
                     syncCreatedAt = maxOf(c.syncCreatedAt, lp.syncCreatedAt),
                     syncOrder = order.first,
-                    syncOrderAt = order.second
+                    syncOrderAt = order.second,
+                    favSyncOrder = favOrder.first,
+                    favSyncOrderAt = favOrder.second
                 )
             }
         }
@@ -110,6 +113,19 @@ internal object CloudUserMerge {
 
     private fun isEphemeral(playlist: Playlist): Boolean =
         playlist.id.startsWith("rank_") || playlist.id.startsWith("hot_") || playlist.id.startsWith("reco_")
+
+    /** Favorites order metadata mirrors [mergeOrderMetadata] on its own field pair. */
+    private fun mergeFavOrderMetadata(cloud: Playlist, local: Playlist): Pair<Int?, Long> {
+        val winner = when {
+            local.favSyncOrderAt > cloud.favSyncOrderAt -> local
+            cloud.favSyncOrderAt > local.favSyncOrderAt -> cloud
+            local.favSyncOrder != null && cloud.favSyncOrder == null -> local
+            cloud.favSyncOrder != null && local.favSyncOrder == null -> cloud
+            local.favSyncOrder != null -> local
+            else -> cloud
+        }
+        return winner.favSyncOrder to winner.favSyncOrderAt
+    }
 
     /** Order metadata is a per-playlist cloud field; a same-revision conflict favors local input. */
     private fun mergeOrderMetadata(cloud: Playlist, local: Playlist): Pair<Int?, Long> {

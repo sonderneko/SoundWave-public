@@ -336,6 +336,11 @@ data class Playlist(
     val syncOrder: Int? = null,
     /** Shared revision for one completed playlist reorder; stored inside the pls element. */
     val syncOrderAt: Long = 0L,
+    /** Favorites-only ordering rank （收藏视图内部排序）; mirrors [syncOrder] but the two pools
+     * never read or write each other's stamps. Null means this entry predates favorites ordering. */
+    val favSyncOrder: Int? = null,
+    /** Shared revision for one completed favorites reorder; stored inside the pls element. */
+    val favSyncOrderAt: Long = 0L,
     /** Portable cloud cover fallback while a device-local custom cover remains visible locally. */
     val syncCover: String = "",
     /** Ephemeral detail origin: digital/new_album; never inferred from a song or artist album. */

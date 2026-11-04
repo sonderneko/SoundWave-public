@@ -19,6 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,9 +29,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +49,10 @@ import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 /**
  * 设计稿 .library-item（音乐库列表行）：84dp 行高、60dp 封面圆角 14 + 柔和投影、15sp 粗标题；
  * 元信息行为「来源胶囊（DM Mono 10sp）+ 13sp 曲数」或单行 11sp 副标题；右侧 16dp chevron；行底 1dp 线（70%）。
+ *
+ * 长按按区域分工（用户 2026-11-05 改案）：可排序行（onDrag 非空）——长按**封面**只管拖动排序
+ * （起拖即浮起 + dragStart 触感，手柄感自明），长按行内**其他区域**打开歌单操作表；两件事不再
+ * 抢同一个手势。不带拖动的行维持整行长按 = onLongPress 的旧语义。
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -73,6 +82,10 @@ internal fun LibraryDesignRow(
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val hapticView = androidx.compose.ui.platform.LocalView.current
+    // 区域分工的判别：按下是否起源于封面（Initial 相观察，不消费事件，点按/行身长按不受影响）。
+    var coverPressActive by remember { mutableStateOf(false) }
+    // 拖动步进的 pitch 仍按整行高（行距）算，不随手势载体（封面）缩小。
+    var rowHeightPx by remember { mutableIntStateOf(0) }
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier
@@ -80,6 +93,7 @@ internal fun LibraryDesignRow(
                 .height(72.dp)
                 // ACCEPT6-motiondraft（稿 .lift）：拖动中整行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
                 .dragLift(dragging, RoundedCornerShape(14.dp))
+                .onSizeChanged { rowHeightPx = it.height }
                 // 不裁剪整行：封面透明投影向下延伸 ~17dp，裁剪会切出一条生硬的灰边。
                 .background(
                     when {
@@ -90,39 +104,62 @@ internal fun LibraryDesignRow(
                     RoundedCornerShape(14.dp)
                 )
                 .rippleGlow(xyz.cncnlp.soundwave.SoundwaveDesignPalette.Accent.copy(alpha = 0.12f)) // r657 审计第 21 项（光圈只画在行矩形内，不裁剪封面投影）
-                // ACCEPT5-press（稿 §4）：长按出菜单发 long 触感；带拖动的行（onDrag 非空）长按语义
-                // 是「拿起」，已由下方手势的 dragStart 表达，此处不叠加，避免同一手势双震。
-                .combinedClickable(interactionSource = interaction, indication = null, onClick = onClick, onLongClick = { if (onDrag == null) xyz.cncnlp.soundwave.ui.common.AppHaptics.longPress(hapticView); onLongPress?.invoke() })
-                .then(
-                    if (onDrag != null) Modifier.pointerInput(coverKey.ifEmpty { title }) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = {
-                                xyz.cncnlp.soundwave.ui.common.AppHaptics.dragStart(hapticView)
-                                onDragStart?.invoke()
-                            },
-                            onDragEnd = {
-                                xyz.cncnlp.soundwave.ui.common.AppHaptics.dragEnd(hapticView)
-                                onDragEnd?.invoke(false)
-                            },
-                            onDragCancel = { onDragEnd?.invoke(true) }
-                        ) { change, dragAmount ->
-                            change.consume()
-                            onDrag(dragAmount.y, size.height.toFloat())
-                        }
-                    } else Modifier
-                )
+                // 长按区域分工（用户 2026-11-05）：起源于封面的长按归封面拖动（dragStart 触感表达，
+                // 此处不起表、不叠震）；行身长按出操作表，发 long 触感（与无拖动行同一口径）。
+                .combinedClickable(interactionSource = interaction, indication = null, onClick = onClick, onLongClick = {
+                    if (onDrag == null || !coverPressActive) {
+                        xyz.cncnlp.soundwave.ui.common.AppHaptics.longPress(hapticView)
+                        onLongPress?.invoke()
+                    }
+                })
                 .semantics { role = Role.Button },
             verticalAlignment = Alignment.CenterVertically
         ) {
             val shape = RoundedCornerShape(14.dp)
+            // 拖动态封面浮起（用户 2026-11-05：封面长按起拖要有即时浮起反馈）：放大 + 投影加深。
+            val coverScale by androidx.compose.animation.core.animateFloatAsState(
+                if (dragging) 1.10f else 1f, label = "libraryCoverDragLift"
+            )
             // r657 修复：用户「在线歌单的封面应该有透明阴影」——去掉错位灰色衬卡，改为柔和透明投影（0 8 18 rgba(19,25,21,.16)）+ 1dp 白 30% 内描边。
             Box(
                 Modifier.size(56.dp)
+                    .graphicsLayer { scaleX = coverScale; scaleY = coverScale }
                     .then(xyz.cncnlp.soundwave.ui.motion.SharedCoverSourceModifier(coverKey))
-                    .cssShadow(shape, Color(0xFF131915).copy(alpha = if (dark) 0.40f else 0.16f), 18.dp, 8.dp)
+                    .cssShadow(shape, Color(0xFF131915).copy(alpha = if (dragging) (if (dark) 0.55f else 0.28f) else (if (dark) 0.40f else 0.16f)), if (dragging) 24.dp else 18.dp, if (dragging) 12.dp else 8.dp)
                     .clip(shape)
                     .background(if (dark) SoundwaveDesignPalette.NightSurface2 else SoundwaveDesignPalette.Surface2)
-                    .border(1.dp, Color.White.copy(alpha = if (dark) 0.08f else 0.30f), shape),
+                    .border(1.dp, Color.White.copy(alpha = if (dark) 0.08f else 0.30f), shape)
+                    .then(
+                        if (onDrag != null) Modifier
+                            .semantics { contentDescription = "拖动排序" }
+                            // 区域判别：只观察按下起源（Initial 相、不消费），供行身长按让位。
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val event = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                                        coverPressActive = event.changes.any { it.pressed }
+                                    }
+                                }
+                            }
+                            // 拖动手势只挂封面：长按封面 = 拿起排序，行身长按与点按不受影响。
+                            .pointerInput(coverKey.ifEmpty { title }) {
+                                detectDragGesturesAfterLongPress(
+                                    onDragStart = {
+                                        xyz.cncnlp.soundwave.ui.common.AppHaptics.dragStart(hapticView)
+                                        onDragStart?.invoke()
+                                    },
+                                    onDragEnd = {
+                                        xyz.cncnlp.soundwave.ui.common.AppHaptics.dragEnd(hapticView)
+                                        onDragEnd?.invoke(false)
+                                    },
+                                    onDragCancel = { onDragEnd?.invoke(true) }
+                                ) { change, dragAmount ->
+                                    change.consume()
+                                    onDrag(dragAmount.y, if (rowHeightPx > 0) rowHeightPx.toFloat() else size.height.toFloat())
+                                }
+                            }
+                        else Modifier
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 if (cover.isNotBlank()) {

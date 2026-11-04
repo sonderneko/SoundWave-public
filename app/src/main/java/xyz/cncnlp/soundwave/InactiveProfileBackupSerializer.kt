@@ -101,6 +101,12 @@ internal object InactiveProfileBackupSerializer {
                 safePlaylist.put("_swLibOrder", order)
                 safePlaylist.put("_swLibOrderAt", orderAt)
             }
+            val favOrder = nonNegativeInt(item, "_swFavOrder")
+            val favOrderAt = nonNegativeLong(item, "_swFavOrderAt")
+            if (favOrder != null && favOrderAt != null && favOrderAt > 0L) {
+                safePlaylist.put("_swFavOrder", favOrder)
+                safePlaylist.put("_swFavOrderAt", favOrderAt)
+            }
             safePlaylists.put(safePlaylist)
         }
 

@@ -42,7 +42,7 @@ internal object LocalProfileBackupImporter {
     private val historySongKeys = songKeys - "_swAddedAt"
     private val playlistKeys = setOf(
         "id", "songs", "nm", "cv", "local", "src", "hid", "remoteId", "favorited",
-        "_swCreatedAt", "_swLibOrder", "_swLibOrderAt"
+        "_swCreatedAt", "_swLibOrder", "_swLibOrderAt", "_swFavOrder", "_swFavOrderAt"
     )
     private val deletedFavoriteKey = "_swDeletedFavorites"
     private val todayStylePreferencesKey = "_swTodayStylePreferences"
@@ -173,6 +173,14 @@ internal object LocalProfileBackupImporter {
                 val order = requiredNonNegativeLong(item, "_swLibOrder")
                 require(order <= Int.MAX_VALUE) { "歌单排序标记无效" }
                 require(requiredNonNegativeLong(item, "_swLibOrderAt") > 0L) { "歌单排序时间无效" }
+            }
+            val hasFavOrder = item.has("_swFavOrder")
+            val hasFavOrderAt = item.has("_swFavOrderAt")
+            require(hasFavOrder == hasFavOrderAt) { "收藏排序标记不完整" }
+            if (hasFavOrder) {
+                val favOrder = requiredNonNegativeLong(item, "_swFavOrder")
+                require(favOrder <= Int.MAX_VALUE) { "收藏排序标记无效" }
+                require(requiredNonNegativeLong(item, "_swFavOrderAt") > 0L) { "收藏排序时间无效" }
             }
             val songs = requiredArray(item, "songs")
             totalPlaylistSongs += songs.length()

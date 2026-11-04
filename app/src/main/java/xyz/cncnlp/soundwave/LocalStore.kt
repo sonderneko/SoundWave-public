@@ -433,6 +433,10 @@ object LocalStore {
                         put("_swLibOrder", pl.syncOrder)
                         put("_swLibOrderAt", pl.syncOrderAt)
                     }
+                    if (pl.favSyncOrder != null && pl.favSyncOrderAt > 0L) {
+                        put("_swFavOrder", pl.favSyncOrder)
+                        put("_swFavOrderAt", pl.favSyncOrderAt)
+                    }
                     if (pl.remoteId.isNotEmpty()) put("remoteId", pl.remoteId)
                     if (pl.favorited) put("favorited", true)
                 })
@@ -606,6 +610,8 @@ object LocalStore {
                                 syncCreatedAt = o.optLong("_swCreatedAt", 0L),
                                 syncOrder = o.optInt("_swLibOrder", -1).takeIf { o.has("_swLibOrder") && it >= 0 },
                                 syncOrderAt = o.optLong("_swLibOrderAt", 0L).coerceAtLeast(0L),
+                                favSyncOrder = o.optInt("_swFavOrder", -1).takeIf { o.has("_swFavOrder") && it >= 0 },
+                                favSyncOrderAt = o.optLong("_swFavOrderAt", 0L).coerceAtLeast(0L),
                                 syncCover = if (allowLocalUris) cloudSafeCover(
                                     normalizeCoverUrl(o.optString("_swSyncCover")), includeLocalUris = false
                                 ) else ""

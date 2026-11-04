@@ -790,7 +790,6 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             prefs.edit().putString("lib_order_v1", restoredOrder.joinToString(",")).apply()
         }
     }
-
     // 封面真实磁盘缓存：热门/歌单/头像 URL 变了才下
     LaunchedEffect(homePlatform, homeFeed.multiHot, homeFeed.multiPl, homeFeed.multiRank, userBundle.favs.size, userBundle.playlists.map { it.id + it.cover + it.songs.size }, avatarPath) {
         delay(750L)
@@ -864,6 +863,17 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             if (removed.isNotEmpty()) playback.onOriginPlaylistSongsRemoved(playlistId, removed)
         }
     }
+    // 收藏自有顺序（用户 2026-11-05）：状态、戳记重算与落盘整体在 FavoriteOrderState（PlaybackController 同范式），此处只留接线；
+    // 置于 persistBundle 声明之后，因接线 lambda 要引用它（本地 fun 不可前向引用）。
+    val favoriteOrder = remember { FavoriteOrderState(
+        context = context,
+        prefs = prefs,
+        getPlaylists = { userBundle.playlists },
+        getPoolOrder = { libOrder },
+        onPlaylistsReordered = { pls -> userBundle = userBundle.copy(playlists = pls.toMutableList()) },
+        persist = { persistBundle() },
+    ) }
+    LaunchedEffect(favoriteOrder.stampKey) { favoriteOrder.syncFromStamps() }
     fun reorderLibraryPlaylists(order: List<String>) {
         val previousOrder = PlaylistOrderSync.displayOrder(userBundle.playlists, libOrder)
         val reorderedPlaylists = PlaylistOrderSync.withOrder(userBundle.playlists, order)
@@ -2073,6 +2083,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     onReorderPlaylists = { order ->
                         reorderLibraryPlaylists(order)
                     },
+                    onReorderFavorites = { order, albums -> favoriteOrder.reorder(order, albums) },
                     onClearHistory = {
                         val prevHistory = history
                         history = emptyList()
@@ -2081,6 +2092,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                         AppNotice.undo("已清空播放历史") { history = prevHistory; LocalStore.prefs(context).edit().putString("play_history_v1", org.json.JSONArray().apply { prevHistory.forEach { put(it.toJson()) } }.toString()).apply(); persistBundle() }
                     },
                     libOrder = libOrder,
+                    favPlOrder = favoriteOrder.playlistOrder,
+                    favAlbumOrder = favoriteOrder.albumOrder,
                     playingNow = playing,
                     onNewPlaylist = { newPlName = "新建歌单"; showNewPlDlg = true }
                 ) } // 详情页统一设计稿配色（去除旧版蓝色描边/主色）
@@ -2750,6 +2763,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                             onReorderPlaylists = { order ->
                                 reorderLibraryPlaylists(order)
                             },
+                            onReorderFavorites = { order, albums -> favoriteOrder.reorder(order, albums) },
                             onClearHistory = {
                                 val prevHistory = history
                                 history = emptyList()
@@ -2758,6 +2772,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                 AppNotice.undo("已清空播放历史") { history = prevHistory; LocalStore.prefs(context).edit().putString("play_history_v1", org.json.JSONArray().apply { prevHistory.forEach { put(it.toJson()) } }.toString()).apply(); persistBundle() }
                             },
                             libOrder = libOrder,
+                            favPlOrder = favoriteOrder.playlistOrder,
+                            favAlbumOrder = favoriteOrder.albumOrder,
                             playingNow = playing,
                             onNewPlaylist = { newPlName = "新建歌单"; showNewPlDlg = true },
                             onPlatformClick = { code ->
