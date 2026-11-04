@@ -269,10 +269,6 @@ internal fun immersiveDetailBandColor(tint: Color): Color {
     return c
 }
 
-/** r658d：沉浸色带下方渐隐带高度。 */
-// r658f（用户 10-20）：渐隐带 180→72dp，色带在按钮下方就收住，不再盖到曲目列表。
-internal val ImmersiveBandFadeHeight = 72.dp
-
 /** r658d：smootherstep（6t⁵−15t⁴+10t³），两端一阶二阶导数都为 0，渐变起止处没有可见的“折痕”。 */
 internal fun smootherStep(t: Float): Float { val x = t.coerceIn(0f, 1f); return x * x * x * (x * (x * 6f - 15f) + 10f) }
 

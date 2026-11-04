@@ -60,12 +60,6 @@ import xyz.cncnlp.soundwave.ui.common.dockGlass
 internal val DockItemH = 56.dp
 internal val DockCompactMiniH = 52.dp
 
-@Composable
-private fun navTint(selected: Boolean): Color {
-    val colors = MaterialTheme.colorScheme
-    return if (selected) colors.primary else colors.onSurfaceVariant
-}
-
 /** 设计稿 v2 线性图标（i-home / i-library / i-search / i-settings，stroke 1.8）。 */
 @Composable
 internal fun NavGlyph(
@@ -87,19 +81,6 @@ internal fun NavGlyph(
         else -> "设置"
     }
     Icon(glyph, if (exposeDescription) desc else null, tint = tint, modifier = modifier)
-}
-
-/** 歌单导入标记：托盘与向下箭头，不使用音符或字体图标。 */
-@Composable
-internal fun ImportMusicGlyph(tint: Color, modifier: Modifier = Modifier.size(ThemeTokens.Navigation.Glyph)) {
-    Canvas(modifier) {
-        val sw = size.minDimension * .10f
-        val cx = size.width * .50f
-        drawLine(tint, Offset(cx, size.height * .12f), Offset(cx, size.height * .55f), sw, StrokeCap.Round)
-        drawLine(tint, Offset(size.width * .31f, size.height * .38f), Offset(cx, size.height * .58f), sw, StrokeCap.Round)
-        drawLine(tint, Offset(size.width * .69f, size.height * .38f), Offset(cx, size.height * .58f), sw, StrokeCap.Round)
-        drawRoundRect(tint, Offset(size.width * .16f, size.height * .58f), Size(size.width * .68f, size.height * .25f), CornerRadius(size.width * .07f), style = Stroke(width = sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
 }
 
 @Composable

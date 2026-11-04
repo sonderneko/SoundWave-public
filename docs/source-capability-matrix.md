@@ -13,9 +13,9 @@
 
 ## Source 设计核对与真实接入面
 
-`app/src/main/java/xyz/cncnlp/soundwave/source/DESIGN.md` 的渐进迁移约束仍适用：小步增量、保持现有 `UrlResolver` 的播放/下载/探测编排和三个互斥泳道；在新路径具备等价降级与审计前，不切换播放/下载消费方。不得借 Source 引入 Repository/Manager/UseCase 包装层。
+Source 层的渐进迁移约束仍适用：小步增量、保持现有 `UrlResolver` 的播放/下载/探测编排和三个互斥泳道；在新路径具备等价降级与审计前，不切换播放/下载消费方。不得借 Source 引入 Repository/Manager/UseCase 包装层。
 
-但 `DESIGN.md` 的早期“仅新增 MusicSource 与 DESIGN / 未改动 Registry”等段落是历史快照，不是当前文件清单；当前已经存在 `MusicSourceRegistry`、`PlatformSourceAdapter`、`CloudSourceAdapter`、`ScriptSourceAdapter`、直接数据源与能力测试。其 `rank(id)` 映射说明也已过时：适配器实际调用 `ApiClient.rankDetail(id, source)`，不是取目录后本地筛选。本文矩阵按当前实现优先。
+但早期设计段落中的“仅新增 MusicSource、未改动 Registry”等说法是历史快照，不是当前文件清单；当前已经存在 `MusicSourceRegistry`、`PlatformSourceAdapter`、`CloudSourceAdapter`、`ScriptSourceAdapter`、直接数据源与能力测试。其早期的 `rank(id)` 映射说明也已过时：适配器实际调用 `ApiClient.rankDetail(id, source)`，不是取目录后本地筛选。本文矩阵按当前实现优先。
 
 | 能力/实际入口 | 当前真实路径 | Registry 覆盖边界 |
 | --- | --- | --- |
