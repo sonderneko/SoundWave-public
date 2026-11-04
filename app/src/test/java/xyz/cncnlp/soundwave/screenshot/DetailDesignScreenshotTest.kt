@@ -245,11 +245,7 @@ class DetailDesignScreenshotTest {
                         Spacer(Modifier.height(20.dp))
                         when (kind) {
                             DetailDesignKind.Playlist -> PlaylistDesignHero("Night Drive: 02 AM", "Playlist · 清宵绮梦", listOf("18 tracks", "1 HR 13 MIN", "网易云"), cover("pl1"), null, false, true, true, {}, {}, {})
-                            DetailDesignKind.Album -> AlbumDesignHero("Neon Current", "Album · Mira Vale · 网易云", cover("det1"), null, false, true, true, {}, {}, {})
-                            DetailDesignKind.Chart -> {
-                                ChartDetailDesignHead("上升榜", true, {}, {}, {})
-                                ChartDetailBanner("网易云 · Top Chart", "上升榜", "过去 24 小时播放增幅最快的作品", "")
-                            }
+                            else -> Unit
                         }
                         Box(Modifier.onGloballyPositioned { toolbarY = it.positionInParent().y.toInt() }) {
                             DetailDesignToolbar(
@@ -282,8 +278,6 @@ class DetailDesignScreenshotTest {
     }
 
     @Test fun playlistSelect() { Assume.assumeTrue(outDir() != null); setUpImages(); stateScreen("app-st-playlist-select", DetailDesignKind.Playlist, playlistSongs, setOf(1, 2), multi = true, currentIndex = 0) }
-    @Test fun chartSelect() { Assume.assumeTrue(outDir() != null); setUpImages(); stateScreen("app-st-chart-select", DetailDesignKind.Chart, chartSongs, setOf(0), multi = true) }
-    @Test fun albumSelect() { Assume.assumeTrue(outDir() != null); setUpImages(); stateScreen("app-st-album-select", DetailDesignKind.Album, albumSongs, setOf(0, 1), multi = true) }
     @Test fun playlistSortMenu() { Assume.assumeTrue(outDir() != null); setUpImages(); stateScreen("app-st-playlist-sort", DetailDesignKind.Playlist, playlistSongs, emptySet(), multi = false, sortOpen = true, currentIndex = 0) }
 
     private fun sheetOverlay(name: String, content: @androidx.compose.runtime.Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {

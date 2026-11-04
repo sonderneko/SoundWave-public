@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import xyz.cncnlp.soundwave.ui.common.DOCK_FROSTED_MIN_ALPHA
 import xyz.cncnlp.soundwave.ui.common.dockChromeFill
-import xyz.cncnlp.soundwave.ui.common.spiderThreadLengthDp
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerState
 import xyz.cncnlp.soundwave.ui.player.lyricKaraokeText
 import xyz.cncnlp.soundwave.ui.search.searchGenreLiftDp
@@ -39,15 +38,6 @@ class R657DesignHelpersTest {
         assertEquals(100, homeHotTopCount("kw", 300, 30))
         assertEquals(100, homeHotTopCount("mg", 0, 100))
         assertEquals(30, homeHotTopCount("wy", 0, 30))
-    }
-
-    @Test fun spiderThreadGrowsWithPull() {
-        // 原型丝长 52dp：下拉到阈值正好 52，过阈值后橡皮筋式缓慢再伸长、上限 66。
-        assertEquals(4f, spiderThreadLengthDp(0f), 0.001f)
-        assertEquals(52f, spiderThreadLengthDp(1f), 0.001f)
-        assertTrue(spiderThreadLengthDp(1.5f) in 52f..66f)
-        assertTrue(spiderThreadLengthDp(9f) <= 66f)
-        assertTrue(spiderThreadLengthDp(0.5f) in 4f..52f)
     }
 
     @Test fun genreLiftFollowsV29Formula() {

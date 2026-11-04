@@ -50,7 +50,6 @@ import xyz.cncnlp.soundwave.SoundwaveDesignPalette
 import xyz.cncnlp.soundwave.SoundwaveDesignTheme
 import xyz.cncnlp.soundwave.Tab
 import xyz.cncnlp.soundwave.ui.common.FrostedPrefs
-import xyz.cncnlp.soundwave.ui.common.SpiderRefreshIndicator
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerActions
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerBackdrop
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerRoute

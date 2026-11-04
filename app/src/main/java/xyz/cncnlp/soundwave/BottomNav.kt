@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import xyz.cncnlp.soundwave.ui.motion.MotionTokens
 import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
@@ -57,25 +56,15 @@ import xyz.cncnlp.soundwave.ui.common.DockMetrics
 import xyz.cncnlp.soundwave.ui.common.cssShadow
 import xyz.cncnlp.soundwave.ui.common.dockGlass
 
-/** 迷你条 / 底栏 / 搜索栏统一外距与高度（三者同宽同高同边距）。 */
-// 用户要求三种底部形态整体向内收 5dp；内部 gap/圆钮尺寸不变。
-internal val DockOuterPad = 10.dp
-internal val DockMiniOuterPad = DockOuterPad
+/** 迷你条 / 底栏统一高度。 */
 internal val DockItemH = 56.dp
 internal val DockCompactMiniH = 52.dp
-internal val DockBarH = DockItemH
-internal val DockSearchBaseH = DockItemH
-internal val DockCircle = 52.dp
-internal val DockGap = 10.dp
 
 @Composable
 private fun navTint(selected: Boolean): Color {
     val colors = MaterialTheme.colorScheme
     return if (selected) colors.primary else colors.onSurfaceVariant
 }
-
-@Composable
-internal fun dockSurface(): Color = xyz.cncnlp.soundwave.ui.common.dockChromeFill(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.background.luminance() < 0.5f)
 
 /** 设计稿 v2 线性图标（i-home / i-library / i-search / i-settings，stroke 1.8）。 */
 @Composable
@@ -253,166 +242,6 @@ fun BottomNav(
                     }
                 }
             }
-        }
-    }
-}
-
-/**
- * 搜索底栏：高度=迷你条；聚焦时仅本栏用 IME inset 上抬，内容页不跟着顶。
- * 不要再加 height+15（会被键盘盖/视觉变高）。
- */
-@Composable
-@Suppress("UNUSED_PARAMETER")
-fun SearchDockBar(
-    kw: String,
-    onKw: (String) -> Unit,
-    focused: Boolean,
-    onFocused: (Boolean) -> Unit,
-    lastTab: Tab,
-    primary: Color,
-    onBackLast: () -> Unit,
-    onSearch: () -> Unit,
-    onCancel: () -> Unit,
-    dark: Boolean = true,
-    themeMode: String = "dark",
-    onLastTab: (Tab) -> Unit = {}
-) {
-    val kb = LocalSoftwareKeyboardController.current
-    val focus = remember { FocusRequester() }
-    val on = MaterialTheme.colorScheme.onSurface
-    val barBg = dockSurface()
-    val imeBottom = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-    val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    // 仅抬栏：IME 高度减去已有 nav，避免整页 adjustResize
-    val lift = (imeBottom - navBottom).coerceAtLeast(0.dp)
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(start = DockOuterPad, end = DockOuterPad, bottom = 8.dp)
-            .height(DockSearchBaseH),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (!focused) {
-            NavPressTarget(
-                onClick = { onBackLast() },
-                modifier = Modifier.size(DockCircle).neumorphicSurface(CircleShape, 8.dp, barBg)
-            ) {
-                NavGlyph(lastTab, primary, Modifier.size(20.dp))
-            }
-            Spacer(Modifier.width(DockGap))
-        }
-        Box(
-            Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .neumorphicSurface(RoundedCornerShape(28.dp), 8.dp, barBg)
-                .clickable {
-                    onFocused(true)
-                    try { focus.requestFocus() } catch (_: Exception) {}
-                    kb?.show()
-                }
-                .padding(horizontal = 14.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                BasicTextField(
-                    value = kw,
-                    onValueChange = {
-                        onKw(it)
-                        if (!focused) onFocused(true)
-                    },
-                    singleLine = true,
-                    textStyle = TextStyle(color = on, fontSize = 14.sp, fontWeight = FontWeight.Medium),
-                    cursorBrush = SolidColor(primary),
-                    modifier = Modifier
-                        .weight(1f)
-                        .focusRequester(focus)
-                        .onFocusChanged { if (it.isFocused) onFocused(true) },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { onSearch() }),
-                    decorationBox = { inner ->
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                            if (kw.isEmpty()) Text("搜索歌曲 / 歌手", color = on.copy(alpha = 0.42f), fontSize = 14.sp)
-                            inner()
-                        }
-                    }
-                )
-            }
-        }
-        Spacer(Modifier.width(DockGap))
-        NavPressTarget(
-            onClick = {
-                kb?.hide()
-                onFocused(false)
-                onCancel()
-            },
-            modifier = Modifier.size(DockCircle).neumorphicSurface(CircleShape, 8.dp, barBg)
-        ) {
-            Canvas(Modifier.size(17.dp)) {
-                val c = primary
-                val sw = 2.dp.toPx()
-                // 圆环 + 左箭头（返回语义，替代 x）
-                drawCircle(c, size.minDimension * 0.48f, Offset(size.width / 2f, size.height / 2f), style = Stroke(sw))
-                val ax = size.width * 0.62f; val ay = size.height * 0.5f
-                drawLine(c, Offset(ax, ay), Offset(size.width * 0.30f, ay), sw, StrokeCap.Round)
-                drawLine(c, Offset(size.width * 0.42f, size.height * 0.36f), Offset(size.width * 0.30f, ay), sw, StrokeCap.Round)
-                drawLine(c, Offset(size.width * 0.42f, size.height * 0.64f), Offset(size.width * 0.30f, ay), sw, StrokeCap.Round)
-            }
-        }
-    }
-    LaunchedEffect(focused) {
-        if (focused) {
-            try { focus.requestFocus() } catch (_: Exception) {}
-            kb?.show()
-        }
-    }
-}
-
-@Composable
-@Suppress("UNUSED_PARAMETER")
-fun DockedMiniChrome(
-    currentTab: Tab,
-    dark: Boolean,
-    themeMode: String = "dark",
-    onTabCircle: () -> Unit,
-    onSearch: () -> Unit,
-    capsule: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    val navScheme = soundwaveDesignScheme(dark)
-    // r657 第三轮（用户 10-18）：胶囊模式下收缩形态的左右圆钮与迷你条高度 = 收缩前（胶囊条 62dp），不变矮变小。
-    val circle = if (capsule) xyz.cncnlp.soundwave.ui.common.DockMetrics.CapsuleNavBodyHeight else DockCircle
-    val miniH = rememberMiniPlayerPresentation(if (capsule) "capsule" else "default", compact = true).height
-    // 左圆 + gap + 迷你(weight) + gap + 右圆；外距=DockOuterPad；高=DockItemH
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(start = DockOuterPad, end = DockOuterPad, bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        NavPressTarget(
-            onClick = { onTabCircle() },
-            modifier = Modifier.size(circle).cssShadow(CircleShape, navScheme.onSurface.copy(alpha = xyz.cncnlp.soundwave.ui.common.ShadowScale.DockPillAlpha), xyz.cncnlp.soundwave.ui.common.ShadowScale.DockPillBlur, xyz.cncnlp.soundwave.ui.common.ShadowScale.DockPillOffsetY).dockGlass(CircleShape, navScheme.surface, dark, navScheme.outlineVariant).border(1.dp, navScheme.outlineVariant, CircleShape)
-        ) {
-            // 迷你收缩：左圆点开应展开底栏三钮，图标显示当前内容页
-            NavGlyph(
-                if (currentTab == Tab.SEARCH || currentTab == Tab.PLAYER) Tab.HOME else currentTab,
-                // 左圆钮图案用主色（纯白/浅色背景下白色看不见；深色下主色也清晰）
-                navScheme.primary,
-                Modifier.size(22.dp)
-            )
-        }
-        Spacer(Modifier.width(DockGap))
-        Box(Modifier.weight(1f).height(miniH), contentAlignment = Alignment.Center) { content() }
-        Spacer(Modifier.width(DockGap))
-        NavPressTarget(
-            onClick = { onSearch() },
-            modifier = Modifier.size(circle).cssShadow(CircleShape, navScheme.onSurface.copy(alpha = xyz.cncnlp.soundwave.ui.common.ShadowScale.DockPillAlpha), xyz.cncnlp.soundwave.ui.common.ShadowScale.DockPillBlur, xyz.cncnlp.soundwave.ui.common.ShadowScale.DockPillOffsetY).dockGlass(CircleShape, navScheme.surface, dark, navScheme.outlineVariant).border(1.dp, navScheme.outlineVariant, CircleShape)
-        ) {
-            NavGlyph(Tab.SEARCH, navScheme.primary, Modifier.size(22.dp))
         }
     }
 }

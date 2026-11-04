@@ -353,44 +353,6 @@ private fun DetailCoverActions(
     }
 }
 
-@Composable
-private fun LibraryOverviewCard(weekSeconds: Long, dailySeconds: List<Long>, songs: Int, albums: Int, playlists: Int) {
-    val colors = MaterialTheme.colorScheme
-    val hours = String.format(java.util.Locale.ROOT, "%.1f", weekSeconds.coerceAtLeast(0L) / 3600.0)
-    Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(colors.surface)
-            .border(1.dp, colors.outline.copy(alpha = 0.36f), RoundedCornerShape(18.dp)).padding(horizontal = 16.dp, vertical = 14.dp)
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("LISTENING THIS WEEK", color = colors.onSurfaceVariant, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.0.sp)
-                Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(top = 2.dp)) {
-                    Text(hours, color = colors.onSurface, fontSize = 36.sp, lineHeight = 39.sp, fontWeight = FontWeight.Medium, fontFamily = androidx.compose.ui.text.font.FontFamily.Serif)
-                    Text("小时", color = colors.onSurfaceVariant, fontSize = 12.sp, modifier = Modifier.padding(start = 6.dp, bottom = 6.dp))
-                }
-                Text("本周聆听时长", color = colors.onSurfaceVariant, fontSize = 10.sp)
-            }
-            Row(Modifier.width(74.dp).height(38.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                val maxDaySeconds = dailySeconds.maxOrNull()?.coerceAtLeast(1L) ?: 1L
-                dailySeconds.takeLast(7).forEachIndexed { index, seconds ->
-                    val height = (6f + 28f * (seconds.toFloat() / maxDaySeconds.toFloat())).dp
-                    Box(Modifier.width(6.dp).height(height).clip(RoundedCornerShape(4.dp)).background(colors.primary.copy(alpha = if (seconds >= maxDaySeconds) 1f else 0.28f)))
-                }
-            }
-        }
-        Spacer(Modifier.height(12.dp))
-        Box(Modifier.fillMaxWidth().height(1.dp).background(xyz.cncnlp.soundwave.ui.common.frostLine(colors.outline.copy(alpha = 0.32f))))
-        Row(Modifier.fillMaxWidth().padding(top = 11.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            listOf("SONGS · 歌曲" to songs, "ALBUMS · 专辑" to albums, "PLAYLISTS · 歌单" to playlists).forEachIndexed { index, metric ->
-                Column(Modifier.weight(1f).then(if (index > 0) Modifier.padding(start = 9.dp) else Modifier)) {
-                    Text(metric.first, color = colors.onSurfaceVariant, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(metric.second.toString(), color = colors.onSurface, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 2.dp))
-                }
-            }
-        }
-    }
-}
-
 /**
  * 我的喜欢 / 本地歌单三张叠放封面：[front, middle, back]，null 用设计稿默认封面。
  * 未登录 → 全默认；无歌曲 → 全默认；无自定义封面 → 前三首歌曲封面（缺失补默认）；有自定义封面 → 主封面为自定义，后两张为前两首歌曲封面。
@@ -400,93 +362,6 @@ internal fun libraryStackCovers(loggedIn: Boolean, customCover: String?, songCov
     if (!loggedIn || songCovers.isEmpty()) return listOf(null, null, null)
     val picks = if (!customCover.isNullOrBlank()) listOf(customCover) + songs.take(2) else songs.take(3)
     return (0 until 3).map { picks.getOrNull(it) }
-}
-
-/** 叠放封面单层：真实封面 → 设计稿默认图（defaultRes）→ 本地绘制的分类默认封面（fallbackKind）。 */
-@Composable
-private fun StackCover(cover: String?, defaultRes: Int?, fallbackKind: LibraryDefaultCoverKind, description: String?, modifier: Modifier) {
-    if (!cover.isNullOrBlank() || defaultRes == null) LibraryCoverArtwork(cover = cover.orEmpty(), fallbackKind = fallbackKind, contentDescription = description, modifier = modifier)
-    else androidx.compose.foundation.Image(
-        androidx.compose.ui.res.painterResource(defaultRes), description, modifier, contentScale = ContentScale.Crop
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun LibraryShortcutCard(
-    title: String,
-    eyebrow: String,
-    subtitle: String,
-    covers: List<String?>,
-    /** [front, middle] 的设计稿默认图；最后一张默认用本地绘制的分类封面。 */
-    defaults: List<Int>,
-    fallbackKind: LibraryDefaultCoverKind,
-    tint: Color,
-    modifier: Modifier = Modifier,
-    enabled: Boolean,
-    /** 设计稿 v2.8：第一张（我的喜欢）播放键为珊瑚底，其余为墨色底。 */
-    accentPlay: Boolean = false,
-    onOpen: () -> Unit,
-    onPlay: () -> Unit,
-    onMore: () -> Unit
-) {
-    val pressHapticView = androidx.compose.ui.platform.LocalView.current
-    val colors = MaterialTheme.colorScheme
-    // 1.0.655：按设计稿 v2 音乐库 .library-card 重做（不再用白色卡片底）：
-    //  封面区宽高比 1.18；后层封面 74% 宽、左 22% / 上 2%、+7°、55% 不透明、降饱和；前层封面左 4% / 上 8%、-3°、
-    //  投影 0 16 32 rgba(19,25,21,.26)，r16。下方 Newsreader 粗体标题 + 11sp 副标题，右侧 38dp 播放键：
-    //  我的喜欢为珊瑚渐变 + 珊瑚柔光晕（.sw-lib-play），本地歌单为墨色底 + 柔和投影。
-    val r = RoundedCornerShape(16.dp)
-    Column(
-        modifier.fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
-            .combinedClickable(onClick = onOpen, onLongClick = { xyz.cncnlp.soundwave.ui.common.AppHaptics.longPress(pressHapticView); onMore() })
-            .semantics { contentDescription = title }
-            .padding(bottom = 4.dp),
-    ) {
-        BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(1.18f)) {
-            val side = maxWidth * 0.74f
-            Box(
-                Modifier.offset(x = maxWidth * 0.22f, y = maxHeight * 0.02f).size(side)
-                    .graphicsLayer { rotationZ = 7f; alpha = 0.55f }
-                    .clip(r).background(tint)
-            ) {
-                StackCover(covers.getOrNull(1), defaults[1], fallbackKind, null, Modifier.fillMaxSize().graphicsLayer { alpha = 0.9f })
-            }
-            Box(
-                Modifier.offset(x = maxWidth * 0.04f, y = maxHeight * 0.08f).size(side)
-                    .graphicsLayer { rotationZ = -3f }
-                    .shadow(22.dp, r, ambientColor = Color(0xFF131915).copy(alpha = 0.26f), spotColor = Color(0xFF131915).copy(alpha = 0.32f))
-                    .clip(r)
-            ) {
-                StackCover(covers.getOrNull(0), defaults[0], fallbackKind, "${title}封面", Modifier.fillMaxSize())
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        Row(Modifier.fillMaxWidth().padding(horizontal = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = colors.onSurface, fontSize = 21.sp, lineHeight = 24.sp, letterSpacing = (-0.02).em,
-                    fontFamily = xyz.cncnlp.soundwave.ui.common.DesignFonts.Newsreader, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(subtitle, color = colors.onSurfaceVariant, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp))
-            }
-            val accent = SoundwaveDesignPalette.Accent
-            Box(
-                Modifier.size(38.dp)
-                    .then(if (accentPlay) Modifier.accentGlow(alpha = if (enabled) 0.6f else 0.2f, blur = 12.dp, offsetY = 5.dp) else Modifier)
-                    .shadow(if (accentPlay) 10.dp else 8.dp, CircleShape,
-                        ambientColor = (if (accentPlay) accent else Color(0xFF131915)).copy(alpha = 0.30f),
-                        spotColor = (if (accentPlay) accent else Color(0xFF131915)).copy(alpha = 0.38f))
-                    .clip(CircleShape)
-                    .background(if (accentPlay) Brush.linearGradient(listOf(lerp(accent, Color.White, 0.2f), accent)) else Brush.linearGradient(listOf(colors.onSurface, colors.onSurface)))
-                    .alpha(if (enabled) 1f else 0.5f)
-                    .clickable(enabled = enabled, onClick = onPlay)
-                    .semantics { contentDescription = "播放$title"; role = Role.Button },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(xyz.cncnlp.soundwave.ui.common.DesignGlyphs.PlayTriangle, null, tint = if (accentPlay) Color.White else colors.surface, modifier = Modifier.size(17.dp).offset(x = 1.dp))
-            }
-        }
-    }
 }
 
 /** SW-09-16：详情排序按歌单 id 存于 soundwave_sort 的 `mode_<id>` 键；与歌单位置无关。 */

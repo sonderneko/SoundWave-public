@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# 2026-11-05 删除合同重钉（public-cleanup）：HomeTopBar.kt 系零调用死代码已删，本守卫不再读取该文件，「standalone home top bar」条目随其退役；其余断言逐字不变。
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 - "$ROOT" <<'PY'
 from pathlib import Path
@@ -10,7 +11,6 @@ root = Path(sys.argv[1])
 source = (root / "app/src/main/java/xyz/cncnlp/soundwave/HomePage.kt").read_text()
 design_sections = (root / "app/src/main/java/xyz/cncnlp/soundwave/HomeDesignSections.kt").read_text()
 detail_pages_source = (root / "app/src/main/java/xyz/cncnlp/soundwave/DetailDesignPages.kt").read_text()
-top_bar = (root / "app/src/main/java/xyz/cncnlp/soundwave/ui/home/HomeTopBar.kt").read_text()
 badge_test = (root / "app/src/test/java/xyz/cncnlp/soundwave/HomeContentBadgeStyleTest.kt").read_text()
 
 
@@ -105,15 +105,6 @@ checks = {
         and 'title = "切换音源"' in source
         and "onAvatarLongClick = onAvatarLongClick" in source
         and "HorizontalPager(state = pagerState, userScrollEnabled = false" in source
-    ),
-    "standalone home top bar uses theme roles for its generic icon and selected/unselected tabs": (
-        "UnifiedTopGlyph(MaterialTheme.colorScheme.onSurface)" in top_bar
-        and "val headerTint = MaterialTheme.colorScheme.surfaceVariant" in top_bar
-        and "val selectedBackground = if (isDark) Color(0xFF3D4650.toInt()) else Color.White" in top_bar
-        and "val selectedForeground = if (isDark) Color(0xFFF5F6F8.toInt()) else Color.Black" in top_bar
-        and "if (selected) selectedBackground else Color.Transparent" in top_bar
-        and "MaterialTheme.colorScheme.onSurfaceVariant" in top_bar
-        and "primary.copy(alpha" not in top_bar
     ),
 }
 

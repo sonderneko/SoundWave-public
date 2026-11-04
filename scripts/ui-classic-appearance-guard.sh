@@ -202,7 +202,7 @@ require_match() {
 require_match app/src/main/java/xyz/cncnlp/soundwave/ui/player/PlayerTransitionBackdrop.kt '\.blur\(IMMERSIVE_PLAYER_BACKDROP_BLUR_DP'
 require_match app/src/main/java/xyz/cncnlp/soundwave/LibraryPage.kt '\.blur\(if \(adaptiveDetailStyle\) IMMERSIVE_PLAYER_BACKDROP_BLUR_DP'
 require_match app/src/main/java/xyz/cncnlp/soundwave/LibraryPage.kt 'fadeArtworkToBackdrop'
-require_match app/src/main/java/xyz/cncnlp/soundwave/BottomNav.kt 'neumorphicSurface'
+# 2026-11-05 删除合同重钉（public-cleanup）：BottomNav 的 neumorphicSurface 断言随 SearchDockBar（其最后消费者）删除而退役，Theme.kt 的 neumorphicSurface 助手已作二阶死代码删除；其余经典/非磨砂断言逐字不变。
 require_match app/src/main/java/xyz/cncnlp/soundwave/MiniPlayer.kt 'dockGlass\(cardShape'  # r657 修复：迷你条表面统一走 dockGlass（默认实色）
 # 1.0.655: the About row now carries the version inside its theme-coloured NavRow subtitle.
 if ! grep -F -q 'NavRow("关于 APP", "版本 ${BuildConfig.VERSION_NAME}' app/src/main/java/xyz/cncnlp/soundwave/MePage.kt; then

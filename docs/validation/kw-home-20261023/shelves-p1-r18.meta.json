@@ -1,6 +1,0 @@
-{
-  "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=18",
-  "status": 200,
-  "content_type": "application/json;charset=utf-8",
-  "time_utc": "2026-10-22T18:11:33.993367+00:00"
-}

@@ -217,19 +217,6 @@ internal fun SoundwaveDesignTheme(isDark: Boolean, content: @Composable () -> Un
 internal fun playerScheme(mode: String, isDark: Boolean): ColorScheme =
     if (isDark || mode == "night" || mode == "dark") darkScheme() else lightScheme()
 
-/** Flat surface without a hard outline or shadow; elevation stays for call-site compatibility. */
-@Composable
-@Suppress("UNUSED_PARAMETER")
-internal fun Modifier.neumorphicSurface(
-    shape: Shape,
-    elevation: Dp = 8.dp,
-    fill: Color? = null
-): Modifier {
-    return this
-        .clip(shape)
-        .background(fill ?: MaterialTheme.colorScheme.surface)
-}
-
 // 壳强调 token（E8 后指向珊瑚值，见 ThemeTokens.PrimaryCoralDeep 的映射说明）
 internal val Accent = ThemeTokens.PrimaryCoralDeep
 internal val Accent2 = ThemeTokens.AccentCoral

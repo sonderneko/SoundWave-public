@@ -49,44 +49,10 @@ import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 
 /**
  * r657 第三轮 b（用户：搜索各分类「查看全部」后的结果页与设计稿不符，需统一）：按 v5 pResults 的视觉语汇统一歌曲 / 歌单 / 专辑 / 歌手全部结果页：
- *  - 顶部 .seg.rseg 分段：综合 / 歌曲 N / 歌单 N / 专辑 N / 歌手 N（34dp 胶囊，选中表面色 + 投影），点按直接切换分类；
  *  - .sec 标题：700 20sp + DM Mono 11sp「· N」计数；
  *  - .row 行：72dp、左右 14dp、间距 14dp；56dp r14 封面（歌手为圆形）+ 0 8 18 投影；700 15/20 标题、12/16 灰副标题；右侧 DM Mono / 箭头。
  * 行作为 LazyColumn 的独立 item 渲染（旧实现把整页结果放进一个 item 内 forEach，长列表一次性全部组合，滚动卡顿）。
  */
-internal data class SearchSegItem(val mode: String, val label: String)
-
-@Composable
-internal fun SearchResultSeg(items: List<SearchSegItem>, selected: String, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
-    val colors = MaterialTheme.colorScheme
-    val dark = colors.background.luminance() < 0.5f
-    Row(
-        modifier.fillMaxWidth().padding(horizontal = 14.dp).clip(CircleShape)
-            .background(if (dark) Color(0xFF232722) else Color(0xFFECECE6)).padding(4.dp)
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        items.forEach { item ->
-            val on = item.mode == selected || (selected == "singer" && item.mode == "artist")
-            Box(
-                Modifier.height(34.dp)
-                    .then(if (on) Modifier.shadow(6.dp, CircleShape, ambientColor = Color(0xFF131915).copy(alpha = 0.10f), spotColor = Color(0xFF131915).copy(alpha = 0.10f)) else Modifier)
-                    .clip(CircleShape)
-                    .background(if (on) (if (dark) Color(0xFF2E332D) else colors.surface) else Color.Transparent)
-                    .clickable { if (!on) onSelect(item.mode) }
-                    .semantics { role = Role.Tab; this.selected = on }
-                    .padding(horizontal = 14.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    item.label, color = if (on) colors.onBackground else colors.onSurfaceVariant, fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Bold, fontFamily = DesignFonts.Manrope, maxLines = 1, softWrap = false
-                )
-            }
-        }
-    }
-}
-
 @Composable
 internal fun SearchSecHeader(title: String, count: Int, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 22.dp, bottom = 8.dp).height(30.dp), verticalAlignment = Alignment.CenterVertically) {

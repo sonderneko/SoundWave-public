@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="xyz.cncnlp.soundwave.MediaCacheClearTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:46:22" hostname="f4a76f4ca31d" time="0.165">
-  <properties/>
-  <testcase name="cold start clear opens persistent cache and preserves covers" classname="xyz.cncnlp.soundwave.MediaCacheClearTest" time="0.125"/>
-  <testcase name="cache initialization failure propagates before reporting all caches cleared" classname="xyz.cncnlp.soundwave.MediaCacheClearTest" time="0.04"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

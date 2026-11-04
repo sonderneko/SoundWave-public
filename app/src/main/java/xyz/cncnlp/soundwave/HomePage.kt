@@ -116,7 +116,6 @@ import xyz.cncnlp.soundwave.source.direct.HotArtist
 import xyz.cncnlp.soundwave.source.direct.fetchHotArtists
 import xyz.cncnlp.soundwave.ui.home.FoldedCoverCard
 import xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataController
-import xyz.cncnlp.soundwave.ui.home.HomeTopBar
 import xyz.cncnlp.soundwave.ui.home.FeedEmptySlot
 import xyz.cncnlp.soundwave.ui.home.HomePullRefreshIndicator
 import xyz.cncnlp.soundwave.ui.home.homePlaylistGridRows

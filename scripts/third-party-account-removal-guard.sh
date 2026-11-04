@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# 2026-11-05 删除合同重钉（public-cleanup）：LibraryQuickPager.kt 已删，其专属的快捷卡播放钮断言段随文件退役；第三方账户清除断言逐字不变。
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -53,39 +54,9 @@ grep -E -q -- 'fun download\(' app/src/main/java/xyz/cncnlp/soundwave/DownloadHe
 grep -E -q -- 'DefaultDataSource\.Factory' app/src/main/java/xyz/cncnlp/soundwave/PlayerService.kt
 grep -E -q -- 'ScriptNetworkPolicy\.filterHeaders' app/src/main/java/xyz/cncnlp/soundwave/ScriptRuntime.kt
 
-# The account sheet has no provider-brand badges; the two library cards share the rank selector surface.
+# The account sheet has no provider-brand badges.
 if grep -n -E -- 'accountPlatformBadgeColor|PlatformBrand' app/src/main/java/xyz/cncnlp/soundwave/ui/common/AccountUi.kt; then
   echo 'Third-party provider badges have returned to the SoundWave account sheet.' >&2
-  exit 1
-fi
-grep -E -q -- 'surfaceVariant\.copy\(alpha = 0\.52f\)' app/src/main/java/xyz/cncnlp/soundwave/LibraryQuickPager.kt
-if ! python3 - <<'PY'
-from pathlib import Path
-import re
-import sys
-
-source = Path("app/src/main/java/xyz/cncnlp/soundwave/LibraryQuickPager.kt").read_text(encoding="utf-8")
-checks = {
-    "exactly one Icon call": len(re.findall(r"\bIcon\s*\(", source)) == 1,
-    # 全局播放三角统一为圆角 DesignGlyphs.PlayTriangle（不再使用尖角 Material PlayArrow）。
-    "exactly one play-arrow vector": source.count("DesignGlyphs.PlayTriangle") == 1 and "Icons.Filled.PlayArrow" not in source,
-    "exact accessible play description": source.count('contentDescription = "播放$title"') == 1,
-}
-checks["bottom-end play control is limited to the liked card and invokes onPlay only for a nonempty list"] = bool(re.search(
-    r"if\s*\(page\s*==\s*0\)\s*\{\s*Box\(\s*Modifier\.align\(Alignment\.BottomEnd\)"
-    r"[\s\S]*?\.clickable\(enabled\s*=\s*songs\.isNotEmpty\(\)\)\s*\{"
-    r"\s*songs\.firstOrNull\(\)\?\.let\s*\{\s*onPlay\(it,\s*songs,\s*playlist\.id\)\s*\}\s*\}"
-    r"[\s\S]*?contentDescription\s*=\s*\"播放\$title\"",
-    source,
-    re.S,
-))
-for label, passed in checks.items():
-    if not passed:
-        print(f"FAIL: library quick-card icon check: {label}", file=sys.stderr)
-        sys.exit(1)
-PY
-then
-  echo 'Library quick cards must retain exactly one accessible play arrow with the reviewed nonempty-play callback; provider/cover or other card icons are forbidden.' >&2
   exit 1
 fi
 
