@@ -261,6 +261,12 @@ internal class OkHttpWebDavTransport(
                 )
             }.also { lease.ensureActive() }
         } catch (failure: Exception) {
+            // 移植第二波和解：lease 在 onCancel 注册前已过期时，回调的异步投递与此处
+            // 抛出的 CancellationException 竞速，「过期 lease 同步取消未执行 call」的
+            // 既有契约（WebDavHttpCancellationTest）须确定成立。call 尚未 execute 时
+            // 无 socket，内联 cancel 只是簿记、不可能触发主线程 TLS 关写（MGCLOSE
+            // 的标的不受影响）；已 execute 的 call 仍只走 onCancel 的异步投递。
+            if (!call.isExecuted()) call.cancel()
             lease.ensureActive()
             throw failure
         } finally {
