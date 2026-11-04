@@ -448,6 +448,10 @@ fun LibraryPage(
     onReorderPlaylists: (List<String>) -> Unit = {},
     onClearHistory: () -> Unit = {},
     libOrder: List<String> = emptyList(),
+    /** 收藏内部顺序（FavoriteOrderSync 显示序，歌单组/专辑组各一份；与在线池顺序互不读写）。 */
+    favPlOrder: List<String> = emptyList(),
+    favAlbumOrder: List<String> = emptyList(),
+    onReorderFavorites: (List<String>, Boolean) -> Unit = { _, _ -> },
     playingNow: Boolean = false,
     detailFromHome: Boolean = false,
     /** 非空时覆盖设计稿详情页页头标题（如首页「新碟首发」进入的专辑），并隐藏左上返回箭头。 */
@@ -1862,11 +1866,28 @@ fun LibraryPage(
     val orderedVisible = orderIds.mapNotNull(importedById::get)
         .filter { it.id !in setOf("import", "newpl") && (platFilter.isEmpty() || it.source == platFilter) }
     val myPlaylists = orderedVisible.filter { !it.favorited }
-    val savedPlaylists = orderedVisible.filter { it.favorited && it.id !in albumMarks }
-    val visibleAlbums = favoriteAlbums.filter { platFilter.isBlank() || it.source == platFilter }
+    // 收藏自有顺序（用户 2026-11-05 纠正口径）：收藏不掺和导入在线/新建两个池子的排序，但收藏
+    // 本身内部可排序——顺序由 FavoriteOrderSync 戳记（favPlOrder/favAlbumOrder 入参）决定，
+    // 与 orderIds 序带互不读写。无戳记时以「今天的排列」为默认种子：收藏歌单沿用池序带相对序、
+    // 收藏专辑沿用 bundle 原序，升级后画面不跳位。
+    val favPlDefaultIds = orderIds.mapNotNull(importedById::get)
+        .filter { it.favorited && it.id !in albumMarks }.map { it.id }
+    var favPlOrderIds by remember(favPlDefaultIds.joinToString(), favPlOrder.joinToString()) {
+        mutableStateOf(libraryOrderIds(favPlDefaultIds, favPlOrder))
+    }
+    val savedPlaylistsAll = favPlOrderIds.mapNotNull(importedById::get)
+    val savedPlaylists = savedPlaylistsAll.filter { platFilter.isEmpty() || it.source == platFilter }
+    val favAlbumDefaultIds = favoriteAlbums.map { it.id }
+    var favAlbumOrderIds by remember(favAlbumDefaultIds.joinToString(), favAlbumOrder.joinToString()) {
+        mutableStateOf(libraryOrderIds(favAlbumDefaultIds, favAlbumOrder))
+    }
+    val favoriteAlbumById = favoriteAlbums.associateBy { it.id }
+    val visibleAlbumsAll = favAlbumOrderIds.mapNotNull(favoriteAlbumById::get)
+    val visibleAlbums = visibleAlbumsAll.filter { platFilter.isBlank() || it.source == platFilter }
 
     // ACCEPT5：在线歌单长按拖动——手势期只动「当前可见在线子集」的草稿序（快照），
-    // 松手才拼回 orderIds 并落盘；长按未拖动（草稿未变）松手则打开原管理抽屉。
+    // 松手才拼回 orderIds 并落盘。长按区域分工后（用户 2026-11-05），拖动只由封面长按进入，
+    // 行身长按直接打开管理抽屉——拖动松手不再回退弹表（原双载耦合就此解开）。
     var dragOnlineIds by remember { mutableStateOf<List<String>?>(null) }
     var dragStartIds by remember { mutableStateOf<List<String>?>(null) }
     var draggingPlId by remember { mutableStateOf<String?>(null) }
@@ -1910,8 +1931,86 @@ fun LibraryPage(
                 orderIds = merged
                 onReorderPlaylists(merged.filterNot { it == "liked" || it == "local" })
             }
-        } else {
-            menuPl = pl
+        }
+        // 草稿未变（封面长按未拖动）松手：什么都不发生——操作表已改由行身长按直达。
+    }
+
+    // 收藏内部拖动（歌单组 / 专辑组各一台，与在线同一范式）：手势期只动「当前可见子集」草稿序，
+    // 松手拼回该组完整自有顺序并经 onReorderFavorites 落盘（FavoriteOrderSync 戳记）；两组与
+    // 在线池的顺序互不读写。收藏分组渲染（歌单组在前、专辑组在后）决定拖动只能组内换位。
+    var dragFavPlIds by remember { mutableStateOf<List<String>?>(null) }
+    var dragFavPlStartIds by remember { mutableStateOf<List<String>?>(null) }
+    var draggingFavPlId by remember { mutableStateOf<String?>(null) }
+    var favPlDragAcc by remember { mutableStateOf(0f) }
+    val favPlaylists = dragFavPlIds?.mapNotNull(importedById::get) ?: savedPlaylists
+    val latestSavedPlaylists by rememberUpdatedState(savedPlaylists)
+    val latestFavPlOrderIds by rememberUpdatedState(favPlOrderIds)
+    fun beginFavPlDrag(pl: Playlist) {
+        draggingFavPlId = pl.id
+        favPlDragAcc = 0f
+        if (dragFavPlIds == null) {
+            val snapshot = latestSavedPlaylists.map { it.id }
+            dragFavPlIds = snapshot
+            dragFavPlStartIds = snapshot
+        }
+    }
+    fun advanceFavPlDrag(pl: Playlist, dyPx: Float, pitchPx: Float) {
+        val ids = dragFavPlIds ?: return
+        val (next, acc) = libraryDragAdvance(ids, pl.id, favPlDragAcc + dyPx, pitchPx)
+        if (next != ids) xyz.cncnlp.soundwave.ui.common.AppHaptics.dragTick(dragHapticView)
+        dragFavPlIds = next
+        favPlDragAcc = acc
+    }
+    fun finishFavPlDrag(pl: Playlist, cancelled: Boolean) {
+        val draft = dragFavPlIds
+        val start = dragFavPlStartIds
+        draggingFavPlId = null
+        favPlDragAcc = 0f
+        dragFavPlIds = null
+        dragFavPlStartIds = null
+        if (cancelled || draft == null || start == null || draft == start) return
+        val merged = librarySpliceReorder(latestFavPlOrderIds, draft.toSet(), draft)
+        if (merged != latestFavPlOrderIds) {
+            favPlOrderIds = merged
+            onReorderFavorites(merged, false)
+        }
+    }
+
+    var dragFavAlbumIds by remember { mutableStateOf<List<String>?>(null) }
+    var dragFavAlbumStartIds by remember { mutableStateOf<List<String>?>(null) }
+    var draggingFavAlbumId by remember { mutableStateOf<String?>(null) }
+    var favAlbumDragAcc by remember { mutableStateOf(0f) }
+    val favAlbums = dragFavAlbumIds?.mapNotNull(favoriteAlbumById::get) ?: visibleAlbums
+    val latestVisibleAlbums by rememberUpdatedState(visibleAlbums)
+    val latestFavAlbumOrderIds by rememberUpdatedState(favAlbumOrderIds)
+    fun beginFavAlbumDrag(album: Playlist) {
+        draggingFavAlbumId = album.id
+        favAlbumDragAcc = 0f
+        if (dragFavAlbumIds == null) {
+            val snapshot = latestVisibleAlbums.map { it.id }
+            dragFavAlbumIds = snapshot
+            dragFavAlbumStartIds = snapshot
+        }
+    }
+    fun advanceFavAlbumDrag(album: Playlist, dyPx: Float, pitchPx: Float) {
+        val ids = dragFavAlbumIds ?: return
+        val (next, acc) = libraryDragAdvance(ids, album.id, favAlbumDragAcc + dyPx, pitchPx)
+        if (next != ids) xyz.cncnlp.soundwave.ui.common.AppHaptics.dragTick(dragHapticView)
+        dragFavAlbumIds = next
+        favAlbumDragAcc = acc
+    }
+    fun finishFavAlbumDrag(album: Playlist, cancelled: Boolean) {
+        val draft = dragFavAlbumIds
+        val start = dragFavAlbumStartIds
+        draggingFavAlbumId = null
+        favAlbumDragAcc = 0f
+        dragFavAlbumIds = null
+        dragFavAlbumStartIds = null
+        if (cancelled || draft == null || start == null || draft == start) return
+        val merged = librarySpliceReorder(latestFavAlbumOrderIds, draft.toSet(), draft)
+        if (merged != latestFavAlbumOrderIds) {
+            favAlbumOrderIds = merged
+            onReorderFavorites(merged, true)
         }
     }
 
@@ -2108,7 +2207,7 @@ fun LibraryPage(
                 } else {
                     items(onlinePlaylists, key = { "library_playlist_${it.id}" }, contentType = { "library_playlist" }) { pl ->
                         // SW-12-12：歌单增删平滑让位 / 淡入（key = 歌单 id，数据稳定 id）。
-                        // ACCEPT5：整行长按拖动排序（松手落盘）；长按未拖动松手仍打开管理抽屉。
+                        // 长按区域分工：封面长按拖动排序（松手落盘）；行身长按打开管理抽屉。
                         Box(swAnimateItem(listReduceMotion).padding(horizontal = 14.dp)) {
                             val localOnly = pl.local && pl.remoteId.isBlank() && pl.source.isBlank()
                             LibraryDesignRow(
@@ -2116,6 +2215,7 @@ fun LibraryPage(
                                 cover = playlistDisplayCover(pl),
                                 badge = if (localOnly) "本地" else libraryPlatformBadge(pl.source),
                                 count = "${pl.songCount()} 首 · " + if (localOnly) "本地歌单" else "在线导入",
+                                onLongPress = { menuPl = pl },
                                 coverKey = pl.id,
                                 dragging = pl.id == draggingPlId,
                                 onDragStart = { beginOnlineDrag(pl) },
@@ -2143,30 +2243,40 @@ fun LibraryPage(
                 // 收藏行去掉标题下小字行（count 传空），平台胶囊保留；无「ITEMS」计数标签。
                 if (savedPlaylists.isNotEmpty()) {
                     item(key = "library_saved_group_playlists") { LibrarySavedGroupHeader("歌单") }
-                    items(savedPlaylists, key = { "library_saved_${it.id}" }, contentType = { "library_playlist" }) { pl ->
+                    items(favPlaylists, key = { "library_saved_${it.id}" }, contentType = { "library_playlist" }) { pl ->
                         // SW-12-12：收藏歌单增删平滑让位 / 淡入（key = 歌单 id）。
+                        // 收藏组内排序：封面长按拖动（自有顺序落盘）；行身长按打开管理抽屉（不变）。
                         Box(swAnimateItem(listReduceMotion).padding(horizontal = 14.dp)) {
                             LibraryDesignRow(
                                 title = pl.name,
                                 cover = playlistDisplayCover(pl),
                                 badge = libraryPlatformBadge(pl.source),
                                 onLongPress = { menuPl = pl },
-                                coverKey = pl.id
+                                coverKey = pl.id,
+                                dragging = pl.id == draggingFavPlId,
+                                onDragStart = { beginFavPlDrag(pl) },
+                                onDrag = { dy, pitch -> advanceFavPlDrag(pl, dy, pitch) },
+                                onDragEnd = { cancelled -> finishFavPlDrag(pl, cancelled) }
                             ) { SharedCoverTransition.arm(pl.id); onOpen(pl) }
                         }
                     }
                 }
                 if (visibleAlbums.isNotEmpty()) {
                     item(key = "library_saved_group_albums") { LibrarySavedGroupHeader("专辑") }
-                    items(visibleAlbums, key = { "library_album_${it.id}" }, contentType = { "library_playlist" }) { album ->
+                    items(favAlbums, key = { "library_album_${it.id}" }, contentType = { "library_playlist" }) { album ->
                         // SW-12-12：收藏专辑增删平滑让位 / 淡入（key = 专辑 id）。
+                        // 收藏专辑组内排序：封面长按拖动（自有顺序落盘）；行身长按打开管理抽屉（不变）。
                         Box(swAnimateItem(listReduceMotion).padding(horizontal = 14.dp)) {
                             LibraryDesignRow(
                                 title = album.name,
                                 cover = playlistDisplayCover(album),
                                 badge = libraryPlatformBadge(album.source),
                                 fallbackKind = "playlist",
-                                onLongPress = { menuPl = album }
+                                onLongPress = { menuPl = album },
+                                dragging = album.id == draggingFavAlbumId,
+                                onDragStart = { beginFavAlbumDrag(album) },
+                                onDrag = { dy, pitch -> advanceFavAlbumDrag(album, dy, pitch) },
+                                onDragEnd = { cancelled -> finishFavAlbumDrag(album, cancelled) }
                             ) { onOpen(album) }
                         }
                     }
