@@ -22,13 +22,14 @@ def require(ok, message):
     if not ok:
         raise SystemExit(f"[playback-tick-scope-guard] FAIL: {message}")
 
-full = read("app/src/main/java/xyz/cncnlp/soundwave/FullPlayer.kt").splitlines()
+full_text = read("app/src/main/java/xyz/cncnlp/soundwave/FullPlayer.kt")
+require(full_text.count("val progress by progressState") + full_text.count("val currentTime by currentTimeState") >= 4,
+        "FullPlayer must keep the sunk progress/currentTime reads (chrome body + IsolatedSection lambda)")
+full = full_text.splitlines()
 chrome_at = next(i for i, l in enumerate(full) if "fun PlayerBottomControlChrome(" in l)
 iso_at = next(i for i, l in enumerate(full) if l.strip() == "IsolatedSection {")
 reads = [i for i, l in enumerate(full)
          if "val progress by progressState" in l or "val currentTime by currentTimeState" in l]
-require(len(reads) >= 4,
-        "FullPlayer must keep the sunk progress/currentTime reads (chrome body + IsolatedSection lambda)")
 require(all((chrome_at < i < iso_at) or i > iso_at for i in reads),
         "FullPlayer progress/currentTime reads must stay inside PlayerBottomControlChrome or the "
         "IsolatedSection lambda; a top-level read re-subscribes the whole player body to the 400ms tick")

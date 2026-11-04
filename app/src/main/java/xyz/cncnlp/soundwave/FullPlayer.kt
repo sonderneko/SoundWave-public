@@ -233,12 +233,7 @@ internal fun FullPlayer(
         }
         return
     }
-    // BATCH2 反馈 F4：progressState / currentTimeState 不在主体顶层读。播放 tick 每 400ms
-    // 推进这两个 State，顶层读曾使整个 FullPlayer 主体（封面色板/手势/菜单/转场状态）每 tick
-    // 失效重组。高频读下沉至两个真实边界内：PlayerBottomControlChrome 函数体、以及
-    // IsolatedSection 的 content lambda（其读取在 IsolatedSection 作用域内执行）。
-    // 守卫：scripts/playback-tick-scope-guard.sh 钉住本纪律。
-    val queueCurrentIndex by queueCurrentIndexState
+    val queueCurrentIndex by queueCurrentIndexState // BATCH2 F4：progress/currentTime 不在主体顶层读，下沉见 playback-tick-scope-guard。
     val appleWhiteFrost = normalizePlayerLayout(playerLayout) == "apple" && xyz.cncnlp.soundwave.ui.common.pageFrostAllowed(xyz.cncnlp.soundwave.ui.common.FrostedPrefs.themeMode)
     val playerPrimary = if (appleWhiteFrost) SoundwaveDesignPalette.Ink else Color.White
     val playerSecondary = playerPrimary.copy(alpha = 0.72f)
@@ -535,9 +530,7 @@ internal fun FullPlayer(
     @Composable
     fun PlayerBottomControlChrome(modifier: Modifier = Modifier, applyOffset: Boolean = true) {
         // FullPlayer keeps all mutable state and action ownership; this adapter only supplies the current view model and callbacks.
-        // BATCH2 反馈 F4：高频进度在本函数作用域内读（原主体顶层读已删，见主体顶部注）。
-        val progress by progressState
-        val currentTime by currentTimeState
+        val progress by progressState; val currentTime by currentTimeState // F4：高频进度在本函数作用域内读。
         val displayTime = if (dragging) dragRatio * duration else currentTime
         PlayerBottomControlChromeView(
             modifier = modifier,
@@ -676,10 +669,7 @@ internal fun FullPlayer(
     // r673：渲染树（含 DefaultPlayerState / DefaultPlayerActions 的构造与所有回调闭包）整体放进独立 composable lambda，
     // FullPlayer 主体只保留状态与副作用，避免再次合成超大 dex 方法（见 ui/common/IsolatedSection.kt）。
     IsolatedSection {
-    // BATCH2 反馈 F4：高频进度只在本 lambda 内读（原主体顶层读已删，见主体顶部注）——
-    // 读取在 IsolatedSection 的作用域内执行，FullPlayer 主体不再被播放 tick 失效。
-    val progress by progressState
-    val currentTime by currentTimeState
+    val progress by progressState; val currentTime by currentTimeState // F4：高频进度只在本 lambda 内读。
     val displayTime = if (dragging) dragRatio * duration else currentTime
     // 「默认 / 标准」路由与所有样式共用的队列抽屉（r672：Apple 也用这一个）共用同一份只读快照与回调。
     val defaultPlayerState = DefaultPlayerState(song, queueSnapshot, queueCurrentIndex, playing, resolvingState.value, statusState.value, liked, playMode,
