@@ -102,7 +102,7 @@ STEP8_REVIEWED_HUNKS = {
                 '        if (artistId.isBlank()) return null\n'
                 '        val src = source.ifBlank { "wy" }\n'
                 '        fetchArtistDetailDirect(src, artistId, singerName)?.let { return it }\n'
-                '        // Explicit retained legacy fallback: KW/MG and unavailable anonymous detail routes.\n'
+                '        // 五平台直连（fetchArtistDetailDirect 覆盖 wy/tx/kg/kw/mg）失败/空结果时的服务端回落，五平台同口径，非 KW/MG 专属。\n'
                 '        return try {\n'
                 '            val q = java.net.URLEncoder.encode(artistId, "UTF-8")\n'
                 '            val nm = java.net.URLEncoder.encode(singerName, "UTF-8")\n'
