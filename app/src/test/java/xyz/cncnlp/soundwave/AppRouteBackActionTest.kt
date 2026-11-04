@@ -64,7 +64,8 @@ class AppRouteBackActionTest {
     @Test
     fun lyricsCategoryBackClosesTheSettingsRouteToItsRoot() {
         assertEquals(BackAction.CloseSettingsSub, AppRoute.backAction(Tab.SETTINGS, false, "lyrics", null))
-        assertEquals(null, AppRoute.settingsBackTarget("lyrics"))
+        // accept6-backnav：返回目标改由设置导航栈决定；lyrics 仅深度-1 进入，弹栈落根（旧 settingsBackTarget 钉的等价新钉）。
+        assertEquals(null, SettingsNavStack.backTarget(listOf("lyrics")))
     }
 
     @Test

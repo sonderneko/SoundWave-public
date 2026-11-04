@@ -310,7 +310,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     var downloadQ by remember { mutableStateOf(readUserQuality("down_br")) }
     // accept6-backnav：设置导航栈（当前页 = 栈顶，空栈为设置根）；深度-2 子页链返回回直接父页。
     var settingsStack by remember { mutableStateOf<List<String>>(emptyList()) }
-    val settingsSub: String? get() = settingsStack.lastOrNull()
+    // 组合期派生（每次重组重算）；事件快照等非组合读点直接读 settingsStack.lastOrNull()。
+    val settingsSub: String? = settingsStack.lastOrNull()
     // ACCEPT5：消息中心横幅（inbox 升级弹出）的整条点击落点——切设置 tab 并打开通知中心子页
     //（与深链打开 backup 子页同款既有模式）；组合退出时注销，避免持有过期状态引用。
     DisposableEffect(Unit) {
@@ -1351,7 +1352,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
 
     val navigationEvents = MainNavigationEvents(
         snapshot = {
-            MainNavigationSnapshot(tab, prevTab, lastContentTab, plDetail != null, settingsSub,
+            MainNavigationSnapshot(tab, prevTab, lastContentTab, plDetail != null, settingsStack.lastOrNull(),
                 searchResult, downloadPickSong != null, lastBackAt)
         },
         effects = MainNavigationEffects(

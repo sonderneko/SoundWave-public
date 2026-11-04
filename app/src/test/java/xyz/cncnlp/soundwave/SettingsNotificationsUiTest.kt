@@ -27,7 +27,8 @@ class SettingsNotificationsUiTest {
         }
         rule.onNodeWithContentDescription("查看通知").assertHasClickAction().performClick()
         assertEquals("notifications", route)
-        assertNull(AppRoute.settingsBackTarget("notifications"))
+        // accept6-backnav：notifications 从设置根/横幅进入（深度-1），弹栈落根（旧 settingsBackTarget 钉的等价新钉）。
+        assertNull(SettingsNavStack.backTarget(listOf("notifications")))
     }
 
     @Test fun notificationsContentShowsNoUpdateCardAndScriptEntryWorks() {

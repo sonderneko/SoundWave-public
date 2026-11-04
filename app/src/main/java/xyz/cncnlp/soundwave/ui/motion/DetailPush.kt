@@ -149,7 +149,7 @@ fun <T : Any> rememberDetailPushFrame(current: T?, underlayItem: T?, key: (T) ->
             }
         }
         // 主层身份与 current 一致时记录其下方详情键（下一轮弹栈判定依据）。
-        if (mainItem != null && key(mainItem) == k) settledUnderKey = underlayItem?.let(key)
+        mainItem?.let { if (key(it) == k) settledUnderKey = underlayItem?.let(key) }
     } else if (mainItem != null && exitItem == null) {
         // 关闭到 tab / 播放器：主层转滑出层（手势收尾已滑出的不重播），under 一并撤下。
         exitItem = mainItem
@@ -180,7 +180,8 @@ fun <T : Any> rememberDetailPushFrame(current: T?, underlayItem: T?, key: (T) ->
         if (mainItem != null) progress.snapTo(1f)
         if (exitFraction > 0f) {
             if (reduce) exitFraction = 0f else androidx.compose.animation.core.animate(
-                exitFraction, 0f, tween(DetailPush.EXIT_MS, easing = DetailPush.EmphasizedAccelerate)
+                initialValue = exitFraction, targetValue = 0f,
+                animationSpec = tween(DetailPush.EXIT_MS, easing = DetailPush.EmphasizedAccelerate)
             ) { v, _ -> exitFraction = v }
         }
         if (exitItem === exitingNow) { exitItem = null; exitFraction = 0f }
