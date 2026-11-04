@@ -125,6 +125,7 @@ jobs:
             scripts/download-manager-theme-guard.sh
             scripts/startup-temp-cleanup-guard.sh
             scripts/splash-screen-guard.sh
+            scripts/playback-tick-scope-guard.sh
             scripts/launcher-icon-guard.sh
             scripts/media-cache-lease-guard.sh
             scripts/download-clear-fence-guard.sh

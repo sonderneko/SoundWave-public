@@ -77,7 +77,9 @@ fun MiniPlayer(
     onExpandDrag: (Float, Float) -> Unit = { _, _ -> },
     style: String = "default"
 ) {
-    val progress by progressState
+    // BATCH2 反馈 F4：progressState 不在主体顶层读——播放 tick（Service 每 400ms 发布快照）
+    // 曾使整条迷你条（封面/跑马灯/按钮）每 tick 重组。环形进度改在 drawBehind 的绘制阶段
+    // 直接读 State.value：tick 只重绘该 Box，不触发本组件重组（宿主与页面同理受益）。
     val coverContext = LocalContext.current
     val designScheme = soundwaveDesignScheme(MaterialTheme.colorScheme.background.luminance() < 0.5f)
     // 独立 dock 开关控制实色/磨砂路径；显式封面混色还需 pageFrosted && coverTint。透明层仍可能透出背景色。
@@ -245,12 +247,15 @@ fun MiniPlayer(
             val ringSize = if (compactEmbedded) MiniTokens.CompactProgressRing else MiniTokens.ProgressRing
             Box(
                 Modifier.size(ringSize).drawBehind {
+                    // F4：绘制阶段读进度（见主体顶部注）——State 在 draw 作用域的读取只失效绘制，
+                    // 不使 MiniPlayer 主体重组。
+                    val tickProgress = progressState.value
                     val stroke = MiniTokens.ProgressStroke.toPx()
                     val inset = stroke / 2f
                     val arcSize = androidx.compose.ui.geometry.Size(size.width - stroke, size.height - stroke)
                     val topLeft = androidx.compose.ui.geometry.Offset(inset, inset)
                     drawArc(progressTrack, 0f, 360f, false, topLeft, arcSize, style = androidx.compose.ui.graphics.drawscope.Stroke(stroke))
-                    drawArc(primary, -90f, 360f * progress.coerceIn(0f, 1f), false, topLeft, arcSize,
+                    drawArc(primary, -90f, 360f * tickProgress.coerceIn(0f, 1f), false, topLeft, arcSize,
                         style = androidx.compose.ui.graphics.drawscope.Stroke(stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round))
                 },
                 contentAlignment = Alignment.Center

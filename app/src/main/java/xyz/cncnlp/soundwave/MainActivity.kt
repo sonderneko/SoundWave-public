@@ -1654,18 +1654,22 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     // 音乐库打开原本只渲染快照、从不回拉，快照为空即假空单。这里与首页/专辑打开同口径：
     // 详情缓存优先、过期回源（歌单走 playlistDetailSnapshot、专辑按 albumMarks 分流 albumDetail），
     // 成功后回填收藏快照并纠正历史条目的 local 误标；回源拉空且条目标称非空时记失败态，
-    // 由详情页渲染失败卡，绝不伪装成空单。全部在 IO 上执行，守卫按收藏 id 对齐当前详情。
-    val hydrateFavoriteDetail: (Playlist) -> Unit = { entry ->
-        val favId = entry.id
+    // 由详情页渲染失败卡，绝不伪装成空单。全部在 IO 上执行，守卫按条目 id 对齐当前详情。
+    // BATCH2 反馈 F3(c)：同一水合推广到导入在线歌单（快照残缺时旧 onOpen 永不回源、详情假空，
+    // 真机点名网易云歌单标 96 首却空）。触发判定统一走 Playlist.needsRemoteHydration()。
+    val hydrateRemoteDetail: (Playlist) -> Unit = { entry ->
+        val entryId = entry.id
         val src0 = entry.source.ifEmpty { "wy" }
-        val remoteId = playlistFavoriteRemoteId(entry)
+        // 收藏从 fav_ 前缀解析；导入条目的 id 本身即远程 id（remoteId 字段优先）。
+        val remoteId = playlistFavoriteRemoteId(entry).ifBlank { entry.remoteId.ifBlank { entry.id } }
         if (remoteId.isNotBlank() && src0 in MusicSourceRegistry.platformIds) {
-            if (plDetail?.id == favId) {
-                if (plDetailLoadFailedId == favId) plDetailLoadFailedId = null
+            if (plDetail?.id == entryId) {
+                if (plDetailLoadFailedId == entryId) plDetailLoadFailedId = null
                 if (plDetailSongs.isEmpty()) plDetailLoading = true
             }
             scope.launch {
-                val isAlbum = AlbumFavoriteMarks.marks(context).contains(favId)
+                val isAlbum = AlbumFavoriteMarks.marks(context).contains(entryId) ||
+                    entry.detailContentKind.equals("digital", true) || entry.detailContentKind.equals("album", true)
                 var fullDetail: Playlist? = null
                 var cachedSongs: List<Song> = emptyList()
                 val cached = try {
@@ -1679,7 +1683,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                         ttlMs = HomeFeedCache.ResourceTtl.PLAYLIST_DETAIL_MS,
                         publishCached = { songs ->
                             cachedSongs = songs
-                            if (plDetail?.id == favId && plDetailSongs.isEmpty()) {
+                            if (plDetail?.id == entryId && plDetailSongs.isEmpty()) {
                                 plDetailSongs = songs
                                 plDetailLoading = false
                             }
@@ -1706,7 +1710,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     is DetailCacheResolution.Refreshed -> resolution.value.ifEmpty { resolution.cachedSongs }
                     null -> cachedSongs
                 }
-                val stillOpen = plDetail?.id == favId
+                val stillOpen = plDetail?.id == entryId
                 if (stillOpen) plDetailLoading = false
                 if (songs.isNotEmpty()) {
                     val base = fullDetail
@@ -1722,11 +1726,11 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                             description = base?.description?.ifBlank { entry.description } ?: entry.description,
                         )
                         plDetailSongs = songs
-                        if (plDetailLoadFailedId == favId) plDetailLoadFailedId = null
+                        if (plDetailLoadFailedId == entryId) plDetailLoadFailedId = null
                     }
                     try { HomeFeedCache.saveDetail(context, remoteId, src0, songs) } catch (_: Exception) {}
                     // 回填收藏快照：下次（含离线）打开直接有歌；同时把历史条目的 local 误标一并纠正。
-                    val savedIndex = userBundle.playlists.indexOfFirst { it.id == favId }
+                    val savedIndex = userBundle.playlists.indexOfFirst { it.id == entryId }
                     if (savedIndex >= 0) {
                         val saved = userBundle.playlists.toMutableList()
                         val current = saved[savedIndex]
@@ -1743,7 +1747,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     }
                 } else if (stillOpen && plDetailSongs.isEmpty() && entry.count > 0) {
                     // 回源拉空但条目标称非空：计数与内容不许自相矛盾——如实记失败，不落空态。
-                    plDetailLoadFailedId = favId
+                    plDetailLoadFailedId = entryId
                 }
             }
         }
@@ -1895,7 +1899,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     detailLoadFailed = live && plDetailLoadFailedId != null && plDetailLoadFailedId == layerDetail.id,
                     onRetryDetail = {
                         val failed = userBundle.playlists.firstOrNull { it.id == layerDetail.id } ?: layerDetail
-                        if (failed.isRemoteFavoriteEntry()) hydrateFavoriteDetail(failed)
+                        if (failed.needsRemoteHydration() || failed.isRemoteFavoriteEntry() || failed.isRemoteImportedEntry()) hydrateRemoteDetail(failed)
                     },
                     detailCoverStyle = detailCoverStyle,
                     onDetailStatusBarAppearance = { if (live) immersiveDetailStatusBarLight = it },
@@ -2604,7 +2608,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                 detailOriginTab = Tab.PLAYLISTS
                                 // accept6-favempty：收藏条目是远程书签——展示层按远程语义呈现
                                 // （历史条目落盘的 local=true 是误标，不改存储、只在此纠正呈现），
-                                // 并启动回源水合；其余条目（自建/导入/本地）行为逐字不变。
+                                // 并启动回源水合；其余条目（自建/本地）行为逐字不变。
+                                // BATCH2 反馈 F3(c)：导入在线歌单与收藏同口径，快照残缺即水合（不再假空）。
                                 val remoteFavorite = pl.isRemoteFavoriteEntry()
                                 // 用叠层展示详情（accept6-backnav：统一走 openDetail 压栈口）
                                 openDetail(
@@ -2618,7 +2623,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                         else -> pl.songs.toList()
                                     }
                                 )
-                                if (remoteFavorite) hydrateFavoriteDetail(pl)
+                                if (pl.needsRemoteHydration()) hydrateRemoteDetail(pl)
                             },
                             onBack = closeDetail,
                             onPlay = { song, list ->
