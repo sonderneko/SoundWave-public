@@ -3686,7 +3686,13 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             // 两侧露出一截硬边，底栏显高 14dp）；间隙改由 DockMiniGap 软渐变承接，与磨砂关时视觉高度一致。
             val mergedDockGap = false && bottomNavStyle != "capsule" && xyz.cncnlp.soundwave.ui.common.FrostedPrefs.dockFrosted && navShown &&
                 currentSong != null && !searchOverlayOpen && tab != Tab.PLAYER
-            Column(Modifier.fillMaxWidth().height(if (searchOverlayOpen) 0.dp else dockHostHeight + dockNavInset).offset(y = -dockLift), verticalArrangement = Arrangement.Bottom) {
+            Box(Modifier.fillMaxWidth().height(if (searchOverlayOpen) 0.dp else dockHostHeight + dockNavInset).offset(y = -dockLift)) {
+            // accept6-bottomfrost：悬浮簇背后的统一磨砂带（间距 + 底栏 + 胶囊下边距同带，带顶与迷你条下沿齐平）；簇的高度/偏移/子项几何零改动，带只铺在其背后。搜索键盘态宿主高为 0、详情迁移仅迷你条态不挂带。
+            if (!searchOverlayOpen && !detailDockOnlyMini) xyz.cncnlp.soundwave.ui.common.DockFrostBand(
+                Modifier.fillMaxWidth().height(xyz.cncnlp.soundwave.ui.common.dockFrostBandHeight(bottomNavStyle == "capsule", dockNavInset)).align(Alignment.BottomStart),
+                soundwaveDesignScheme(isDark).surface, isDark
+            )
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
                     if (detailDockOnlyMini && currentSong != null) {
                         // 与既有“仅迷你条”模式共用系统导航安全区及底栏底距，确保条体落在导航手势区上方。
                         DetailTransitionMiniDock(
@@ -3743,6 +3749,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                             }
                         }
                     }
+            }
             }
             }
             }

@@ -214,6 +214,43 @@ fun Modifier.dockGlass(shape: Shape, base: Color, dark: Boolean, line: Color? = 
 }
 
 /**
+ * accept6-bottomfrost（用户 2026-11-04 23:44）：底部悬浮簇背后的统一磨砂带。
+ *
+ * 迷你条 / 底栏只磨砂各自形状（[dockGlass]），二者之间的间距带、胶囊底栏的左右内缩与下边距带此前无承载面，
+ * 滚动内容从这些带里生硬露出。本带由宿主定位在其背后：带顶与迷你条下沿齐平（高度 = 底栏足迹 + 间距带，
+ * 见 DockInsets.dockFrostBandHeight），向下直达屏幕底边。与 [dockGlass] 同参同源：
+ * 开关 = [FrostedPrefs.dockFrosted]（关 → 不绘制，宿主回退现行呈现）、罩 = [GLASS_TINT_ALPHA]、模糊 = [GlassDockBlur]、
+ * 封面混色口径同 dockGlass；API ≤ 31 / 无真模糊时以 [GLASS_FALLBACK_ALPHA] 实色降级承接（近似，非真模糊）。
+ * 采样源为内容根 [GlassHost.state]，采样范围限于本带 bounds（非整屏采样）。
+ */
+@Composable
+fun DockFrostBand(modifier: Modifier = Modifier, base: Color, dark: Boolean) {
+    Box(if (FrostedPrefs.dockFrosted) modifier.dockFrostBandSurface(base, dark) else modifier)
+}
+
+@Composable
+private fun Modifier.dockFrostBandSurface(base: Color, dark: Boolean): Modifier {
+    val (blur, _) = dockGlassPlan(dockFrosted = true)
+    val tone = dockCoverTint(FrostedPrefs.pageActive, FrostedPrefs.coverTint, FrostedPrefs.tone)
+    val opaque = base.copy(alpha = 1f)
+    val tinted = if (tone != null) lerp(opaque, tone.copy(alpha = 1f), if (dark) 0.14f else 0.08f) else opaque
+    return if (!blur) {
+        background(tinted.copy(alpha = GLASS_FALLBACK_ALPHA))
+    } else {
+        hazeChild(
+            GlassHost.state,
+            HazeStyle(
+                backgroundColor = opaque,
+                tint = HazeTint(tinted.copy(alpha = GLASS_TINT_ALPHA)),
+                blurRadius = GlassDockBlur,
+                noiseFactor = 0f,
+                fallbackTint = HazeTint(tinted.copy(alpha = GLASS_FALLBACK_ALPHA))
+            )
+        )
+    }
+}
+
+/**
  * 详情顶栏滚动磨砂（原型 02b `.pg.scrolled>.sbf`）：[progress] 0 = 完全透明，1 = paper 64% + 22dp 模糊。
  * 低版本：paper 0→94% 实色淡入。
  */

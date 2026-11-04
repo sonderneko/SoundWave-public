@@ -51,6 +51,15 @@ object DockMetrics {
 /** Scaffold 提供的内容底部避让（已含系统导航栏 inset 与 16dp 余量）。null = 未提供。 */
 val LocalDockContentInset = compositionLocalOf<Dp?> { null }
 
+/**
+ * accept6-bottomfrost：簇背磨砂带（DockFrostBand）的高度 = 底栏足迹 + 迷你条间距带，带顶与迷你条下沿齐平。
+ * 通栏：底栏本体 66 + 系统导航栏（其玻璃含 navigationBarsPadding 段）+ 间距 14；
+ * 胶囊：本体 62 + 下边距（Navigation.Capsule.BottomPadding）+ 系统导航栏 + 间距 8（DockMiniGap 胶囊分支的固定值）。
+ */
+fun dockFrostBandHeight(capsule: Boolean, navInset: Dp): Dp =
+    if (capsule) DockMetrics.CapsuleNavBodyHeight + xyz.cncnlp.soundwave.ThemeTokens.Navigation.Capsule.BottomPadding + 8.dp + navInset
+    else DockMetrics.BarNavHeight + DockMetrics.MiniGap + navInset
+
 /** 页面末尾应留出的底部空白：迷你条 + 底栏 + 系统导航栏 + 16dp。 */
 @Composable
 fun dockContentBottomPadding(): Dp =

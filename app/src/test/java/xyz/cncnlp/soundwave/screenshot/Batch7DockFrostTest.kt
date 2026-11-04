@@ -19,6 +19,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import androidx.compose.ui.Alignment
 import xyz.cncnlp.soundwave.ui.common.*
 import java.io.File
 
@@ -83,5 +84,33 @@ class Batch7DockFrostTest {
    assertEquals(false to 1f,dockGlassPlan(false,sdk))
    assertEquals(if(sdk>=32)true to 0.82f else false to 0.94f,dockGlassPlan(true,sdk))
   }
+ }
+ /** accept6-bottomfrost：簇背磨砂带在 API31 走生产降级路径（实色 0.94 罩）——带身全幅呈罩色混背、带外不漏绘、开关关时不绘制。 */
+ @Test fun frostBandFallbackTintsWholeBandAndHonoursSwitch(){
+  FrostedPrefs.resetForTest(page=false,tint=true,dock=true)
+  rule.setContent{
+   Box(Modifier.fillMaxSize().background(Color.Red)){
+    DockFrostBand(Modifier.fillMaxWidth().height(200.dp).align(Alignment.BottomCenter),Color.White,false)
+   }
+  }
+  fun shot():Bitmap{rule.waitForIdle();val v=rule.activity.window.decorView;val b=Bitmap.createBitmap(v.width,v.height,Bitmap.Config.ARGB_8888);v.draw(Canvas(b));return b}
+  var b=shot()
+  // 带高 200dp=400px（xhdpi）：带中段与近顶端（入带 3px）同为全强度降级罩：白 0.94 压红 → g≈240。
+  val mid=b.getPixel(b.width/2,b.height-200)
+  assertEquals(255,android.graphics.Color.red(mid))
+  assertTrue("fallback tint must blend over backdrop, g=${android.graphics.Color.green(mid)}",android.graphics.Color.green(mid) in 225..250)
+  val top=b.getPixel(b.width/2,b.height-400+3)
+  assertTrue("band must be tinted full-height, g=${android.graphics.Color.green(top)}",android.graphics.Color.green(top) in 225..250)
+  // 带顶之上 3px：不漏绘，背景红原样。
+  assertEquals(android.graphics.Color.RED,b.getPixel(b.width/2,b.height-400-3))
+  // 开关关：带不绘制，同点回到纯背景红。
+  rule.runOnIdle{FrostedPrefs.dockFrosted=false}
+  b=shot()
+  assertEquals(android.graphics.Color.RED,b.getPixel(b.width/2,b.height-200))
+ }
+ /** accept6-bottomfrost：带高 = 底栏足迹（本体 + 下边距 + 系统导航栏）+ 间距带，两样式逐项对表 DockMetrics/令牌。 */
+ @Test fun frostBandHeightCoversNavFootprintPlusGap(){
+  assertEquals(DockMetrics.BarNavHeight+DockMetrics.MiniGap+20.dp,dockFrostBandHeight(false,20.dp))
+  assertEquals(DockMetrics.CapsuleNavBodyHeight+8.dp+8.dp+20.dp,dockFrostBandHeight(true,20.dp))
  }
 }
