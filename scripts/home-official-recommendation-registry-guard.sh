@@ -410,6 +410,15 @@ adapter = reviewed_step8_projection(adapter, 'adapter')
 
 
 def git_show(path):
+    # Public-repo port (2026-11-05): this repository's history starts at the
+    # single snapshot commit, so the fixed .552 baseline objects are vendored
+    # byte-for-byte under scripts/guard-baselines/<guard>/<baseline>/ (see
+    # PROVENANCE.md there for source commits and sha256). Prefer the vendored
+    # copy; fall back to git show where the object exists.
+    vendored = (root / 'scripts' / 'guard-baselines' /
+                'home-official-recommendation-registry-guard' / baseline / path)
+    if vendored.is_file():
+        return vendored.read_text()
     result = subprocess.run(
         ['git', 'show', f'{baseline}:{path}'], cwd=root, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,

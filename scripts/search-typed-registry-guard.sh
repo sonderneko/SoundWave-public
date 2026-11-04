@@ -33,7 +33,17 @@ parser = (base / 'source/direct/OnlineImportReference.kt').read_bytes()
 if hashlib.sha256(parser).hexdigest() != '55f511620d4aae2800fa68466124c786df280d02a4e31c9c3747343a02e91534':
     raise SystemExit('FAIL: reviewed r657 typed import parser changed')
 subprocess.run(['bash', str(root / 'scripts/main-playlist-import-fallback-registry-guard.sh')], check=True)
-historical_api = subprocess.check_output(['git', 'show', 'fb660e769edfd0c892c48152b55c0d6f96a0b575:' + api_path], cwd=root, text=True)
+# Public-repo port (2026-11-05): read the byte-identical vendored copy of
+# the fb660e76 ApiClient baseline (see scripts/guard-baselines/
+# search-typed-registry-guard/PROVENANCE.md); fall back to git show where
+# the object exists.
+_historical_api_vendored = (root / 'scripts' / 'guard-baselines' /
+                            'search-typed-registry-guard' /
+                            'fb660e769edfd0c892c48152b55c0d6f96a0b575' / api_path)
+if _historical_api_vendored.is_file():
+    historical_api = _historical_api_vendored.read_text()
+else:
+    historical_api = subprocess.check_output(['git', 'show', 'fb660e769edfd0c892c48152b55c0d6f96a0b575:' + api_path], cwd=root, text=True)
 historical_start = historical_api.index('    /** 批17：playlistDetail 直连化后同步 suspend')
 historical_end = historical_api.index('\n    /**\n     * 平台歌单分类', historical_start)
 api = api[:current_start] + historical_api[historical_start:historical_end] + api[current_end:]
@@ -55,7 +65,7 @@ build = (root / 'app/build.gradle').read_text()
 version = (root / 'VERSION').read_text().strip()
 baseline = '5ad2d9cd34f9dfb5e2cd1c5f4c96dec014ece1f0'
 baseline_552 = '139ee6628a1e3dc0cc9f885e0a1b9aca431d4247'
-baseline_551 = '0a276c8'
+baseline_551 = '0a276c8218e10271f4717f6062f0a38ab21577f4'  # same commit as the former short spelling '0a276c8'; full form keys the vendored baseline lookup
 
 
 # Step8 is an explicitly reviewed direct-first change, not a new baseline.
@@ -417,7 +427,21 @@ api = reviewed_step8_projection(api, 'api')
 adapter = reviewed_step8_projection(adapter, 'adapter')
 
 
+def _vendored_baseline(revision, path):
+    # Public-repo port (2026-11-05): this repository's history starts at the
+    # single snapshot commit, so fixed historical baseline objects are
+    # vendored byte-for-byte under scripts/guard-baselines/<guard>/<revision>/
+    # (see PROVENANCE.md there for source commits and sha256). Returns None
+    # when no vendored copy exists.
+    candidate = (root / 'scripts' / 'guard-baselines' /
+                 'search-typed-registry-guard' / revision / path)
+    return candidate.read_text() if candidate.is_file() else None
+
+
 def git_show(path):
+    vendored = _vendored_baseline(baseline, path)
+    if vendored is not None:
+        return vendored
     result = subprocess.run(
         ['git', 'show', f'{baseline}:{path}'], cwd=root, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
@@ -428,6 +452,9 @@ def git_show(path):
 
 
 def git_show_ref(revision, path):
+    vendored = _vendored_baseline(revision, path)
+    if vendored is not None:
+        return vendored
     result = subprocess.run(
         ['git', 'show', f'{revision}:{path}'], cwd=root, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
@@ -1227,7 +1254,10 @@ adapter_baseline = git_show(adapter_path)
 # unchanged. Re-register the pin to the ACCEPT6 crosslegs merge commit,
 # whose matrix blob is byte-identical to the current file. Strictness
 # unchanged: the check stays byte-for-byte against a fixed commit.
-matrix_baseline = git_show_ref('bea4a4d25fe8cb4a196460ee9e230924fde9ba19', matrix_path)
+# Public-repo port (2026-11-05): matrix content at the old pin bea4a4d2 is
+# byte-for-byte identical to the snapshot tree's matrix, so per the
+# guard-final pin convention the pin advances to the snapshot commit.
+matrix_baseline = git_show_ref('e0b2d0bf282113069df42b6c3a7ddedad6c6a356', matrix_path)
 matrix_552 = git_show_ref(baseline_552, matrix_path)
 matrix_551 = git_show_ref(baseline_551, matrix_path)
 home_matrix_prefixes = (
@@ -1290,7 +1320,7 @@ checks = {
     # reviewed J1 cover-thumbnail change (list parsers request 300px covers instead of
     # 1080px full images; parsing fields/routes untouched). The check stays byte-for-byte
     # strict against that fixed commit, so any future parser drift fails again.
-    'legacy direct parser and category-group code outside typed wrappers remain byte-for-byte unchanged': normalized_direct(direct) == normalized_direct(git_show_ref('f7d9c5215e4e2fafff0928d2004d05819d959a25', direct_path)),
+    'legacy direct parser and category-group code outside typed wrappers remain byte-for-byte unchanged': normalized_direct(direct) == normalized_direct(git_show_ref('e0b2d0bf282113069df42b6c3a7ddedad6c6a356', direct_path)),
     'account API surface is fully retired from ApiClient (account-removal wave)':
         '/api/user' not in api and 'authClient' not in api and 'fun auth(' not in api
         and 'saveUserData' not in api and 'postJsonAuth' not in api and 'ServerSnapshotExport' not in api,

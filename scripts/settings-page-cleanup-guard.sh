@@ -117,13 +117,19 @@ require('DesignSheetRow(g.Switch, "检测更新"' in dialogs and 'DesignSheetRow
         'GitHubReleases.check(BuildConfig.VERSION_NAME)' in dialogs and
         'GitHubReleases.downloadPage()' in dialogs,
         "in-app update checking/downloading must remain in About")
+# The two old-identity contact literals (legacy mailbox, legacy QQ number)
+# are assembled at runtime from fragments so this guard's own source does not
+# republish them in plaintext. The asserted token set below is byte-for-byte
+# the same set as before.
+_legacy_mail = "projects" + "258036" + "@" + "gmail" + ".com"
+_legacy_qq = "QQ" + "：" + "322" + "9921907"
 for token in (
     "github.com/projects258036-svg/soundwave",
     "mqqapi://card/show_pslcard",
     "wpa.qq.com/msgrd",
-    "projects258036@gmail.com",
-    "QQ：3229921907",
-    "邮箱：projects258036@gmail.com",
+    _legacy_mail,
+    _legacy_qq,
+    "邮箱：" + _legacy_mail,
 ):
     require(token not in dialogs and token not in hub and token not in support,
             f"About must not expose contact/project detail: {token}")
