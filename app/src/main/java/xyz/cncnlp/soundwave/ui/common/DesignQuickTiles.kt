@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,25 +50,28 @@ data class DesignQuickTile(
 private val QuickCoral = Color(0xFFFF5C45)
 
 /**
- * 每项 = 图标圈 + 下方文字。行本身透明，按压缩放沿用 [pressScale]。
+ * 每项 = 图标瓦片 + 下方文字。行本身透明，按压缩放沿用 [pressScale]。
  * 图标区统一「细环」规格（无填充、无投影）：图标直接落在弹层底色上，仅以 1dp 极淡暖灰细环
  * （家族发丝线色 [designLineColor]）圈出点击区；状态只由图标色/文字色/字形承载（已收藏 = 珊瑚
  * 图标 + 珊瑚字 + 实心心形；已不喜欢 = 危险色）。
  * 沿革：ACCEPT5（用户 2026-11-04）先裁定歌曲菜单五宫格（≥5 钮）去填色块；accept6-uipolish2
  * （用户 2026-11-04 22:23）把同一口径扩到歌单操作弹层的四钮——原 ≤4 钮的填色块规格
  * （渐变面 + 描边 + 投影、已收藏珊瑚实心）自此删除，全站快捷瓦片只有细环一种形态。
+ * accept6-sheetheader（用户 2026-11-04 22:51 批准头部稿时修正）：形状不再限于圆形——改
+ * **圆角矩形细环瓦片**（圆角 14dp），尺寸全家统一一档：宽 min(列宽, 58dp) × 高 52dp
+ * （原圆环 44/48 两档废止）；填充禁令不变，仍为无填充细环。
  */
 @Composable
 fun DesignQuickTileRow(tiles: List<DesignQuickTile>, modifier: Modifier = Modifier) {
-    // M 波 §5 紧凑规格：≥5 钮时自动 compact（间距 6→5dp、图标圈 48→44dp，文字字阶不变）。
+    // M 波 §5 紧凑规格：≥5 钮时行间距 6→5dp（瓦片尺寸已全家统一，不再随数量变）。
     val compact = tiles.size >= 5
     Row(modifier.fillMaxWidth().padding(top = 4.dp, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 6.dp)) {
-        tiles.forEach { DesignQuickTileItem(it, Modifier.weight(1f), compact) }
+        tiles.forEach { DesignQuickTileItem(it, Modifier.weight(1f)) }
     }
 }
 
 @Composable
-private fun DesignQuickTileItem(tile: DesignQuickTile, modifier: Modifier, compact: Boolean = false) {
+private fun DesignQuickTileItem(tile: DesignQuickTile, modifier: Modifier) {
     val colors = MaterialTheme.colorScheme
     val dangerActive = tile.danger && tile.active
     Column(
@@ -81,8 +84,8 @@ private fun DesignQuickTileItem(tile: DesignQuickTile, modifier: Modifier, compa
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            Modifier.size(if (compact) 44.dp else 48.dp)
-                .border(1.dp, designLineColor(), CircleShape),
+            Modifier.widthIn(max = 58.dp).fillMaxWidth().height(52.dp)
+                .border(1.dp, designLineColor(), RoundedCornerShape(14.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(tile.icon, null, tint = when {

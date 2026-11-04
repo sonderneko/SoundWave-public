@@ -138,7 +138,8 @@ internal fun trackPlaybackSourceEntry(
 @Composable
 private fun TrackSourceSection(entry: TrackSourceEntry, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
-    Row(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+    // accept6-sheetheader：段头 top 4 与瓦片项 bottom 4 + 瓦片行 bottom 12 合成瓦片→出处 20dp 节奏。
+    Row(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text("出处", color = colors.onSurface, fontSize = 16.sp, lineHeight = 21.sp, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope, maxLines = 1)
         Spacer(Modifier.width(8.dp))
         Text(
@@ -214,15 +215,21 @@ internal fun ColumnScope.TrackActionsSheetContent(
     // ACCEPT6 dialogfrost：标题头改 pinned 覆盖层——静止时全透与表身无缝，内容滚入带下时
     // 标题带呈磨砂（局部模糊源 = 下方整滚区，与表磨砂同源同值）；滚动区保持全高整滚（案 A 不变），
     // 顶部以等高占位（眉题 14 + 间距 8 + 标题 30 = 52dp）让首屏布局与改前逐 dp 一致。
+    // 案 A：标题头以下整块一区滚动（条目头 / 瓷砖 / 出处 / 动作行 / 专属行 / 危险区）。
+    // ACCEPT5（用户 2026-11-04 裁定）：出处自条目头下移到五宫格之下，作下方信息/导航行组第一块
+    // （瓷砖是高频动作、出处是低频导航，与歌手/专辑行同组）。
     val headerGlass = rememberLocalGlassState()
     Box(Modifier.weight(1f)) {
     Column(Modifier.fillMaxSize().verticalScroll(scrollState).localGlassSource(headerGlass)) {
         Spacer(Modifier.height(52.dp))
         val durationLabel = if (song.duration > 0) (song.duration / 1000).let { "%d:%02d".format(it / 60, it % 60) } else ""
         val lossless = song.actualQuality.lowercase().let { q -> listOf("flac", "hires", "hi-res", "master", "24bit").any { it in q } }
+        // accept6-sheetheader（用户 2026-11-04 批准稿）：封面 54dp；副行只留歌手名（专辑名有专辑行、
+        // 时长不在头部拼行）；bottomPadding 10 与瓦片行（top 4）+ 瓦片项（top 6）合成身份→瓦片 20dp。
         DesignSheetItemHeader(
-            song.cover, song.name, listOf(song.singer.ifBlank { "未知歌手" }, song.album, durationLabel).filter { it.isNotBlank() }.joinToString(" · "),
-            badge = if (lossless) "无损" else "", topPadding = 16.dp, bottomPadding = 12.dp, trailing = headerTrailing
+            song.cover, song.name, song.singer.ifBlank { "未知歌手" },
+            coverSize = 54.dp,
+            badge = if (lossless) "无损" else "", topPadding = 16.dp, bottomPadding = 10.dp, trailing = headerTrailing
         )
         DesignQuickTileRow(trackActionQuickTileKeys(showDownload).map { key ->
             when (key) {

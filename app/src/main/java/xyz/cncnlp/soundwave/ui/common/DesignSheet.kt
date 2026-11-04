@@ -457,28 +457,31 @@ fun DesignSheetItemHeader(cover: String, title: String, subtitle: String, coverS
     val colors = MaterialTheme.colorScheme
     val context = LocalContext.current
     Row(Modifier.fillMaxWidth().padding(top = topPadding, bottom = bottomPadding), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(coverSize).clip(RoundedCornerShape(15.dp)).background(colors.surfaceVariant)) {
+        Box(Modifier.size(coverSize).clip(RoundedCornerShape(coverSize * 0.25f)).background(colors.surfaceVariant)) {
             val c = remember(cover) { normalizeCoverUrl(cover) }
             // ACCEPT5 收编：占位常驻垫底——加载/失败不再是 surfaceVariant 平灰。
             DefaultLandscapeCover(Modifier.fillMaxSize())
             if (c.isNotBlank()) AsyncImage(CacheManager.coverModel(context, c) ?: c, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         }
         Column(Modifier.weight(1f).padding(start = 15.dp)) {
-            Text(title, color = colors.onSurface, fontSize = 17.sp, lineHeight = 22.sp, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, color = colors.onSurface, fontSize = 17.sp, lineHeight = 22.sp, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                // accept6-sheetheader（用户 2026-11-04 批准稿）：音质徽标贴歌名行内跟随（原挂在文本列
+                // 之外、整行居中，视觉悬空）；标题过长先截断，徽标恒可见。仅 TrackActionsSheet 传 badge。
+                if (badge.isNotBlank()) Box(
+                    Modifier.padding(start = 8.dp).height(18.dp).clip(RoundedCornerShape(5.dp))
+                        .background(xyz.cncnlp.soundwave.SoundwaveDesignPalette.Accent.copy(alpha = 0.12f)).padding(horizontal = 6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(badge, color = xyz.cncnlp.soundwave.designAccentTextColor(), fontSize = 10.sp, lineHeight = 12.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                }
+            }
             if (subtitle.isNotBlank()) Text(
                 subtitle, color = colors.onSurfaceVariant, fontSize = 12.sp, lineHeight = 16.sp, fontFamily = DesignFonts.Manrope,
                 maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 7.dp)
             )
         }
-        // r657：原型表头右侧珊瑚「无损」小标（仅在已解析到无损音质时出现）。
-        if (badge.isNotBlank()) Box(
-            Modifier.padding(start = 10.dp).height(18.dp).clip(RoundedCornerShape(5.dp))
-                .background(xyz.cncnlp.soundwave.SoundwaveDesignPalette.Accent.copy(alpha = 0.12f)).padding(horizontal = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(badge, color = xyz.cncnlp.soundwave.designAccentTextColor(), fontSize = 10.sp, lineHeight = 12.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-        }
-        // r658c P：调用方右侧附加控件（播放器「⋯」的播放顺序圆钮）。
+        // r658c P：调用方右侧附加控件（播放器「⋯」的播放顺序圆钮），随整行居中。
         if (trailing != null) { Spacer(Modifier.width(10.dp)); trailing() }
     }
 }
