@@ -200,66 +200,6 @@ import xyz.cncnlp.soundwave.ui.common.rememberScrolledPastTop
 import xyz.cncnlp.soundwave.ui.common.smoothScrollToTop
 import xyz.cncnlp.soundwave.ui.common.smoothScrollToItem
 
-@Composable
-private fun UniformEdgeAlignedColumn(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Layout(content = content, modifier = modifier) { measurables, constraints ->
-        val childConstraints = constraints.copy(minHeight = 0)
-        val placeables = measurables.map { it.measure(childConstraints) }
-        val contentHeight = placeables.sumOf { it.height }
-        val layoutHeight = contentHeight
-            .coerceAtLeast(constraints.minHeight)
-            .coerceAtMost(constraints.maxHeight)
-        val freeHeight = (layoutHeight - contentHeight).coerceAtLeast(0)
-        val gap = if (placeables.size > 1) freeHeight.toFloat() / (placeables.size - 1) else 0f
-        val layoutWidth = placeables.maxOfOrNull { it.width }?.coerceIn(constraints.minWidth, constraints.maxWidth)
-            ?: constraints.minWidth
-
-        layout(layoutWidth, layoutHeight) {
-            var y = 0f
-            placeables.forEachIndexed { index, placeable ->
-                val childY = if (index == placeables.lastIndex) layoutHeight - placeable.height else y.roundToInt()
-                placeable.placeRelative(0, childY)
-                y += placeable.height + gap
-            }
-        }
-    }
-}
-
-@Composable
-private fun OutlinedPlayAllLabel(outlineColor: Color) {
-    val density = LocalDensity.current
-    val textStroke = with(density) { 0.75.dp.toPx() }
-    val iconStroke = with(density) { 1.35.dp.toPx() }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(20.dp)) {
-            val triangle = Path().apply {
-                moveTo(size.width * 0.28f, size.height * 0.17f)
-                lineTo(size.width * 0.80f, size.height * 0.50f)
-                lineTo(size.width * 0.28f, size.height * 0.83f)
-                close()
-            }
-            drawPath(
-                triangle,
-                color = outlineColor,
-                style = Stroke(width = iconStroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            )
-        }
-        Spacer(Modifier.width(3.dp))
-        Text(
-            "播放全部",
-            style = LocalTextStyle.current.copy(
-                color = outlineColor,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                drawStyle = Stroke(width = textStroke)
-            )
-        )
-    }
-}
-
 internal data class LibraryPageThemeColors(
     val background: Color,
     val onBackground: Color,

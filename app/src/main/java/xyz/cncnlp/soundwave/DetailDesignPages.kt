@@ -96,7 +96,6 @@ internal enum class DetailDesignKind { Playlist, Album, Chart }
 private val DetailHeroBg = Color(0xFF121713)
 private val DetailTitleInk = Color(0xFFF6F7F0)
 private val DetailCurrentTitle = Color(0xFFFF5C45) // r657 第三轮：原型 .row.on b = var(--accent)
-private val DangerRed = Color(0xFFB84F43)
 
 /** r656：首页今日推荐卡片与页头的间距（17→14dp）；所有设计稿详情页封面顶距统一使用该值。
  * accept6-topbars（用户 2026-11-04 22:44）：顶栏上移后下方内容同步跟上移约 4dp，14→10dp。 */
@@ -956,14 +955,6 @@ internal fun DetailSelectionActionBar(
 
 /* ─────────────── 榜单切换抽屉（.chart-picker-sheet） ─────────────── */
 
-@Composable
-internal fun ChartPickerSheetHead(platformLabel: String) {
-    val colors = MaterialTheme.colorScheme
-    Text("$platformLabel · CHARTS", color = designAccentTextColor(), fontSize = 10.sp, fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, letterSpacing = 0.13.em, maxLines = 1)
-    Text("选择榜单", color = colors.onSurface, fontSize = 28.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold, fontFamily = DesignFonts.Manrope, modifier = Modifier.padding(top = 4.dp))
-    Text("这里显示当前音乐平台提供的榜单。", color = colors.onSurfaceVariant, fontSize = 11.sp, fontFamily = DesignFonts.Manrope, modifier = Modifier.padding(top = 2.dp, bottom = 12.dp))
-}
-
 /** 榜单选择单行：52dp 封面、15sp 名称、11sp 更新周期，右侧箭头；当前榜珊瑚字。 */
 @Composable
 internal fun ChartPickerDesignRow(name: String, sub: String, cover: String, selected: Boolean, onClick: () -> Unit) {
@@ -992,12 +983,6 @@ internal fun ChartPickerDesignRow(name: String, sub: String, cover: String, sele
         }
         Icon(Icons.Outlined.ChevronRight, null, tint = colors.onSurfaceVariant, modifier = Modifier.size(18.dp))
     }
-}
-
-/** 底部占位：迷你条 + 底栏宿主 + 系统导航栏 + 16dp，保证最后一行不被遮挡且可点。 */
-@Composable
-internal fun DetailDesignBottomSpacer() {
-    Spacer(Modifier.height(dockContentBottomPadding()))
 }
 
 /** 今日推荐「更多」抽屉（设计稿 D.today：Made for you / 今日推荐）。 */

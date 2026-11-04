@@ -105,20 +105,3 @@ fun LibGlyph(kind: String, tint: Color, modifier: Modifier = Modifier.size(28.dp
     }
 }
 
-@Composable
-internal fun PlayCountHeadset(
-    modifier: Modifier = Modifier.size(15.dp),
-    tint: Color = Color(0xFF8E8E93.toInt())
-) {
-    Canvas(modifier) {
-        val c = tint
-        val stroke = Stroke(1.6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawArc(c, 205f, 130f, false,
-            Offset(size.width * .18f, size.height * .08f),
-            androidx.compose.ui.geometry.Size(size.width * .64f, size.height * .72f),
-            style = stroke)
-        drawRoundRect(c, Offset(size.width * .10f, size.height * .48f), androidx.compose.ui.geometry.Size(size.width * .20f, size.height * .30f), androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()))
-        drawRoundRect(c, Offset(size.width * .70f, size.height * .48f), androidx.compose.ui.geometry.Size(size.width * .20f, size.height * .30f), androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()))
-    }
-}
-
