@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# 2026-11-05 删除合同重钉（public-cleanup）：LibraryQuickPager.kt 系零调用死代码已删，涉及其文本的合取项随之退役；policy/artwork/lib_page/sleeve/test 的存活断言逐字不变，两条标签按存活范围收窄并已在台账登记。
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 - "$ROOT" <<'PY'
 from pathlib import Path
@@ -10,7 +11,6 @@ root = Path(sys.argv[1])
 base = root / "app/src/main/java/xyz/cncnlp/soundwave"
 policy = (base / "LibraryCoverPolicy.kt").read_text()
 artwork = (base / "LibraryCoverArtwork.kt").read_text()
-pager = (base / "LibraryQuickPager.kt").read_text()
 lib_page = (base / "LibraryPage.kt").read_text()
 lib_entry = (base / "LibPage.kt").read_text()
 # r657：我的喜欢唱片套卡 / 本地歌单横向卡拆到 LibrarySleeveCards.kt，快捷卡断言同时覆盖两个文件。
@@ -22,9 +22,6 @@ test = (root / "app/src/test/java/xyz/cncnlp/soundwave/LibraryCoverPolicyTest.kt
 chrome = (base / "ListChrome.kt").read_text()
 version = (root / "VERSION").read_text().strip()
 gradle = (root / "app/build.gradle").read_text()
-local_play_button_is_liked_only = re.search(
-    r"if \(page == 0\) \{\s*Box\(\s*Modifier\.align\(Alignment\.BottomEnd\)", pager
-) is not None
 
 checks = {
     "liked and local use dedicated, visibly different palettes and motifs": (
@@ -38,26 +35,19 @@ checks = {
     "custom playlist art precedes the first nonblank track cover": (
         policy.find("playlistCover?.takeIf { it.isNotBlank() }") >= 0
         and policy.find("songCovers.firstOrNull { it.isNotBlank() }") > policy.find("playlistCover?.takeIf { it.isNotBlank() }")
-        and "libraryCoverUrl(" in pager and "playlist.cover" in pager
         and "listOf(customCover) + songs.take(2)" in lib_page
         and "libraryStackCovers(loggedIn, localShortcut.cover" in lib_page
         and "playlistDisplayCover(pl)" in lib_page
         and "playlistDisplayCover(album)" in lib_page
     ),
     "both quick cards use the shared artwork component and distinct fallback kinds": (
-        "repeat(2)" in pager and "LibraryCoverArtwork(" in pager
-        and "LibraryDefaultCoverKind.LIKED" in pager
-        and "LibraryDefaultCoverKind.LOCAL_PLAYLIST" in pager
-        and "LibraryCoverArtwork(cover = cover.orEmpty(), fallbackKind = fallbackKind" in lib_cards
+        "LibraryCoverArtwork(cover = cover.orEmpty(), fallbackKind = fallbackKind" in lib_cards
         and uses_kind("LIKED")
         and uses_kind("LOCAL_PLAYLIST")
     ),
-    "empty covers are drawn locally and the cover resolver is gated on real artwork": (
+    "empty covers are drawn locally": (
         "Canvas(" in artwork and "LibraryDefaultCover(kind = fallbackKind" in artwork
         and "AsyncImage" not in artwork[artwork.find("internal fun LibraryDefaultCover"):]
-        and "if (libraryCoverHasImage(cover))" in pager
-        and "CacheManager.ensureCover(context, cover)" in pager
-        and pager.find("if (libraryCoverHasImage(cover))") < pager.find("CacheManager.ensureCover(context, cover)")
     ),
     "unauthenticated first composition synchronously includes the local card": (
         "if (loggedIn) add(\"liked\")" in policy
@@ -72,10 +62,8 @@ checks = {
         and "LibraryCoverArtwork(cover = cover.orEmpty(), fallbackKind = fallbackKind" in sleeve
         and "LibraryDefaultCover(kind = fallbackKind" in (base / "LibraryCoverArtwork.kt").read_text()
     ),
-    "personal playlist count badges and row glyphs are removed; local card has no play button": (
-        "userPlayCount" not in pager and "PlayCountHeadset" not in pager
-        and "trailingText" not in lib_page and "trailingText" not in lib_entry
-        and local_play_button_is_liked_only
+    "personal playlist count badges and row glyphs are removed": (
+        "trailingText" not in lib_page and "trailingText" not in lib_entry
         and "formatVisiblePlayCount(value: Long)" in chrome
     ),
     "policy tests cover precedence, distinctness, and no-cover behavior": all(

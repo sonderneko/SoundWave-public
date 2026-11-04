@@ -373,27 +373,6 @@ abstract class R657FixScreenshotBase(private val widthTag: String) {
     @Test fun playerQueueLight() = player(false, false, queueOpen = true)
     @Test fun playerQueueDark() = player(true, false, queueOpen = true)
 
-    /** 蜘蛛下拉刷新逐帧：下拉 30% / 70% / 100%（阈值）/ 松手回弹冲过头 / 刷新中 / 完成爬回中。 */
-    private fun spiderFrames(dark: Boolean) {
-        Assume.assumeTrue(outDir() != null); loader()
-        rule.setContent {
-            SoundwaveDesignTheme(isDark = dark) {
-                val cs = MaterialTheme.colorScheme
-                androidx.compose.foundation.layout.Row(Modifier.fillMaxSize().background(cs.background)) {
-                    @Composable fun cell(content: @Composable () -> Unit) = Box(Modifier.weight(1f).fillMaxSize()) { content() }
-                    listOf(0.3f, 0.7f, 1f).forEach { p ->
-                        cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshIndicator(p, false, cs.onSurface, cs.primary, reduceMotion = true, muted = cs.onSurfaceVariant) }
-                    }
-                    cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshFrame(63f, cs.onSurface, cs.primary, cs.onSurfaceVariant, "正在刷新…", sway = 7f) }
-                    cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshIndicator(1f, true, cs.onSurface, cs.primary, reduceMotion = true, muted = cs.onSurfaceVariant) }
-                    cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshFrame(22f, cs.onSurface, cs.primary, cs.onSurfaceVariant, "已是最新内容") }
-                }
-            }
-        }
-        save("spider-${tagOf(dark)}")
-    }
-    @Test fun spiderLight() = spiderFrames(false)
-    @Test fun spiderDark() = spiderFrames(true)
 }
 
 @Config(sdk = [34], qualifiers = "w360dp-h780dp-xhdpi")

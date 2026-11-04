@@ -185,31 +185,6 @@ class CoreVisualUiTest {
     }
 
     @Test
-    fun redesignedLibraryQuickCardStillPlaysTheSelectedCollection() {
-        val song = Song(id = "library-test", name = "收藏歌曲", singer = "测试歌手")
-        val liked = Playlist("liked", "喜欢", local = true, songs = mutableListOf(song))
-        val local = Playlist("local", "本地歌单", local = true)
-        var playCount = 0
-
-        composeRule.setContent {
-            SoundwaveDesignTheme(isDark = false) {
-                LibraryQuickPager(
-                    liked = liked,
-                    local = local,
-                    favs = listOf(song),
-                    onOpen = {},
-                    onPlay = { _, songs, source -> if (songs.singleOrNull() == song && source == "liked") playCount++ },
-                    onLikedMenu = {},
-                    onLocalMenu = {}
-                )
-            }
-        }
-
-        composeRule.onNodeWithContentDescription("播放我的喜欢").performClick()
-        assertEquals(1, playCount)
-    }
-
-    @Test
     fun redesignedSearchPageKeepsModeAndFocusCallbacks() {
         var selectedMode = "song"
         var searchFocused = false

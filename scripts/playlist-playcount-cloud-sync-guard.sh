@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# 2026-11-05 删除合同重钉（public-cleanup）：LibraryQuickPager.kt 已删，quick 文本退出 userPlayCount 缺失断言的文本集；其余断言逐字不变。
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 python3 - "$ROOT" <<'PY'
 from pathlib import Path
@@ -13,7 +14,6 @@ local_store = (base / "LocalStore.kt").read_text()
 models = (base / "Models.kt").read_text()
 merge = (base / "sync/CloudUserMerge.kt").read_text()
 webdav = (base / "sync/WebDavSync.kt").read_text()
-quick = (base / "LibraryQuickPager.kt").read_text()
 list_page = (base / "LibraryPage.kt").read_text()
 row = (base / "LibPage.kt").read_text()
 legacy_test = (root / "app/src/test/java/xyz/cncnlp/soundwave/CloudUserMergeTest.kt").read_text()
@@ -26,7 +26,7 @@ version = (root / "VERSION").read_text().strip()
 gradle = (root / "app/build.gradle").read_text()
 checks = {
     "personal playlist counts and their increment/sync helpers are removed": (
-        all("userPlayCount" not in text for text in (models, main, controller, local_store, merge, webdav, quick, list_page, row))
+        all("userPlayCount" not in text for text in (models, main, controller, local_store, merge, webdav, list_page, row))
         and not (base / "playback/PlaylistPlayCountSyncPolicy.kt").exists()
         and not (base / "playback/PlaylistPlaybackCountPolicy.kt").exists()
         and not (root / "app/src/test/java/xyz/cncnlp/soundwave/playback/PlaylistPlaybackCountPolicyTest.kt").exists()

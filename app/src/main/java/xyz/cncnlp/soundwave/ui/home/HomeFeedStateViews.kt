@@ -76,7 +76,7 @@ internal fun FeedSkeleton() {
     }
 }
 
-/** r657：下拉刷新指示器改为「蛛丝上的小蜘蛛」（见 SpiderRefreshIndicator）；签名与阈值不变，四处调用点无需改动。 */
+/** 下拉刷新指示器：旋转小黑胶（见 VinylRefreshIndicator，r658d 起替换旧蜘蛛指示器）；签名与阈值不变，四处调用点共用。 */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomePullRefreshIndicator(

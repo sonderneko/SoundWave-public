@@ -96,7 +96,6 @@ internal enum class DetailDesignKind { Playlist, Album, Chart }
 private val DetailHeroBg = Color(0xFF121713)
 private val DetailTitleInk = Color(0xFFF6F7F0)
 private val DetailCurrentTitle = Color(0xFFFF5C45) // r657 第三轮：原型 .row.on b = var(--accent)
-private val ChartBannerBg = Color(0xFF241C15)
 private val DangerRed = Color(0xFFB84F43)
 
 /** r656：首页今日推荐卡片与页头的间距（17→14dp）；所有设计稿详情页封面顶距统一使用该值。 */
@@ -414,51 +413,6 @@ internal fun DetailHeroChip(label: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** .detail-hero（专辑）：297dp 封面 r28 + 眉题 + 66sp 衬线标题 + 播放 / 收藏 / 更多。 */
-@Composable
-internal fun AlbumDesignHero(
-    title: String,
-    eyebrow: String,
-    cover: String,
-    coverModel: Any?,
-    favorited: Boolean,
-    showFavorite: Boolean,
-    playEnabled: Boolean,
-    onToggleFavorite: () -> Unit,
-    onPlayAll: () -> Unit,
-    onMore: () -> Unit,
-    onShuffle: (() -> Unit)? = null
-) {
-    val colors = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(28.dp)
-    Column(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 14.dp)) {
-        DetailCoverImage(
-            cover, coverModel, "$title 封面",
-            Modifier.size(264.dp),
-            artworkModifier = Modifier
-                .shadow(22.dp, shape, ambientColor = Color(0xFF131915).copy(alpha = 0.10f), spotColor = Color(0xFF131915).copy(alpha = 0.22f))
-                .clip(shape)
-        )
-        Spacer(Modifier.height(28.dp))
-        Text(
-            eyebrow.uppercase(), color = colors.onSurfaceVariant, fontSize = 10.sp, lineHeight = 13.sp,
-            fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, letterSpacing = 0.13.em, maxLines = 1, overflow = TextOverflow.Ellipsis
-        )
-        Spacer(Modifier.height(9.dp))
-        DesignHeroTitle(title, colors.onBackground, 52.sp, 28.sp, -0.05f, lineFactor = DetailHeroTitleLineFactor)
-        Spacer(Modifier.height(10.dp))
-        HeroActionRow(
-            16.sp, 18.dp, 24.dp, 26.dp, 46.dp, onDark = false, playEnabled = playEnabled, onPlayAll = onPlayAll, onShuffle = onShuffle, favSize = 46.dp,
-            favorite = if (showFavorite) ({
-                DesignRoundButton(if (favorited) "取消收藏专辑" else "收藏专辑", colors.surface, colors.outline, raised = false, onClick = onToggleFavorite) {
-                    Icon(if (favorited) DesignGlyphs.HeartFilled else DesignGlyphs.HeartOutline, null,
-                        tint = if (favorited) SoundwaveDesignPalette.Accent else colors.onSurface, modifier = Modifier.size(22.dp))
-                }
-            }) else null
-        )
-    }
-}
-
 /**
  * 「标准」详情页头部（参考 1000073096，412dp 实测）：左 27dp、宽 = 屏宽 - 110dp 的 r24 方形封面 + 柔和投影；
  * 下 28dp 为 DM Mono 12sp 宽字距眉题（ALBUM · 歌手 · 平台），衬线粗体超大标题（≤64sp 自适应两行），
@@ -506,60 +460,6 @@ internal fun StandardDetailHero(
                 }
             }) else null
         )
-    }
-}
-
-/** .chart-detail-head：「← 返回排行榜」+ 48sp 衬线榜名 + 40dp 珊瑚播放 / 36dp 更多。 */
-@Composable
-internal fun ChartDetailDesignHead(title: String, playEnabled: Boolean, onBack: () -> Unit, onPlayAll: () -> Unit, onMore: () -> Unit, onShuffle: (() -> Unit)? = null) {
-    val colors = MaterialTheme.colorScheme
-    val accent = SoundwaveDesignPalette.Accent
-    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp)) {
-        Spacer(Modifier.height(4.dp))
-        DesignHeroTitle(title, colors.onBackground, 44.sp, 28.sp, -0.04f, lineFactor = DetailHeroTitleLineFactor)
-        Spacer(Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            DesignPlayPill("播放全部", 13.sp, playEnabled, 17.dp, onPlayAll, startPad = 16.dp, endPad = 20.dp, height = 40.dp)
-            if (onShuffle != null) { Spacer(Modifier.width(10.dp)); DesignShufflePill(onDark = false, enabled = playEnabled, height = 40.dp, onClick = onShuffle) }
-        }
-        Spacer(Modifier.height(18.dp))
-    }
-}
-
-/** .chart-banner 装饰：深暖墨底、珊瑚大圆 + 青柠小圆、左下至右上的斜向高光带（E8 去蓝）。 */
-internal fun Modifier.chartBannerArt(): Modifier = this.background(ChartBannerBg).drawBehind {
-    val w = size.width
-    val h = size.height
-    val band = Path().apply {
-        moveTo(w * 0.04f, h); lineTo(w * 0.13f, h); lineTo(w * 1.0f, h * 0.06f); lineTo(w * 1.0f, -h * 0.04f); close()
-    }
-    drawPath(band, Color.White.copy(alpha = 0.07f))
-    drawCircle(Color(0xFFFF6B55), radius = w * 0.091f, center = Offset(w * 0.76f, h * 0.32f))
-    drawCircle(Color(0xFFCCF35B), radius = w * 0.044f, center = Offset(w * 0.849f, h * 0.146f))
-}
-
-/** 榜单详情头卡（280dp）。文案仅用真实数据：平台、曲目数、榜单简介 / 更新周期。 */
-@Composable
-internal fun ChartDetailBanner(eyebrow: String, title: String, subtitle: String, updated: String) {
-    val shape = RoundedCornerShape(28.dp)
-    Box(
-        Modifier.fillMaxWidth().padding(horizontal = 14.dp).height(280.dp)
-            .shadow(18.dp, shape, ambientColor = Color(0xFF0A0E0C).copy(alpha = 0.18f), spotColor = Color(0xFF0A0E0C).copy(alpha = 0.26f))
-            .clip(shape).chartBannerArt()
-    ) {
-        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(start = 32.dp, end = 32.dp, bottom = 32.dp)) {
-            Text(eyebrow, color = Color.White.copy(alpha = 0.55f), fontSize = 10.sp, fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, letterSpacing = 0.13.em, maxLines = 1)
-            Spacer(Modifier.height(6.dp))
-            Text(
-                title, color = Color.White, fontSize = 42.sp, lineHeight = 40.sp, fontFamily = DesignFonts.Newsreader, fontWeight = FontWeight.Medium,
-                letterSpacing = (-0.05).em, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(lineHeightStyle = TightTitleLine)
-            )
-            Spacer(Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(subtitle, color = Color.White.copy(alpha = 0.63f), fontSize = 11.sp, fontFamily = DesignFonts.Manrope, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                if (updated.isNotBlank()) Text(updated.uppercase(), color = Color.White.copy(alpha = 0.54f), fontSize = 9.sp, fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, maxLines = 1, modifier = Modifier.padding(start = 10.dp))
-            }
-        }
     }
 }
 

@@ -50,7 +50,6 @@ import xyz.cncnlp.soundwave.SoundwaveDesignPalette
 import xyz.cncnlp.soundwave.SoundwaveDesignTheme
 import xyz.cncnlp.soundwave.Tab
 import xyz.cncnlp.soundwave.ui.common.FrostedPrefs
-import xyz.cncnlp.soundwave.ui.common.SpiderRefreshIndicator
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerActions
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerBackdrop
 import xyz.cncnlp.soundwave.ui.player.DefaultPlayerRoute
@@ -63,7 +62,6 @@ import kotlin.math.abs
  *  - 底栏回归（v4 原型胶囊组完全透明）：两种底栏样式 × 浅 / 深 × 「底栏与迷你条磨砂」开 / 关，页面「透明磨砂背景」始终打开，
  *    背后铺高对比条纹；逐像素采样胶囊组 / 通栏 / 迷你条底色，断言关闭时 = 实色表面、打开时仍以表面色为主（≥80%）；
  *  - 默认播放器（主页 / 歌词页，浅 / 深，默认背景与磨砂取色）；
- *  - 蜘蛛下拉刷新（下拉中 / 到位 / 刷新中，浅 / 深）。
  * 仅设置 SW_SCREENSHOT_DIR 时运行，CI 跳过。封面取 SW_SCREENSHOT_COVERS_A（默认 /workspace/work/compare/a/dc）。
  */
 @RunWith(RobolectricTestRunner::class)
@@ -213,24 +211,5 @@ class R657ScreenshotTest {
     @Test fun lyricsLight() = player(false, true, false, false, "r657-lyrics-light")
     @Test fun lyricsDark() = player(true, true, false, false, "r657-lyrics-dark")
 
-    // ───────────── 蜘蛛下拉刷新 ─────────────
 
-    private fun spider(dark: Boolean, name: String) {
-        Assume.assumeTrue(outDir() != null)
-        rule.setContent {
-            SoundwaveDesignTheme(isDark = dark) {
-                Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    listOf(0.35f to false, 1f to false, 1f to true).forEach { (pull, refreshing) ->
-                        Box(Modifier.weight(1f).height(140.dp)) {
-                            SpiderRefreshIndicator(pull, refreshing, MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.primary, reduceMotion = true)
-                        }
-                    }
-                }
-            }
-        }
-        capture(name)
-    }
-
-    @Test fun spiderLight() = spider(false, "r657-spider-light")
-    @Test fun spiderDark() = spider(true, "r657-spider-dark")
 }

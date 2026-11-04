@@ -365,25 +365,6 @@ abstract class R657R2ScreenshotBase(private val widthTag: String) {
     }
 
 
-    /** 蜘蛛下拉刷新逐帧：下拉 30% / 70% / 100%（阈值）/ 松手回弹冲过头 / 刷新中 / 完成爬回中。 */
-    private fun spiderFrames(dark: Boolean) {
-        Assume.assumeTrue(outDir() != null); loader()
-        rule.setContent {
-            SoundwaveDesignTheme(isDark = dark) {
-                val cs = MaterialTheme.colorScheme
-                androidx.compose.foundation.layout.Row(Modifier.fillMaxSize().background(cs.background)) {
-                    @Composable fun cell(content: @Composable () -> Unit) = Box(Modifier.weight(1f).fillMaxSize()) { content() }
-                    listOf(0.3f, 0.7f, 1f).forEach { p ->
-                        cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshIndicator(p, false, cs.onSurface, cs.primary, reduceMotion = true, muted = cs.onSurfaceVariant) }
-                    }
-                    cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshFrame(63f, cs.onSurface, cs.primary, cs.onSurfaceVariant, "正在刷新…", sway = 7f) }
-                    cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshIndicator(1f, true, cs.onSurface, cs.primary, reduceMotion = true, muted = cs.onSurfaceVariant) }
-                    cell { xyz.cncnlp.soundwave.ui.common.SpiderRefreshFrame(22f, cs.onSurface, cs.primary, cs.onSurfaceVariant, "已是最新内容") }
-                }
-            }
-        }
-        save("spider-${tagOf(dark)}")
-    }
     // ---- r657 第二轮：每页 × 浅 / 深 × 磨砂关 / 开 ----
     private fun both(dark: Boolean, frost: Boolean, f: () -> Unit) { pf = frost; f() }
     @Test fun detailLight() = both(false, false) { detail(false, false, false) }
