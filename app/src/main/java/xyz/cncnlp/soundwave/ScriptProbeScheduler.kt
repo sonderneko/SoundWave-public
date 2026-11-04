@@ -203,7 +203,7 @@ class ScriptProbeWorker(appContext: Context, params: WorkerParameters) : Corouti
                 )
             }
             val n = NotificationCompat.Builder(app, "script_probe")
-                .setSmallIcon(R.drawable.ic_stat_disc)
+                .setSmallIcon(R.drawable.ic_stat_wave)
                 .setContentTitle("脚本检测完成")
                 .setContentText(summary)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(summary))

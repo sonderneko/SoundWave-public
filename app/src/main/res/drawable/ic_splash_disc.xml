@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ACCEPT6 启动页图标：与启动器图标前景 ic_launcher_foreground 同源的 VinylDiscMotif 黑胶盘，
-  几何按同一母题等比放大（盘半径 31→44，中心 54,54，沟纹比 84/74/64/54/45 沿用），
-  让启动页上的盘面比 adaptive 前景层更饱满。盘面渐变 VinylCore #2B302C → VinylEdge #3D433E、
-  芯标品牌珊瑚 #E8452F、中心孔 evenOdd 镂空透出启动页纸底，与图标棒的定稿保持同一语言。
+  accept6-icon2 · 启动页标记：与启动器图标同一标记（用户选定「声纹环-浅色」的
+  plate+ring+glass+wave），按启动页既有口径放大构图（盘半径 44/108 画布），
+  透出启动页纸底（浅 #F4F4F0 / 夜 #101210，主题与退出逻辑为 splash 棒既有，
+  本文件只换标记资产）。色值与源分层 SVG 逐值一致，声波绿色为选定稿原色。
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -11,48 +11,109 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 盘面：径向渐变填充，中心孔 evenOdd 镂空 -->
     <path
-        android:fillType="evenOdd"
-        android:pathData="M10,54 a44,44 0 1,0 88,0 a44,44 0 1,0 -88,0 Z M50.9,54 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z">
-        <gradient
-            android:type="radial"
-            android:centerX="54"
-            android:centerY="54"
-            android:gradientRadius="44">
-            <item android:offset="0" android:color="#FF2B302C" />
-            <item android:offset="0.3" android:color="#FF2B302C" />
-            <item android:offset="1" android:color="#FF3D433E" />
+        android:pathData="M6.02,58.97 a47.98,45.49 0 1,0 95.95,0 a47.98,45.49 0 1,0 -95.95,0 Z">
+        <gradient android:type="radial" android:centerX="54" android:centerY="58.97" android:gradientRadius="47.98">
+            <item android:offset="0" android:color="#29000000" />
+            <item android:offset="0.55" android:color="#29000000" />
+            <item android:offset="1" android:color="#00000000" />
         </gradient>
     </path>
 
-    <!-- 盘缘描边：黑 12% -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#1F000000"
-        android:strokeWidth="1"
-        android:pathData="M10,54 a44,44 0 1,0 88,0 a44,44 0 1,0 -88,0 Z" />
+        android:pathData="M10,54 a44,44 0 1,0 88,0 a44,44 0 1,0 -88,0 Z">
+        <gradient android:type="linear" android:startX="54" android:startY="10" android:endX="54" android:endY="98">
+            <item android:offset="0" android:color="#FFFFFFFF" />
+            <item android:offset="1" android:color="#FFECE8E2" />
+        </gradient>
+    </path>
 
-    <!-- 沟纹 5 圈：白 9% -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#17FFFFFF"
-        android:strokeWidth="0.7"
-        android:pathData="M14.7,54 a39.3,39.3 0 1,0 78.6,0 a39.3,39.3 0 1,0 -78.6,0 Z M19.4,54 a34.6,34.6 0 1,0 69.2,0 a34.6,34.6 0 1,0 -69.2,0 Z M24.1,54 a29.9,29.9 0 1,0 59.8,0 a29.9,29.9 0 1,0 -59.8,0 Z M28.7,54 a25.3,25.3 0 1,0 50.6,0 a25.3,25.3 0 1,0 -50.6,0 Z M32.9,54 a21.1,21.1 0 1,0 42.2,0 a21.1,21.1 0 1,0 -42.2,0 Z" />
+    <path android:fillType="evenOdd"
+        android:pathData="M10,54 a44,44 0 1,0 88,0 a44,44 0 1,0 -88,0 Z M10.37,54 a43.63,43.63 0 1,0 87.25,0 a43.63,43.63 0 1,0 -87.25,0 Z">
+        <gradient android:type="linear" android:startX="54" android:startY="10.19" android:endX="54" android:endY="97.81">
+            <item android:offset="0" android:color="#E6FFFFFF" />
+            <item android:offset="1" android:color="#00FFFFFF" />
+        </gradient>
+    </path>
 
-    <!-- 左上高光弧：白 20%、圆头 -->
+    <path android:fillType="evenOdd"
+        android:pathData="M13.48,54 a40.52,40.52 0 1,0 81.04,0 a40.52,40.52 0 1,0 -81.04,0 Z M20.94,54 a33.06,33.06 0 1,0 66.12,0 a33.06,33.06 0 1,0 -66.12,0 Z">
+        <gradient android:type="linear" android:startX="54" android:startY="13.48" android:endX="54" android:endY="94.52">
+            <item android:offset="0" android:color="#FF2C2C2F" />
+            <item android:offset="1" android:color="#FF0F0F11" />
+        </gradient>
+    </path>
+
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#33FFFFFF"
-        android:strokeWidth="2.8"
+        android:strokeColor="#14FFFFFF"
+        android:strokeWidth="0.25"
+        android:pathData="M13.73,54 a40.27,40.27 0 1,0 80.54,0 a40.27,40.27 0 1,0 -80.54,0 Z" />
+
+    <path
+        android:pathData="M54,13.48 A40.52,40.52 0 1 1 22.96,80.05 L28.67,75.25 A33.06,33.06 0 1 0 54,20.94 Z">
+        <gradient android:type="linear" android:startX="81.03" android:startY="17.22" android:endX="27.82" android:endY="84.59">
+            <item android:offset="0" android:color="#FFFF9C82" />
+            <item android:offset="0.5" android:color="#FFFF5C45" />
+            <item android:offset="1" android:color="#FFDD3920" />
+        </gradient>
+    </path>
+
+    <path
+        android:pathData="M50.27,17.21 a3.73,3.73 0 1,0 7.46,0 a3.73,3.73 0 1,0 -7.46,0 Z">
+        <gradient android:type="linear" android:startX="81.03" android:startY="17.22" android:endX="27.82" android:endY="84.59">
+            <item android:offset="0" android:color="#FFFF9C82" />
+            <item android:offset="0.5" android:color="#FFFF5C45" />
+            <item android:offset="1" android:color="#FFDD3920" />
+        </gradient>
+    </path>
+
+    <path
+        android:pathData="M22.09,77.65 a3.73,3.73 0 1,0 7.46,0 a3.73,3.73 0 1,0 -7.46,0 Z">
+        <gradient android:type="linear" android:startX="81.03" android:startY="17.22" android:endX="27.82" android:endY="84.59">
+            <item android:offset="0" android:color="#FFFF9C82" />
+            <item android:offset="0.5" android:color="#FFFF5C45" />
+            <item android:offset="1" android:color="#FFDD3920" />
+        </gradient>
+    </path>
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#47FFFFFF"
+        android:strokeWidth="0.75"
         android:strokeLineCap="round"
-        android:pathData="M19.2,33.7 A40.3,40.3 0 0 1 40.7,16" />
+        android:strokeLineJoin="round"
+        android:pathData="M54,19.2 A34.8,34.8 0 1 1 27.34,76.37" />
 
-    <!-- 珊瑚芯标 + 白 25% 细环，中心孔 evenOdd 镂空 -->
     <path
-        android:fillType="evenOdd"
-        android:fillColor="#FFE8452F"
-        android:strokeColor="#40FFFFFF"
-        android:strokeWidth="0.7"
-        android:pathData="M39.5,54 a14.5,14.5 0 1,0 29,0 a14.5,14.5 0 1,0 -29,0 Z M50.9,54 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z" />
+        android:pathData="M23.67,54 a30.33,30.33 0 1,0 60.66,0 a30.33,30.33 0 1,0 -60.66,0 Z">
+        <gradient android:type="linear" android:startX="54" android:startY="23.67" android:endX="54" android:endY="84.33">
+            <item android:offset="0" android:color="#BFFFFFFF" />
+            <item android:offset="1" android:color="#59FFFFFF" />
+        </gradient>
+    </path>
+
+    <path android:fillType="evenOdd"
+        android:pathData="M23.67,54 a30.33,30.33 0 1,0 60.66,0 a30.33,30.33 0 1,0 -60.66,0 Z M24.05,54 a29.95,29.95 0 1,0 59.91,0 a29.95,29.95 0 1,0 -59.91,0 Z">
+        <gradient android:type="linear" android:startX="23.86" android:startY="23.86" android:endX="84.14" android:endY="84.14">
+            <item android:offset="0" android:color="#FFFFFFFF" />
+            <item android:offset="1" android:color="#00FFFFFF" />
+        </gradient>
+    </path>
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#241E4A3B"
+        android:strokeWidth="4.72"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M34.11,55.24 L34.36,55.23 L34.61,55.21 L34.86,55.16 L35.11,55.08 L35.36,54.98 L35.6,54.86 L35.85,54.7 L36.1,54.52 L36.35,54.32 L36.6,54.1 L36.85,53.86 L37.1,53.61 L37.34,53.34 L37.59,53.07 L37.84,52.79 L38.09,52.52 L38.34,52.25 L38.59,51.99 L38.84,51.74 L39.08,51.5 L39.33,51.29 L39.58,51.1 L39.83,50.95 L40.08,50.84 L40.33,50.76 L40.58,50.72 L40.82,50.72 L41.07,50.78 L41.32,50.88 L41.57,51.03 L41.82,51.23 L42.07,51.48 L42.32,51.79 L42.56,52.15 L42.81,52.55 L43.06,53.01 L43.31,53.5 L43.56,54.05 L43.81,54.62 L44.06,55.24 L44.31,55.89 L44.55,56.56 L44.8,57.26 L45.05,57.96 L45.3,58.69 L45.55,59.42 L45.8,60.14 L46.05,60.85 L46.29,61.54 L46.54,62.22 L46.79,62.87 L47.04,63.48 L47.29,64.06 L47.54,64.58 L47.79,65.06 L48.03,65.47 L48.28,65.83 L48.53,66.13 L48.78,66.35 L49.03,66.5 L49.28,66.58 L49.53,66.58 L49.77,66.5 L50.02,66.34 L50.27,66.11 L50.52,65.8 L50.77,65.41 L51.02,64.95 L51.27,64.42 L51.51,63.82 L51.76,63.16 L52.01,62.44 L52.26,61.66 L52.51,60.84 L52.76,59.97 L53.01,59.07 L53.25,58.14 L53.5,57.18 L53.75,56.21 L54,55.24 L54.25,54.27 L54.5,53.3 L54.75,52.35 L54.99,51.41 L55.24,50.52 L55.49,49.65 L55.74,48.83 L55.99,48.05 L56.24,47.33 L56.49,46.67 L56.73,46.07 L56.98,45.54 L57.23,45.08 L57.48,44.69 L57.73,44.38 L57.98,44.14 L58.23,43.98 L58.47,43.91 L58.72,43.91 L58.97,43.98 L59.22,44.13 L59.47,44.35 L59.72,44.65 L59.97,45.01 L60.21,45.42 L60.46,45.91 L60.71,46.43 L60.96,47 L61.21,47.61 L61.46,48.27 L61.71,48.94 L61.95,49.64 L62.2,50.35 L62.45,51.07 L62.7,51.8 L62.95,52.52 L63.2,53.23 L63.45,53.93 L63.69,54.6 L63.94,55.24 L64.19,55.86 L64.44,56.44 L64.69,56.98 L64.94,57.48 L65.19,57.94 L65.44,58.34 L65.68,58.7 L65.93,59.01 L66.18,59.26 L66.43,59.46 L66.68,59.61 L66.93,59.71 L67.18,59.77 L67.42,59.77 L67.67,59.73 L67.92,59.64 L68.17,59.53 L68.42,59.38 L68.67,59.2 L68.92,58.98 L69.16,58.75 L69.41,58.5 L69.66,58.24 L69.91,57.96 L70.16,57.69 L70.41,57.42 L70.66,57.14 L70.9,56.87 L71.15,56.62 L71.4,56.39 L71.65,56.16 L71.9,55.96 L72.15,55.79 L72.4,55.63 L72.64,55.5 L72.89,55.4 L73.14,55.33 L73.39,55.28 L73.64,55.26 L73.89,55.24" />
+
+    <path
+        android:pathData="M34.48,56.35 L35.98,56.03 L37.21,55.39 L38.52,54.29 L40.54,52.13 L41.63,54.29 L44.58,62.47 L45.77,65.04 L46.72,66.4 L47.56,67.14 L48.6,67.6 L49.53,67.7 L50.45,67.52 L51.65,66.81 L52.5,65.83 L53.45,64.08 L54.78,60.24 L57.52,49.92 L58.65,46.37 L61.49,54.2 L62.83,57.29 L64.26,59.44 L65.8,60.56 L66.6,60.82 L67.77,60.86 L69.63,60.16 L70.79,59.22 L73.31,56.61 L74.9,56.13 L75.64,55.58 L76.11,54.79 L76.25,53.88 L76.02,52.99 L75.47,52.25 L74.68,51.78 L73.77,51.64 L72.68,51.77 L71.59,52.15 L70.42,52.88 L67.46,55.87 L66.37,53.71 L63.42,45.53 L62.23,42.96 L61.28,41.6 L60.44,40.86 L59.4,40.4 L58.47,40.3 L57.55,40.48 L56.35,41.19 L55.5,42.17 L54.55,43.92 L53.22,47.76 L50.48,58.08 L49.35,61.63 L46.51,53.8 L45.17,50.71 L43.74,48.56 L42.79,47.76 L41.95,47.35 L40.23,47.14 L38.61,47.69 L37.46,48.55 L34.69,51.39 L33.1,51.87 L32.36,52.42 L31.89,53.21 L31.75,54.12 L31.98,55.01 L32.53,55.75 L33.32,56.22 L34.48,56.35 Z">
+        <gradient android:type="linear" android:startX="34.05" android:startY="42.56" android:endX="53.66" android:endY="76.81">
+            <item android:offset="0" android:color="#FF7DAA99" />
+            <item android:offset="1" android:color="#FF436E5E" />
+        </gradient>
+    </path>
 </vector>

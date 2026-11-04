@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  accept6-icon2 · adaptive icon 背景层（108dp 画布）：用户选定「声纹环-浅色」的
+  background 层——暖白对角线性渐变 #F8F7F4 → #E1DDD6（源 SVG bg 渐变，方向
+  (0,0)→(0.3,1) 按画布换算为绝对坐标）。原纯色背景 #F4F4F0 随之退役（colors.xml 中同名颜色已删除）。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M0,0 L108,0 L108,108 L0,108 Z">
+        <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="32.4" android:endY="108">
+            <item android:offset="0" android:color="#FFF8F7F4" />
+            <item android:offset="1" android:color="#FFE1DDD6" />
+        </gradient>
+    </path>
+</vector>
