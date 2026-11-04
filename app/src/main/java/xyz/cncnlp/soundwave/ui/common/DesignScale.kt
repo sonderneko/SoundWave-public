@@ -104,3 +104,41 @@ object IconSize {
     /** 28：播放器次级图标。 */
     val Large: Dp = 28.dp
 }
+
+/**
+ * 图标绘制规范（PB-B1，第二批后合并批第 0 波立档；验收尺由 scripts/icon-stroke-guard.sh 钉住）。
+ *
+ * 适用范围：24×24 口径的自绘 glyph——Kotlin ImageVector 定义与 viewport 24×24 的 vector
+ * drawable。108 画布的品牌标记（启动器图标 / 启动图）是另一口径，不在本规范内。
+ *
+ * 规范正文（唯一基线档）：
+ * - viewport 唯一 24×24（defaultWidth/Height 24.dp、viewport 24f×24f；drawable 同值）。
+ * - stroke 唯一基线档 = 1.8，strokeLineCap / strokeLineJoin 一律 Round。
+ * - 「更多」圆点统一 r1.9、圆心 x = 5 / 12 / 19（y = 12）。
+ * - 心形标准跨度 18（路径横向跨度以 18 为准心排比对）。
+ *
+ * 例外档（明文立档，仅限下列定义点；新增例外须先改本节再改守卫名单）：
+ * - DesignChromeGlyphs.PauseBold stroke 3.4：实心按钮变体——播放主按钮的粗暂停，
+ *   以描边加粗模拟实心竖条，与同排实心三角等重。
+ * - DesignChromeGlyphs.PlaySolid stroke 1.0：实心三角变体——填充三角外加 1.0 描边
+ *   只为圆角连接补形，描边本身不承担线宽语义。
+ *
+ * 存量待改（不属例外档：第 2 波 PB-B3 逐项归 1.8 后从守卫棘轮名单删除）：
+ * DesignGlyphs.PlayTriangleSoft 1.6、sw_scan / sw_pswap 1.75、
+ * DefaultPlayerGlyphs.AirPlay 1.9、DefaultPlayerGlyphs.ChevronRight 2.0、
+ * ic_stat_wave 2.02 / 1.28（单图标双宽）。
+ * 本波只立规范，不改任何现有 glyph 参数。
+ */
+object IconSpec {
+    /** viewport 基线（dp / viewport 单位同值）。 */
+    val Viewport: Dp = 24.dp
+    /** stroke 唯一基线档。 */
+    const val StrokeWidth: Float = 1.8f
+    /** 「更多」圆点统一半径与圆心 x（y = 12）。 */
+    const val MoreDotRadius: Float = 1.9f
+    const val MoreDotCenterStart: Float = 5f
+    const val MoreDotCenterMid: Float = 12f
+    const val MoreDotCenterEnd: Float = 19f
+    /** 心形标准跨度。 */
+    const val HeartSpan: Float = 18f
+}
