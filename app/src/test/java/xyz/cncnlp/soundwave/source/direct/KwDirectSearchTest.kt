@@ -3,6 +3,7 @@ package xyz.cncnlp.soundwave.source.direct
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import xyz.cncnlp.soundwave.AlbumCoverBackfill
 
 class KwDirectSearchTest {
 
@@ -34,6 +35,10 @@ class KwDirectSearchTest {
         assertEquals("", songs[1].cover)
         assertEquals("55", songs[2].id)
         assertEquals("", songs[2].cover)
+        // ALBUMID 只进元数据：无 ALBUMID 的条目 albumId 为空，有值的原样带出。
+        assertEquals("", songs[0].albumId)
+        assertEquals("", songs[1].albumId)
+        assertEquals("6604395", songs[2].albumId)
     }
 
     @Test
@@ -48,6 +53,22 @@ class KwDirectSearchTest {
         assertEquals("1234", songs[0].id)
         assertEquals("", songs[0].cover)
         assertEquals(0L, songs[0].duration)
+        // 封面仍不许据 ALBUMID 猜造，但 ID 本身要带出——空封面+真实专辑 ID
+        // 恰好是专辑封面回补的资格组合（此前 ID 被丢弃，回补永远够不到 kw 搜索来源）。
+        assertEquals("6604395", songs[0].albumId)
+        assertEquals("6604395", AlbumCoverBackfill.targetAlbumId(songs[0]))
+    }
+
+    @Test
+    fun `r-s treats zero album id as missing`() {
+        val raw = """
+        {"abslist":[
+          {"SONGNAME":"单曲","ARTIST":"路人","rid":"88","ALBUMID":"0"}
+        ]}
+        """.trimIndent()
+        val songs = parseKwSearch(raw, "单曲")
+        assertEquals(1, songs.size)
+        assertEquals("", songs[0].albumId)
     }
 
     @Test

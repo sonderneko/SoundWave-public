@@ -15,7 +15,7 @@ import java.net.URLEncoder
  *   总超时 8s（服务端主源 10s / oiapi 8s）
  * - 无分页：服务端 pn 恒 0（/api/search 的 kw 分支同样不传页码），page 参数保留签名但忽略
  * - 解析：abslist[] → SONGNAME/NAME、ARTIST、DC_TARGETID/MUSICRID/rid（MUSIC_ 前缀剥离 + 仅留数字）、
- *   ALBUM、DURATION；封面只取该曲真实专辑图 web_albumpic_short；不把歌手图、MV 横幅、PICPATH 或
+ *   ALBUM、ALBUMID（仅元数据，见 parseKwSearch 内注）、DURATION；封面只取该曲真实专辑图 web_albumpic_short；不把歌手图、MV 横幅、PICPATH 或
  *   ALBUMID 猜测 URL 当成歌曲专辑封面。http URL 原样保留，/ 开头补 https://img1.kuwo.cn/star/albumcover 前缀；
  *   服务端对 kw 搜索封面不做 shrink_cover，客户端同样原样保留
  * - 「剥离之茧」强制再查「剥离之茧 添儿呗」；KNOWN_ORIGINALS 硬插原唱（rid=KW_ORIGINAL_RID、cover 置空、
@@ -137,6 +137,10 @@ internal fun parseKwSearch(raw: String, keyword: String, limit: Int = 20): List<
                     source = "kw",
                     cover = cover,
                     album = album,
+                    // ALBUMID 仅作专辑 ID 元数据（封面回补/专辑导航），绝不据此猜封面 URL；
+                    // "0" 与 ARTISTID 同口径按缺失处理。此前不读此字段，kw 搜索来源的
+                    // 空封面歌曲永远够不到 AlbumCoverBackfill 的回补资格。
+                    albumId = kwOrChain(item, "ALBUMID").takeUnless { it == "0" }.orEmpty(),
                     duration = duration,
                 )
             )

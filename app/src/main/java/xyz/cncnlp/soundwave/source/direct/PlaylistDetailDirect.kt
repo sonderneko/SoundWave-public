@@ -250,6 +250,8 @@ internal fun parseKwPlaylistDetail(raw: String): List<Song> {
                     duration = secondsToDurationMs(s.optLong("duration", s.optLong("DURATION", 0L))),
                     cover = shrinkCover(firstStr(s, "albumpic", "pic").ifEmpty { kwPlaylistCoverFallback(s) }, 1080),
                     album = cleanSpace(firstStr(s, "album", "FALBUM")),
+                    // pl.svc 条目带真实 albumid，此前未读：空封面条目够不到专辑封面回补资格。
+                    albumId = firstStr(s, "albumid", "ALBUMID").takeUnless { it == "0" }.orEmpty(),
                 )
             )
         }

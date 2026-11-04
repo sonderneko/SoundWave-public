@@ -227,6 +227,25 @@ class CoverPipelineTest {
     }
 
     @Test
+    fun `normalize maps TLS-dead kuwo sycdn hosts onto the kuwo mirror`() {
+        // img 字段的 sycdn 主机 HTTPS 实测 TLS 失败（curl 000），同路径在 kuwo.cn
+        // 镜像（hts_img）实测 200；归一后与 hts_img 直达的结果逐字一致。
+        assertEquals(
+            "https://img4.kuwo.cn/star/albumcover/1080/s4s86/95/3059703046.jpg",
+            normalizeCoverUrl("http://img4.sycdn.kuwo.cn/star/albumcover/240/s4s86/95/3059703046.jpg"),
+        )
+        assertEquals(
+            "https://img4.kuwo.cn/star/albumcover/1080/s4s86/95/3059703046.jpg",
+            normalizeCoverUrl("https://img4.sycdn.kuwo.cn/star/albumcover/240/s4s86/95/3059703046.jpg"),
+        )
+        // img3 先过 sycdn 映射、再走既有 img2/img3→img1 迁移规则。
+        assertEquals(
+            "https://img1.kuwo.cn/star/albumcover/1080/s4s86/95/3059703046.jpg",
+            normalizeCoverUrl("http://img3.sycdn.kuwo.cn/star/albumcover/240/s4s86/95/3059703046.jpg"),
+        )
+    }
+
+    @Test
     fun `cover cache signature accepts common image formats and rejects provider error bodies`() {
         assertTrue(isSupportedCoverImageSignature(byteArrayOf(0xff.toByte(), 0xd8.toByte(), 0xff.toByte(), 0x00)))
         assertTrue(isSupportedCoverImageSignature(byteArrayOf(0x89.toByte(), 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)))

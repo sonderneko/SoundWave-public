@@ -179,11 +179,13 @@ class PlaylistDetailDirectTest {
         assertEquals("112", mgOut[0].singerId)
         val kwRaw = """
             {"musiclist":[
-              {"id":"1575792","name":"晴天","artist":"周杰伦","artistid":"336391"}
+              {"id":"1575792","name":"晴天","artist":"周杰伦","artistid":"336391","albumid":"533483"}
             ]}
         """.trimIndent()
         val kwOut = parseKwPlaylistDetail(kwRaw)
         assertEquals(1, kwOut.size)
         assertEquals("336391", kwOut[0].singerId)
+        // pl.svc 的 albumid 此前未读，空封面条目够不到专辑封面回补资格。
+        assertEquals("533483", kwOut[0].albumId)
     }
 }

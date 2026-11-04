@@ -93,7 +93,7 @@ class RankDirectFetchTest {
             "img":"http://img4.kuwo.cn/star/upload/x.png",
             "num":"300",
             "musicList":[
-                {"name":"风吹过千山万水","artist":"恰恰恰恰恰","musicrid":"MUSIC_634582257","pic":"http://img3.kuwo.cn/star/albumcover/500/a/1.jpg","album":"风吹过千山万水","duration":198},
+                {"name":"风吹过千山万水","artist":"恰恰恰恰恰","musicrid":"MUSIC_634582257","pic":"http://img3.kuwo.cn/star/albumcover/500/a/1.jpg","album":"风吹过千山万水","albumid":"104718265","duration":198},
                 {"name":"rid剥离","rid":"77","albumpic":"//img2.kuwo.cn/star/albumcover/120/95/2.jpg"},
                 {"name":"无rid"}
             ]}}""".trimIndent()
@@ -106,7 +106,10 @@ class RankDirectFetchTest {
         assertEquals("恰恰恰恰恰", page.songs[0].singer)
         assertEquals("https://img3.kuwo.cn/star/albumcover/500/a/1.jpg", page.songs[0].cover)
         assertEquals(198000L, page.songs[0].duration)
+        // bang 条目的 albumid 此前未读，空封面条目够不到专辑封面回补资格；无此字段仍为空。
+        assertEquals("104718265", page.songs[0].albumId)
         assertEquals("77", page.songs[1].id)
+        assertEquals("", page.songs[1].albumId)
         assertEquals("https://img2.kuwo.cn/star/albumcover/120/95/2.jpg", page.songs[1].cover)
     }
 

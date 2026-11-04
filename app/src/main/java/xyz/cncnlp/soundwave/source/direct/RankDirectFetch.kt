@@ -563,6 +563,8 @@ internal fun parseKwBangPage(raw: String): KwRankDetail {
                         source = "kw",
                         cover = shrinkCover(item.optString("pic").ifEmpty { item.optString("albumpic") }),
                         album = cleanSpace(item.optString("album")),
+                        // bang/musicList 条目带真实 albumid，此前未读：空封面条目够不到专辑封面回补资格。
+                        albumId = item.optString("albumid").takeUnless { it == "0" }.orEmpty(),
                         duration = secondsToDurationMs(item.optString("duration").trim().toLongOrNull() ?: 0L),
                         maxQuality = rankMaxQualityKw(item.optString("formats")),
                         publishTime = rankParseDate(item.optString("releaseDate").ifEmpty { item.optString("releasetime") }),
