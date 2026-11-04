@@ -475,7 +475,7 @@ private fun DownloadTaskRow(
                     Modifier.size(22.dp).clip(CircleShape).background(if (checked) accent else Color.Transparent)
                         .border(1.5.dp, if (checked) accent else colors.onSurfaceVariant.copy(alpha = 0.5f), CircleShape),
                     contentAlignment = Alignment.Center
-                ) { if (checked) Icon(DesignLineGlyphs.Check, "已选择", tint = Color.White, modifier = Modifier.size(13.dp)) }
+                ) { xyz.cncnlp.soundwave.ui.common.AnimatedCheckMark(checked, DesignLineGlyphs.Check, Color.White, 13.dp, contentDescription = "已选择") }
                 Spacer(Modifier.width(10.dp))
             }
             Box(Modifier.size(50.dp).clip(RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {

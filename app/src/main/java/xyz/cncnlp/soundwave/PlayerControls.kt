@@ -1,5 +1,7 @@
 package xyz.cncnlp.soundwave
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import xyz.cncnlp.soundwave.ThemeTokens.PlayerControls as ControlTokens
 
@@ -72,8 +74,13 @@ internal fun PlayerProgressBlock(
     val track = ControlTokens.Progress.track(light)
     val fillBrush = SolidColor(foreground)
     val tcol = ControlTokens.Progress.time(light)
-    val barH = if (dragging) ControlTokens.Progress.DragTrackHeight else ControlTokens.Progress.TrackHeight
-    val thumbS = if (dragging) ControlTokens.Progress.DragThumb else ControlTokens.Progress.Thumb
+    // ACCEPT6-motiondraft（稿 .v7p-seek .bar.drag）：拖动态轨道/拇指尺寸原为硬切换，
+    // 改 FastSpatial 弹簧补间，与默认播放器 DefaultPlayerSeekBar 的拖动态同语言；简洁动效直切。
+    val progressAnimSpec: androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.Dp> =
+        if (xyz.cncnlp.soundwave.MotionPolicy.rememberReduceMotion()) snap()
+        else androidx.compose.animation.core.spring(dampingRatio = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Spring.FastSpatial.first, stiffness = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Spring.FastSpatial.second)
+    val barH by animateDpAsState(if (dragging) ControlTokens.Progress.DragTrackHeight else ControlTokens.Progress.TrackHeight, progressAnimSpec, label = "legacySeekTrackH")
+    val thumbS by animateDpAsState(if (dragging) ControlTokens.Progress.DragThumb else ControlTokens.Progress.Thumb, progressAnimSpec, label = "legacySeekThumb")
     // 手势协程不能把实时 ratio 作为 key；否则 onDrag 更新状态会重启手势，表现为进度条“一卡一卡”。
     val latestRatio by rememberUpdatedState(ratio)
     val latestStart by rememberUpdatedState(onDragStart)
@@ -172,8 +179,12 @@ internal fun AppleMusicControls(
 ) {
     val milk = foreground
     val pressHapticView = androidx.compose.ui.platform.LocalView.current
-    val volH = if (volumePressed) ControlTokens.Volume.PressedTrackHeight else ControlTokens.Volume.TrackHeight
-    val volThumb = if (volumePressed) ControlTokens.Volume.PressedThumb else ControlTokens.Volume.Thumb
+    // ACCEPT6-motiondraft（稿 .v7p-vol .vbar.drag）：音量拖动态尺寸同进度条，改弹簧补间（规格口径同上）。
+    val volumeAnimSpec: androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.Dp> =
+        if (xyz.cncnlp.soundwave.MotionPolicy.rememberReduceMotion()) snap()
+        else androidx.compose.animation.core.spring(dampingRatio = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Spring.FastSpatial.first, stiffness = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Spring.FastSpatial.second)
+    val volH by animateDpAsState(if (volumePressed) ControlTokens.Volume.PressedTrackHeight else ControlTokens.Volume.TrackHeight, volumeAnimSpec, label = "legacyVolTrackH")
+    val volThumb by animateDpAsState(if (volumePressed) ControlTokens.Volume.PressedThumb else ControlTokens.Volume.Thumb, volumeAnimSpec, label = "legacyVolThumb")
     // 音量与进度条一样：不能以实时 value 作为 pointerInput key，否则拖动会被重启。
     val latestVolume by rememberUpdatedState(volume)
     Column(Modifier.fillMaxWidth().padding(horizontal = ControlTokens.HorizontalPadding).padding(top = ControlTokens.Transport.TopPadding, bottom = ControlTokens.Transport.BottomPadding)) {

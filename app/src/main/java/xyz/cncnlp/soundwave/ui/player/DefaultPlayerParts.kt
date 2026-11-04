@@ -4,7 +4,9 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 
@@ -37,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -290,6 +293,15 @@ internal fun DefaultPlayerSeekBar(
     val drag by rememberUpdatedState(onDrag)
     val end by rememberUpdatedState(onDragEnd)
     val cancel by rememberUpdatedState(onDragCancel)
+    // ACCEPT6-motiondraft（稿 .v7p-seek .bar.drag）：拖动中拇指放大 ×1.4、轨道 4→6dp，
+    // 松手弹簧弹回；仅视觉，不动拖动/回调语义。「简洁动效」时恒为静止态。
+    var seekDragging by remember { mutableStateOf(false) }
+    val reduceSeekMotion = xyz.cncnlp.soundwave.MotionPolicy.rememberReduceMotion()
+    val dragT by animateFloatAsState(
+        if (seekDragging) 1f else 0f,
+        if (reduceSeekMotion) snap() else xyz.cncnlp.soundwave.ui.motion.MotionTokens.Spring.FastSpatialSpec,
+        label = "seekDragT"
+    )
     BoxWithConstraints(
         modifier.fillMaxWidth().height(touchHeight)
             .pointerInput(Unit) { detectTapGestures { o -> tap((o.x / size.width).coerceIn(0f, 1f)) } }
@@ -297,24 +309,25 @@ internal fun DefaultPlayerSeekBar(
                 var active = false
                 try {
                     detectHorizontalDragGestures(
-                        onDragStart = { o -> active = true; start(); drag((o.x / size.width).coerceIn(0f, 1f)) },
-                        onDragEnd = { active = false; end() },
-                        onDragCancel = { active = false; cancel() }
+                        onDragStart = { o -> active = true; seekDragging = true; start(); drag((o.x / size.width).coerceIn(0f, 1f)) },
+                        onDragEnd = { active = false; seekDragging = false; end() },
+                        onDragCancel = { active = false; seekDragging = false; cancel() }
                     ) { change, _ -> change.consume(); drag((change.position.x / size.width).coerceIn(0f, 1f)) }
                 } finally {
-                    if (active) cancel()
+                    if (active) { seekDragging = false; cancel() }
                 }
             }
             .semantics { contentDescription = "播放进度 ${(progress * 100).toInt()}%" },
         contentAlignment = Alignment.CenterStart
     ) {
         val p = progress.coerceIn(0f, 1f)
-        Box(Modifier.fillMaxWidth().height(trackHeight).clip(RoundedCornerShape(99.dp)).background(colors.ink.copy(alpha = if (colors.dark) 0.16f else 0.10f))) {
+        Box(Modifier.fillMaxWidth().height(trackHeight + 2.dp * dragT).clip(RoundedCornerShape(99.dp)).background(colors.ink.copy(alpha = if (colors.dark) 0.16f else 0.10f))) {
             Box(Modifier.fillMaxWidth(p).fillMaxHeight().clip(RoundedCornerShape(99.dp)).background(colors.accent))
         }
         // r657 第三轮：原型圆点 = 12dp 实心珊瑚 + 4dp 墨色 12% 光环（app.css .pprog .bar i::after），无白芯。
         Box(
             Modifier.offset(x = (maxWidth - thumb) * p - 4.dp).size(thumb + 8.dp)
+                .graphicsLayer { val s = 1f + 0.4f * dragT; scaleX = s; scaleY = s }
                 .clip(CircleShape).background(colors.ink.copy(alpha = 0.12f))
         ) { Box(Modifier.align(Alignment.Center).size(thumb).clip(CircleShape).background(colors.accent)) }
     }

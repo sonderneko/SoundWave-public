@@ -435,6 +435,8 @@ fun ScriptsPage(
                 // 验收 B 波：去掉整行卡片壳（底色/描边），仅拖动中保留 6% 强调淡染作状态提示；手势块原样不动。
                 swAnimateItem(listReduceMotion)
                     .fillMaxWidth()
+                    // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
+                    .then(xyz.cncnlp.soundwave.ui.common.dragLift(selected, RoundedCornerShape(14.dp)))
                     .clip(RoundedCornerShape(14.dp))
                     .background(if (selected) accent.copy(alpha = 0.06f) else Color.Transparent)
                     .pointerInput(sc.id) {

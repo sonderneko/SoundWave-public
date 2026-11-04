@@ -655,7 +655,7 @@ internal fun DesignSortMenuCard(current: String, onPick: (String) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(label, color = if (on) DetailCurrentTitle else colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = DesignFonts.Manrope, modifier = Modifier.weight(1f))
-                if (on) Icon(Icons.Filled.Check, null, tint = SoundwaveDesignPalette.Accent, modifier = Modifier.size(16.dp))
+                xyz.cncnlp.soundwave.ui.common.AnimatedCheckMark(on, Icons.Filled.Check, SoundwaveDesignPalette.Accent, 16.dp)
             }
         }
     }
@@ -670,7 +670,7 @@ internal fun DesignSelectCheck(selected: Boolean) {
         Modifier.size(24.dp).clip(CircleShape).background(if (selected) accent else colors.surface)
             .border(2.dp, if (selected) accent else colors.onBackground.copy(alpha = 0.35f), CircleShape),
         contentAlignment = Alignment.Center
-    ) { if (selected) Icon(Icons.Filled.Check, null, tint = Color.White, modifier = Modifier.size(15.dp)) }
+    ) { xyz.cncnlp.soundwave.ui.common.AnimatedCheckMark(selected, Icons.Filled.Check, Color.White, 15.dp) }
 }
 
 /* ─────────────── .rank-row：榜单详情行（名次 / 封面 / 标题 / 更多；多选显示勾选） ─────────────── */

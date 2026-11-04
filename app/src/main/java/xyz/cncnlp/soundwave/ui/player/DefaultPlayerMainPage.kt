@@ -70,6 +70,7 @@ import xyz.cncnlp.soundwave.playModeLabel
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
 import xyz.cncnlp.soundwave.ui.common.ParticleStyle
 import xyz.cncnlp.soundwave.ui.common.particleBurst
+import xyz.cncnlp.soundwave.ui.common.popOnBecomeTrue
 import xyz.cncnlp.soundwave.ui.common.rememberParticleBurstState
 import xyz.cncnlp.soundwave.ui.common.cssShadow
 
@@ -170,7 +171,8 @@ internal fun DefaultPlayerMainPage(state: DefaultPlayerState, actions: DefaultPl
             DefaultPlayerIconButton(
                 if (state.liked) DefaultPlayerGlyphs.HeartFilled else DefaultPlayerGlyphs.Heart,
                 if (state.liked) "取消喜欢" else "喜欢", if (state.liked) colors.accent else colors.ink,
-                Modifier.particleBurst(likeBurst, colors.accent, Color(0xFFFFD678), ParticleStyle.Hearts, count = 16, radius = 52.dp),
+                // ACCEPT6-motiondraft（稿 burst pop）：点亮时按钮本体先弹到 1.25 再弹回，与粒子并行（共享 popOnBecomeTrue）。
+                Modifier.popOnBecomeTrue(state.liked).particleBurst(likeBurst, colors.accent, Color(0xFFFFD678), ParticleStyle.Hearts, count = 16, radius = 52.dp),
                 size = 40.dp, iconSize = 22.dp, onClick = { if (!state.liked) { likeBurst.burst(); xyz.cncnlp.soundwave.ui.common.AppHaptics.confirm(hapticView) } else xyz.cncnlp.soundwave.ui.common.AppHaptics.tap(hapticView); actions.onLike() }
             )
             DefaultPlayerIconButton(DefaultPlayerGlyphs.More, "更多操作", colors.ink, size = 40.dp, iconSize = 22.dp, onClick = actions.onMore)

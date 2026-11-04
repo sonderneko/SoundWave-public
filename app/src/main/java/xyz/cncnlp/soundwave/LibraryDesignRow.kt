@@ -1,5 +1,6 @@
 package xyz.cncnlp.soundwave
 
+import xyz.cncnlp.soundwave.ui.common.dragLift
 import xyz.cncnlp.soundwave.ui.common.rippleGlow
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -77,6 +78,8 @@ internal fun LibraryDesignRow(
             Modifier
                 .fillMaxWidth()
                 .height(72.dp)
+                // ACCEPT6-motiondraft（稿 .lift）：拖动中整行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
+                .dragLift(dragging, RoundedCornerShape(14.dp))
                 // 不裁剪整行：封面透明投影向下延伸 ~17dp，裁剪会切出一条生硬的灰边。
                 .background(
                     when {

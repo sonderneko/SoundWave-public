@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import xyz.cncnlp.soundwave.ui.common.popOnBecomeTrue
 import xyz.cncnlp.soundwave.ui.common.pressScale
 import xyz.cncnlp.soundwave.ui.common.sheetPanelGlass
 import xyz.cncnlp.soundwave.ui.common.homeCoverShadow
@@ -233,7 +234,8 @@ fun SongRow(
                         if (liked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         if (liked) "取消喜欢：${song.name}" else "喜欢：${song.name}",
                         tint = if (liked) colors.primary else colors.onSurfaceVariant,
-                        modifier = Modifier.size(ThemeTokens.TrackRow.ActionIcon)
+                        // ACCEPT6-motiondraft（稿 burst pop）：点亮时心形本体弹跳（共享 popOnBecomeTrue）。
+                        modifier = Modifier.size(ThemeTokens.TrackRow.ActionIcon).popOnBecomeTrue(liked)
                     )
                 }
             }
@@ -270,7 +272,8 @@ fun SongRow(
                         .border(ThemeTokens.TrackRow.SelectionBorder, detailForeground.copy(alpha = if (selected) 1f else ThemeTokens.TrackRow.SelectionOutlineAlpha), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selected) Icon(Icons.Filled.Check, null, tint = if (detailForeground.luminance() < 0.5f) Color.White else Color.Black, modifier = Modifier.size(ThemeTokens.TrackRow.SelectionCheck))
+                    // ACCEPT6-motiondraft（稿 .ck）：勾选 ✓ 弹入（共享 AnimatedCheckMark）。
+                    xyz.cncnlp.soundwave.ui.common.AnimatedCheckMark(selected, Icons.Filled.Check, if (detailForeground.luminance() < 0.5f) Color.White else Color.Black, ThemeTokens.TrackRow.SelectionCheck)
                 }
             } else {
                 Box(
@@ -281,7 +284,7 @@ fun SongRow(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selected) Icon(Icons.Filled.Check, null, tint = colors.onPrimary, modifier = Modifier.size(ThemeTokens.TrackRow.SelectionCheck))
+                    xyz.cncnlp.soundwave.ui.common.AnimatedCheckMark(selected, Icons.Filled.Check, colors.onPrimary, ThemeTokens.TrackRow.SelectionCheck)
                 }
             }
             Spacer(Modifier.width(ThemeTokens.TrackRow.SelectionGap))

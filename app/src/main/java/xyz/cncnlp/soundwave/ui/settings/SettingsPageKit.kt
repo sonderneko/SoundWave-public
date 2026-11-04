@@ -1,5 +1,7 @@
 package xyz.cncnlp.soundwave.ui.settings
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -198,15 +201,27 @@ fun SettingsSegmented(options: List<String>, selected: Int, onSelect: (Int) -> U
     ) {
         options.forEachIndexed { i, label ->
             val on = i == selected
+            // ACCEPT6-motiondraft（稿通则：底色/字色 .3s 级过渡）：选中填充与字色改渐变，
+            // 不再硬切换；布局与逐项独立胶囊形态不变（滑动指示块属布局变更，不采纳）。
+            val segBg by animateColorAsState(
+                if (on) ink else Color.Transparent,
+                tween(xyz.cncnlp.soundwave.ui.motion.MotionTokens.Duration.Medium, xyz.cncnlp.soundwave.ui.motion.MotionTokens.Easing.Emphasized),
+                label = "settingsSegmentedBg"
+            )
+            val segFg by animateColorAsState(
+                if (on) paper else settingsMutedColor(),
+                tween(xyz.cncnlp.soundwave.ui.motion.MotionTokens.Duration.Medium, xyz.cncnlp.soundwave.ui.motion.MotionTokens.Easing.Emphasized),
+                label = "settingsSegmentedFg"
+            )
             Box(
                 Modifier.weight(1f).heightIn(min = 32.dp).clip(shape)
-                    .background(if (on) ink else Color.Transparent)
+                    .background(segBg)
                     .clickable { onSelect(i) }
                     .semantics { this.selected = on; role = Role.Tab; contentDescription = label }
                     .padding(horizontal = 10.dp, vertical = 7.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(label, color = if (on) paper else settingsMutedColor(), fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(label, color = segFg, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
             }
         }
     }

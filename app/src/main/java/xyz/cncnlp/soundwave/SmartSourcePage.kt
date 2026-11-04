@@ -157,7 +157,10 @@ fun SmartSourcePage(
                             // ACCEPT4（按稿）：阶段行间改发丝线分隔（稿 .step border-top），行高下限 60dp 对齐稿。
                             if (index > 0) HorizontalDivider(color = xyz.cncnlp.soundwave.ui.common.frostLine(outline.copy(alpha = 0.45f)))
                             Row(
-                                Modifier.fillMaxWidth().heightIn(min = 60.dp).clip(RoundedCornerShape(12.dp))
+                                Modifier.fillMaxWidth().heightIn(min = 60.dp)
+                                    // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
+                                    .then(xyz.cncnlp.soundwave.ui.common.dragLift(draggingStage == id, RoundedCornerShape(12.dp)))
+                                    .clip(RoundedCornerShape(12.dp))
                                     // 仅拖动态保留珊瑚淡染作反馈（行本身无底，路径线由节点底盘遮盖）。
                                     .background(if (draggingStage == id) SoundwaveDesignPalette.Accent.copy(alpha = 0.08f) else Color.Transparent)
                                     .then(
