@@ -146,6 +146,7 @@ jobs:
             scripts/player-similar-search-registry-guard.sh
             scripts/press-haptics-coverage-guard.sh
             scripts/motion-adoption-guard.sh
+            scripts/icon-stroke-guard.sh
             scripts/search-album-detail-registry-guard.sh
             scripts/search-typed-registry-guard.sh
             scripts/search-entry-async-guard.sh
