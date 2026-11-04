@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- accept6-icon2：round 变体与普通版同构图（构图居中对称，任意 OEM 遮罩不裁切关键图形）。 -->
+<!-- accept6-icon2：round 变体与普通版同构图（构图居中对称，任意 OEM 遮罩不裁切关键图形）。
+     BATCH2 反馈 F1：monochrome 层随普通版一并移除（理由见 ic_launcher.xml）。 -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@drawable/ic_launcher_background" />
     <foreground android:drawable="@drawable/ic_launcher_foreground" />
-    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>

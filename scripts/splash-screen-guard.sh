@@ -44,15 +44,21 @@ require('android:theme="@style/Theme.SoundWave.Splash"' in manifest[activity_at:
 
 light = read("app/src/main/res/values/themes.xml")
 night = read("app/src/main/res/values-night/themes.xml")
-for label, themes, paper in (("light", light, "#F4F4F0"), ("night", night, "#101210")):
-    require('name="Theme.SoundWave.Splash"' in themes and 'parent="Theme.SplashScreen"' in themes,
-            f"{label} splash theme (Theme.SplashScreen parent) missing")
-    require(f'<item name="windowSplashScreenBackground">{paper}</item>' in themes,
-            f"{label} splash background must be the palette paper {paper}")
-    require('<item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_disc</item>' in themes,
-            f"{label} splash icon must be the vinyl disc drawable")
-    require('<item name="postSplashScreenTheme">@style/Theme.SoundWave</item>' in themes,
-            f"{label} splash theme must hand back to Theme.SoundWave")
+# BATCH2 反馈 F1 规格变更：启动页只保留品牌纸面一稿（values，#F4F4F0）。原 values-night
+# 夜间稿使「系统夜间 + App 浅色」时启动页发黑（用户真机点名）；按偏好切换需 splashscreen
+# 1.2.0（compileSdk 35），与 SDK 34 工具链冲突而不可用——故夜间覆盖由「必须在场」重钉为
+# 「必须缺席」，同等严格。Theme.SoundWave 本体夜间版（窗口底）不受影响、仍在 night 文件。
+require('name="Theme.SoundWave.Splash"' in light and 'parent="Theme.SplashScreen"' in light,
+        "splash theme (Theme.SplashScreen parent) missing from values/themes.xml")
+require('<item name="windowSplashScreenBackground">#F4F4F0</item>' in light,
+        "splash background must be the brand paper #F4F4F0")
+require('<item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_disc</item>' in light,
+        "splash icon must be the selected marker drawable")
+require('<item name="postSplashScreenTheme">@style/Theme.SoundWave</item>' in light,
+        "splash theme must hand back to Theme.SoundWave")
+require('name="Theme.SoundWave.Splash"' not in night,
+        "values-night must not redefine the splash theme (BATCH2 F1: single brand-paper splash)")
+for label, themes in (("light", light), ("night", night)):
     require("#07070D" not in themes and "#7C6CFF" not in themes,
             f"{label} themes still carry a retired launch color (#07070D / #7C6CFF)")
 require('<item name="android:colorPrimary">#E8452F</item>' in light,
@@ -62,5 +68,5 @@ workflow = read(".github/workflows/build-apk.yml")
 require("scripts/splash-screen-guard.sh" in workflow,
         "the splash guard must run in portable quality gates")
 
-print("[splash-screen-guard] PASS: splash dependency, 1.5s fuse policy + test, ready-driven wiring, dual themes, retired launch colors absent, CI registration")
+print("[splash-screen-guard] PASS: splash dependency, 1.5s fuse policy + test, ready-driven wiring, single brand-paper splash (BATCH2 F1), retired launch colors absent, CI registration")
 PY

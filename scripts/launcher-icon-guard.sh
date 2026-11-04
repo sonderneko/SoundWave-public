@@ -23,8 +23,13 @@ for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
             f"{name}: background must be the gradient drawable, not the retired flat color")
     require('android:drawable="@drawable/ic_launcher_foreground"' in xml,
             f"{name}: foreground layer missing")
-    require('android:drawable="@drawable/ic_launcher_monochrome"' in xml,
-            f"{name}: monochrome layer missing")
+    # BATCH2 反馈 F1 规格变更（2026-11-05，用户真机点名桌面图标发黑）：monochrome 层退役——
+    # 主题图标管线会用黑色剪影顶替用户选定的浅色彩稿；用户只选了浅色一稿，任何呈现路径
+    # 都只许是该稿。此处由「必须在场」重钉为「必须缺席」，与旧钉同等严格。
+    require('ic_launcher_monochrome' not in xml,
+            f"{name}: monochrome layer must stay removed (themed-icon pipelines rendered it as a black icon on device)")
+require(not (res / "drawable/ic_launcher_monochrome.xml").exists(),
+        "ic_launcher_monochrome.xml must stay deleted (BATCH2 F1)")
 
 # --- 选定稿色值钉（用户 2026-11-04 选定「声纹环-浅色」，源分层 SVG 逐值） ---
 fg = read("app/src/main/res/drawable/ic_launcher_foreground.xml")
@@ -42,7 +47,7 @@ for token, label in (
 
 # --- 旧资产 absence 钉（batch-1 黑胶图标全家退役） ---
 for old in ("#FF2B302C", "#FF3D433E"):
-    for f in ("ic_launcher_foreground.xml", "ic_launcher_monochrome.xml",
+    for f in ("ic_launcher_foreground.xml",
               "ic_splash_disc.xml", "ic_stat_wave.xml"):
         require(old not in read(f"app/src/main/res/drawable/{f}"),
                 f"{f} still carries the retired vinyl palette {old}")
@@ -62,5 +67,5 @@ workflow = read(".github/workflows/build-apk.yml")
 require("scripts/launcher-icon-guard.sh" in workflow,
         "the launcher icon guard must run in portable quality gates")
 
-print("[launcher-icon-guard] PASS: adaptive wiring, selected palette pinned, retired vinyl assets absent, CI registration")
+print("[launcher-icon-guard] PASS: adaptive wiring, selected palette pinned, monochrome layer absent (BATCH2 F1), retired vinyl assets absent, CI registration")
 PY

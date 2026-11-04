@@ -115,6 +115,45 @@ fun SheetFrostBackdrop(enter: androidx.compose.animation.core.Animatable<Float, 
 }
 
 /**
+ * 表面板磨砂样式（纯构造，单测钉死）。BATCH2 反馈 F2：fallbackTint 必须与 tint 同 alpha——
+ * 进场滑移/拖拽时面板局部越出模糊源记录范围，haze 对采不到的 texel 用 fallbackTint 顶替；
+ * 旧值 0.94 近不透明与静止态 0.82 磨砂并存，面板一动就翻出平板色块（浅色主题 = 白卡）。
+ */
+internal fun sheetPanelGlassStyle(surface: Color, tintAlpha: Float): HazeStyle = HazeStyle(
+    backgroundColor = surface.copy(alpha = 1f),
+    tint = HazeTint(surface.copy(alpha = tintAlpha)),
+    blurRadius = SheetFrostTokens.GlassBlurDp.dp,
+    noiseFactor = 0f,
+    fallbackTint = HazeTint(surface.copy(alpha = tintAlpha))
+)
+
+/**
+ * 钉顶带磨砂样式（纯构造，单测钉死）。BATCH2 反馈 F2 定因：局部模糊源（表内滚动列）的
+ * 记录层在无内容处 texel 全透明，haze 以 backgroundColor 填补——旧值 surface 不透明，
+ * 滚动进度一过 0，标题带即从无缝透明翻成一整块平板色（浅色 = 白卡、夜间 = 深灰块）。
+ * 带身位于已着色的面板玻璃之上，背景色必须透明：采不到内容处露面板本色，采到处走模糊+tint。
+ */
+internal fun sheetHeaderGlassStyle(surface: Color): HazeStyle = HazeStyle(
+    backgroundColor = Color.Transparent,
+    tint = HazeTint(surface.copy(alpha = SheetFrostTokens.GlassTintAlpha)),
+    blurRadius = SheetFrostTokens.GlassBlurDp.dp,
+    noiseFactor = 0f,
+    fallbackTint = HazeTint(surface.copy(alpha = SheetFrostTokens.GlassTintAlpha))
+)
+
+/**
+ * 滚动顶栏磨砂样式（纯构造，单测钉死）：与 [sheetHeaderGlassStyle] 同理——页面列表源的
+ * 透明 texel（行间/页底色在源子树之外）不许被不透明 backgroundColor 填成平板块。
+ */
+internal fun scrolledHeaderGlassStyle(paper: Color): HazeStyle = HazeStyle(
+    backgroundColor = Color.Transparent,
+    tint = HazeTint(paper.copy(alpha = 0.64f)),
+    blurRadius = 22.dp,
+    noiseFactor = 0f,
+    fallbackTint = HazeTint(paper.copy(alpha = 0.64f))
+)
+
+/**
  * 表/对话框面板玻璃：真模糊时采样当前表源（罩 = 主题 surface @ GlassTintAlpha），
  * 否则 surface @ GLASS_FALLBACK_ALPHA 实色（近似路径）。已含 clip(shape)；
  * Dialog 窗口回退宿主（背后是窗口级 blurBehind）由 DesignSheetPanel 另行分支，不走这里。
@@ -124,16 +163,7 @@ fun Modifier.sheetPanelGlass(shape: Shape, surface: Color): Modifier {
     val (blur, alpha) = sheetGlassPlan()
     val clipped = this.clip(shape)
     if (!blur) return clipped.background(surface.copy(alpha = alpha), shape)
-    return clipped.hazeChild(
-        sheetBackdropSource(),
-        HazeStyle(
-            backgroundColor = surface.copy(alpha = 1f),
-            tint = HazeTint(surface.copy(alpha = alpha)),
-            blurRadius = SheetFrostTokens.GlassBlurDp.dp,
-            noiseFactor = 0f,
-            fallbackTint = HazeTint(surface.copy(alpha = GLASS_FALLBACK_ALPHA))
-        )
-    )
+    return clipped.hazeChild(sheetBackdropSource(), sheetPanelGlassStyle(surface, alpha))
 }
 
 /**
@@ -147,16 +177,7 @@ fun Modifier.sheetHeaderGlass(state: HazeState, surface: Color, progress: Float,
     val p = progress.coerceIn(0f, 1f)
     if (p <= 0.001f) return this
     val glassed = if (glassBlurSupported()) {
-        this.hazeChild(
-            state,
-            HazeStyle(
-                backgroundColor = surface.copy(alpha = 1f),
-                tint = HazeTint(surface.copy(alpha = SheetFrostTokens.GlassTintAlpha)),
-                blurRadius = SheetFrostTokens.GlassBlurDp.dp,
-                noiseFactor = 0f,
-                fallbackTint = HazeTint(surface.copy(alpha = GLASS_FALLBACK_ALPHA))
-            )
-        ) { alpha = p }
+        this.hazeChild(state, sheetHeaderGlassStyle(surface)) { alpha = p }
     } else this.background(surface.copy(alpha = GLASS_FALLBACK_ALPHA * p), RectangleShape)
     return glassed.drawWithContent {
         drawContent()
@@ -259,16 +280,7 @@ fun Modifier.scrolledHeaderGlass(state: HazeState, paper: Color, progress: Float
     val p = progress.coerceIn(0f, 1f)
     if (p <= 0.001f) return this
     return if (glassBlurSupported()) {
-        this.hazeChild(
-            state,
-            HazeStyle(
-                backgroundColor = paper.copy(alpha = 1f),
-                tint = HazeTint(paper.copy(alpha = 0.64f)),
-                blurRadius = 22.dp,
-                noiseFactor = 0f,
-                fallbackTint = HazeTint(paper.copy(alpha = GLASS_FALLBACK_ALPHA))
-            )
-        ) { alpha = p }
+        this.hazeChild(state, scrolledHeaderGlassStyle(paper)) { alpha = p }
     } else this.background(paper.copy(alpha = GLASS_FALLBACK_ALPHA * p), RectangleShape)
 }
 

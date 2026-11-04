@@ -69,6 +69,29 @@ object DetailPush {
 
     /** 纯函数：推入进度 p（0 = 起点，1 = 到位）→ 横向位移比例。 */
     fun offsetFraction(p: Float): Float = 1f - p.coerceIn(0f, 1f)
+
+    /**
+     * 纯函数：帧状态 → 底页覆盖度（单测钉，见 R657FixHelpersTest）。
+     * BATCH2 反馈 F3 修复：主层与滑出层皆不在场时恒为 0。旧公式在此情形回落到
+     * progress（根详情进入动画的终点值 1）——关闭到 tab 的滑出动画一结束、exitItem
+     * 清除，coverage 即被永久钉在 1：底页停留 -25% 左移（音乐库横向错位、右侧露底），
+     * 且 OccludableHomeLayer 以 coverage>=1 判定首页可跳过绘制（首页整页空白）。
+     * 旧公式仅在 hasMain 时才允许回落 progress，本函数把该条件显式化。
+     */
+    fun coverageFor(
+        hasExit: Boolean,
+        hasMain: Boolean,
+        exitFraction: Float,
+        hasPushUnder: Boolean,
+        progress: Float,
+        predictive: Float
+    ): Float = when {
+        hasExit && hasMain -> 1f
+        hasExit -> (exitFraction * (1f - predictive)).coerceIn(0f, 1f)
+        hasPushUnder -> 1f
+        hasMain -> (progress * (1f - predictive)).coerceIn(0f, 1f)
+        else -> 0f
+    }
 }
 
 /**
@@ -202,13 +225,14 @@ fun <T : Any> rememberDetailPushFrame(current: T?, underlayItem: T?, key: (T) ->
     LaunchedEffect(Unit) {
         // coverage：tab 底页随「压在其上的详情层」左移/压暗的程度（口径见类注释）。
         androidx.compose.runtime.snapshotFlow {
-            val f = DetailPush.predictiveFraction()
-            when {
-                exitItem != null && mainItem != null -> 1f
-                exitItem != null -> exitFraction * (1f - f)
-                pushUnder != null -> 1f
-                else -> progress.value * (1f - f)
-            }
+            DetailPush.coverageFor(
+                hasExit = exitItem != null,
+                hasMain = mainItem != null,
+                exitFraction = exitFraction,
+                hasPushUnder = pushUnder != null,
+                progress = progress.value,
+                predictive = DetailPush.predictiveFraction()
+            )
         }.collect { DetailPush.coverage.floatValue = it }
     }
     // 总位移比例：推入 / 推出进度与手势有效退出比例叠加（手势只作用于尚未被转场覆盖的剩余部分）。

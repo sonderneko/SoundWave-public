@@ -85,6 +85,23 @@ class R657FixHelpersTest {
         assertEquals("0:05", defaultPlayerTime(5f))
     }
 
+    /** BATCH2 反馈 F3 回归钉：关闭到 tab 后（无主层、无滑出层）coverage 必须归 0，
+     *  不得回落进入动画终点的 progress=1（底页 -25% 错位 + 首页跳过绘制的共同根因）。 */
+    @Test fun detailCoverageReleasesTabUnderlayAfterClose() {
+        // 退出动画进行中：跟随 exitFraction 回落。
+        assertEquals(0.6f, DetailPush.coverageFor(hasExit = true, hasMain = false, exitFraction = 0.6f, hasPushUnder = false, progress = 1f, predictive = 0f), 0.0001f)
+        // 退出完成、层已撤：恒 0（回归钉——旧公式在此返回 progress=1）。
+        assertEquals(0f, DetailPush.coverageFor(hasExit = false, hasMain = false, exitFraction = 0f, hasPushUnder = false, progress = 1f, predictive = 0f), 0f)
+        assertEquals(0f, DetailPush.coverageFor(hasExit = false, hasMain = false, exitFraction = 0f, hasPushUnder = false, progress = 0.4f, predictive = 0f), 0f)
+        // 主层落位：全覆盖；压栈进入期间（under 在场）同样全覆盖。
+        assertEquals(1f, DetailPush.coverageFor(hasExit = false, hasMain = true, exitFraction = 0f, hasPushUnder = false, progress = 1f, predictive = 0f), 0f)
+        assertEquals(1f, DetailPush.coverageFor(hasExit = false, hasMain = true, exitFraction = 0f, hasPushUnder = true, progress = 0.3f, predictive = 0f), 0f)
+        // 弹栈恢复（滑出层在父级主层之上）：全覆盖，与旧公式一致。
+        assertEquals(1f, DetailPush.coverageFor(hasExit = true, hasMain = true, exitFraction = 0.2f, hasPushUnder = false, progress = 1f, predictive = 0f), 0f)
+        // 根详情进入中：progress × (1 − 手势比例)。
+        assertEquals(0.25f, DetailPush.coverageFor(hasExit = false, hasMain = true, exitFraction = 0f, hasPushUnder = false, progress = 0.5f, predictive = 0.5f), 0.0001f)
+    }
+
     @Test fun detailUnderlayShiftsAndDims() {
         assertEquals(0f to 0f, DetailPush.underlay(0f))
         val (shift, dim) = DetailPush.underlay(1f)
