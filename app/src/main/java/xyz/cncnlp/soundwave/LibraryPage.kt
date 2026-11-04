@@ -364,6 +364,8 @@ internal fun libraryStackCovers(loggedIn: Boolean, customCover: String?, songCov
     return (0 until 3).map { picks.getOrNull(it) }
 }
 
+/** SW-09-16：详情排序按歌单 id 存于 soundwave_sort 的 `mode_<id>` 键；与歌单位置无关。 */
+internal fun readPlaylistSortMode(context: android.content.Context, playlistId: String): String? = runCatching {
     ContextPreferences.open(context, "soundwave_sort", android.content.Context.MODE_PRIVATE)
         .getString("mode_$playlistId", null)
 }.getOrNull()
