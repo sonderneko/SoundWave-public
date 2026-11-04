@@ -3,6 +3,7 @@
 package xyz.cncnlp.soundwave
 import xyz.cncnlp.soundwave.ui.motion.MotionTokens
 import xyz.cncnlp.soundwave.ui.common.DesignConfirmSheet
+import xyz.cncnlp.soundwave.ui.common.dragLift
 import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 import xyz.cncnlp.soundwave.ui.common.StateBlock
 import xyz.cncnlp.soundwave.ui.common.dockContentBottomPadding
@@ -436,7 +437,7 @@ fun ScriptsPage(
                 swAnimateItem(listReduceMotion)
                     .fillMaxWidth()
                     // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
-                    .then(xyz.cncnlp.soundwave.ui.common.dragLift(selected, RoundedCornerShape(14.dp)))
+                    .dragLift(selected, RoundedCornerShape(14.dp))
                     .clip(RoundedCornerShape(14.dp))
                     .background(if (selected) accent.copy(alpha = 0.06f) else Color.Transparent)
                     .pointerInput(sc.id) {

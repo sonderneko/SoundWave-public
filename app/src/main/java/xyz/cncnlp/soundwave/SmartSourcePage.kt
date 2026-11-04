@@ -39,6 +39,7 @@ import xyz.cncnlp.soundwave.ui.common.DesignSheetHeader
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
 import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 import xyz.cncnlp.soundwave.ui.common.designLineColor
+import xyz.cncnlp.soundwave.ui.common.dragLift
 
 /** 智能换源设置：换源顺序 / 执行控制 / 按平台脚本链路；不从页面本身发起探测（检测报告见音源脚本页）。 */
 @Composable
@@ -159,7 +160,7 @@ fun SmartSourcePage(
                             Row(
                                 Modifier.fillMaxWidth().heightIn(min = 60.dp)
                                     // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
-                                    .then(xyz.cncnlp.soundwave.ui.common.dragLift(draggingStage == id, RoundedCornerShape(12.dp)))
+                                    .dragLift(draggingStage == id, RoundedCornerShape(12.dp))
                                     .clip(RoundedCornerShape(12.dp))
                                     // 仅拖动态保留珊瑚淡染作反馈（行本身无底，路径线由节点底盘遮盖）。
                                     .background(if (draggingStage == id) SoundwaveDesignPalette.Accent.copy(alpha = 0.08f) else Color.Transparent)

@@ -205,12 +205,12 @@ fun SettingsSegmented(options: List<String>, selected: Int, onSelect: (Int) -> U
             // 不再硬切换；布局与逐项独立胶囊形态不变（滑动指示块属布局变更，不采纳）。
             val segBg by animateColorAsState(
                 if (on) ink else Color.Transparent,
-                tween(xyz.cncnlp.soundwave.ui.motion.MotionTokens.Duration.Medium, xyz.cncnlp.soundwave.ui.motion.MotionTokens.Easing.Emphasized),
+                tween(durationMillis = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Duration.Medium, easing = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Easing.Emphasized),
                 label = "settingsSegmentedBg"
             )
             val segFg by animateColorAsState(
                 if (on) paper else settingsMutedColor(),
-                tween(xyz.cncnlp.soundwave.ui.motion.MotionTokens.Duration.Medium, xyz.cncnlp.soundwave.ui.motion.MotionTokens.Easing.Emphasized),
+                tween(durationMillis = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Duration.Medium, easing = xyz.cncnlp.soundwave.ui.motion.MotionTokens.Easing.Emphasized),
                 label = "settingsSegmentedFg"
             )
             Box(

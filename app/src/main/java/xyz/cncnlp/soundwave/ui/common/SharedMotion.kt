@@ -105,7 +105,7 @@ fun Modifier.popOnBecomeTrue(trigger: Boolean, peak: Float = 1.25f): Modifier = 
 fun Modifier.dragLift(active: Boolean, shape: Shape): Modifier = composed {
     val elevation by animateDpAsState(
         if (active) 18.dp else 0.dp,
-        tween(MotionTokens.Duration.Short, MotionTokens.Easing.Emphasized),
+        tween(durationMillis = MotionTokens.Duration.Short, easing = MotionTokens.Easing.Emphasized),
         label = "dragLift"
     )
     this.zIndex(if (active) 3f else 0f).shadow(elevation, shape, clip = false)
