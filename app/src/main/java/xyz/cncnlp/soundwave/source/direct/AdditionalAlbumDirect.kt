@@ -56,7 +56,8 @@ internal fun parseKwAlbumDetail(raw: String, albumId: String): AdditionalAlbumDe
     return try {
         val root = parseKwJson(raw)
         val name = cleanSpace(root.optString("name"))
-        val cover = shrinkCover(firstStr(root, "img", "hts_img"))
+        // hts_img 优先：img 是 sycdn 主机，HTTPS 实测 TLS 失败（见 parseKwArtistAlbums 注）。
+        val cover = shrinkCover(firstStr(root, "hts_img", "img"))
         val rows = root.optJSONArray("musiclist")
         val songs = (0 until (rows?.length() ?: 0)).mapNotNull { i ->
             val item = rows?.optJSONObject(i) ?: return@mapNotNull null

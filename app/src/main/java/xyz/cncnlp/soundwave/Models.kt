@@ -24,6 +24,11 @@ fun normalizeCoverUrl(raw: String, targetSizePx: Int? = null): String {
     } else if (url.startsWith("http://", ignoreCase = true)) {
         url = "https://${url.substring(7)}"
     }
+    // 酷我 r.s 接口的 img 字段用 imgN.sycdn.kuwo.cn 主机：该主机 HTTPS 实测 TLS
+    // 失败（curl 000），同路径在 imgN.kuwo.cn 上 HTTPS 实测 200（响应里的
+    // hts_img 字段就是这面镜像）。归一到 kuwo.cn 主机，后续 img1/img4
+    // albumcover 升档规则随之生效；已落盘的旧 sycdn URL 同样被修复。
+    url = url.replace(Regex("(?i)^https?://(img\\d+)\\.sycdn\\.kuwo\\.cn/"), "https://$1.kuwo.cn/")
     // 网易云 coverImgUrl 会带多段 imageView/watermark 处理链，末段常锁死 thumbnail=140y140；
     // 仅追加 param=1080y1080 不会覆盖前面的缩略处理（实测仍返回 140×140），所以丢弃变换 query，
     // 保留真实图片路径后再请求标准 param 尺寸。

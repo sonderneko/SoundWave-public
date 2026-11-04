@@ -73,8 +73,11 @@ internal fun parseKwArtistAlbums(raw: String): List<ArtistAlbum> = try {
     (0 until (rows?.length() ?: 0)).mapNotNull { i ->
         val item = rows!!.optJSONObject(i) ?: return@mapNotNull null
         val id = item.optString("albumid").takeIf { it.isNotBlank() && it != "0" } ?: return@mapNotNull null
-        ArtistAlbum(id, cleanSpace(item.optString("name")), shrinkCover(item.optString("img")),
-            dotDate(item.optString("pub")), item.optInt("musicNum"), "kw")
+        // 封面优先 hts_img（imgN.kuwo.cn HTTPS 镜像）；img 是 sycdn 主机，
+        // HTTPS 实测 TLS 失败（normalizeCoverUrl 亦有主机归一兜底）。
+        // 曲目数上游字段是 musiccnt（无 musicNum）。
+        ArtistAlbum(id, cleanSpace(item.optString("name")), shrinkCover(firstStr(item, "hts_img", "img")),
+            dotDate(item.optString("pub")), item.optInt("musicNum").takeIf { it > 0 } ?: item.optInt("musiccnt"), "kw")
     }.distinctBy { it.id }
 } catch (_: Exception) { emptyList() }
 

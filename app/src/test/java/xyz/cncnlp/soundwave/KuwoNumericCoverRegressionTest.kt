@@ -47,13 +47,7 @@ class KuwoNumericCoverRegressionTest {
         assertEquals(actual,song.cover)
         assertEquals(high,CacheManager.coverModel(RuntimeEnvironment.getApplication(),song.cover,targetSizePx=1080))
     }
-    @Test fun newAlbumParserDoesNotTruncateValidRowsToOneOrRelabelDigital() {
-        // Synthetic parser fixture only: not evidence of additional live catalogue availability.
-        val raw="""{"code":200,"data":{"albumList":[{"albumid":"fixture-1","album":"first","pic":"https://img4.kuwo.cn/star/albumcover/300/19/18/3563632431.jpg"},{"albumid":"fixture-2","album":"second"},{"albumid":"fixture-1","album":"duplicate"}]}}"""
-        val cards=xyz.cncnlp.soundwave.source.direct.parseKwNewAlbums(raw,30)
-        assertEquals(listOf("fixture-1","fixture-2"),cards.map{it.id})
-        assertTrue(cards.all{it.kind=="new_album" && it.source=="kw"})
-        assertEquals(1,xyz.cncnlp.soundwave.source.direct.parseKwNewAlbums(raw,1).size)
-    }
+    // accept6-kwfix: parseKwNewAlbums 已随 kw 新碟参与摘除而删除（用户预授权），
+    // 本文件的歌曲封面回归与之无关、原样保留；删除契约见 kw-disc-shelves-removed-guard.sh。
 
 }

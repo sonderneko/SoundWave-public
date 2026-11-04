@@ -98,8 +98,11 @@ internal suspend fun fetchDiscoverDirect(source: String, limit: Int): List<Disco
                 { parseKgNewAlbums(platformHttpGet("https://www.kugou.com/yy/album/index/1-1-1.html", "https://www.kugou.com/", 10000L), limit) },
                 { searchKg(DISCOVER_KEYWORD, 1, maxOf(limit, DISCOVER_MIN_LIMIT)).map { it.toDiscoverCard() } }
             )).flatten()
+            // accept6-kwfix（用户 2026-11-04 预授权摘除）：kw 的新碟来源 disc/shelves
+            // 货架实测长期只有 1 张特辑（2026-10-23 与 2026-11-04 两录皆为同一张，
+            // pn≥2 皆空，无替代匿名端点），不是新碟目录——kw 不再参与新碟首发，
+            // 只保留新歌速递段。证据见 WAVE-ACCEPT6-KWFIX 台账。
             "kw" -> fetchDiscoverSectionsConcurrently(listOf(
-                { parseKwNewAlbums(platformHttpGet("https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=${limit.coerceIn(1, 30)}", "https://www.kuwo.cn/", 10000L), limit) },
                 { searchKw(DISCOVER_KEYWORD, 1, maxOf(limit, DISCOVER_MIN_LIMIT)).map { it.toDiscoverCard() } }
             )).flatten()
             else -> fetchDiscoverSectionsConcurrently(listOf(
@@ -616,18 +619,6 @@ internal fun parseKgNewAlbums(raw: String, limit: Int): List<DiscoverCard> = try
         if (id.toLongOrNull()?.let { it > 0 } != true || name.isBlank() || a.optInt("is_publish") != 1) return@mapNotNull null
         DiscoverCard(id, name, shrinkCover(a.optString("img"), 400), cleanSpace(a.optString("singername")),
             source="kg",kind="new_album",title="新碟首发")
-    }.distinctBy { it.id }.take(limit.coerceAtLeast(0))
-} catch (_: Exception) { emptyList() }
-
-/** Kuwo's disc/shelves is new-CD, not a digital-sales list (pay=0 records are not relabelled). */
-internal fun parseKwNewAlbums(raw: String, limit: Int): List<DiscoverCard> = try {
-    val rows = JSONObject(raw).takeIf { it.optInt("code") == 200 }?.optJSONObject("data")?.optJSONArray("albumList")
-    (0 until (rows?.length() ?: 0)).mapNotNull { i ->
-        val a = rows!!.optJSONObject(i) ?: return@mapNotNull null
-        val id = a.optString("albumid"); val name = cleanSpace(a.optString("album"))
-        if (id.isBlank() || name.isBlank()) return@mapNotNull null
-        DiscoverCard(id, name, shrinkCover(a.optString("pic"), 400), cleanSpace(a.optString("artist")),
-            source="kw",kind="new_album",title="新碟首发")
     }.distinctBy { it.id }.take(limit.coerceAtLeast(0))
 } catch (_: Exception) { emptyList() }
 
