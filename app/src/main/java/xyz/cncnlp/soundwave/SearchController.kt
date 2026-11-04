@@ -25,7 +25,37 @@ internal suspend fun <T> preserveCancellationOrDefault(fallback: T, block: suspe
         fallback
     }
 
-private data class SearchBatch<T>(val rows: List<T>, val available: Boolean, val failed: Boolean)
+internal data class SearchBatch<T>(val rows: List<T>, val available: Boolean, val failed: Boolean)
+
+/** accept6-txavail：typed 搜索的路由裁决（纯函数，单测钉住）。 */
+internal enum class TypedSearchRoute { TYPED_RESULT, SONG_LIST, TYPED_LIST, SERVER }
+
+/**
+ * tx 任何页签（含歌曲）都走带可用性契约的 typed 结果：歌曲页签若先命中
+ * `type == "song"` 的 List 契约分支，available 会被硬编码成 true，上游失败
+ * 就被吞成「真无结果」。其他平台/页签的映射与旧 `when` 逐项等价。
+ */
+internal fun typedSearchRoute(source: String, type: String, platformIds: List<String>): TypedSearchRoute = when {
+    source == "tx" -> TypedSearchRoute.TYPED_RESULT
+    type == "song" -> TypedSearchRoute.SONG_LIST
+    source in platformIds -> TypedSearchRoute.TYPED_LIST
+    else -> TypedSearchRoute.SERVER
+}
+
+/**
+ * accept6-txavail：批次 → 呈现状态的裁决（纯函数，单测钉住）。
+ * 有行 → Available；全批次失败/不可用 → Unavailable（失败态）；
+ * 其余（含可用但真空）→ Empty（无结果态）。失败与真空不得互相冒充。
+ */
+internal fun <T> searchBatchContent(batch: List<SearchBatch<T>>, unavailable: String): LoadableContent<List<T>> {
+    val rows = batch.flatMap { it.rows }
+    return when {
+        rows.isNotEmpty() -> LoadableContent.Available(rows)
+        batch.isNotEmpty() && batch.all { it.failed || !it.available } -> LoadableContent.Unavailable(unavailable)
+        else -> LoadableContent.Empty()
+    }
+}
+
 private data class SearchAllBatch(
     val songs: List<SearchBatch<Song>>,
     val playlists: List<SearchBatch<Playlist>>,
@@ -133,11 +163,11 @@ class SearchController(
 
     private suspend fun searchTypedSource(q: String, source: String, type: String): Pair<List<Song>, Boolean> =
         withContext(Dispatchers.IO) {
-            when {
-                type == "song" -> searchSongs(q, source) to true
-                source == "tx" -> MusicSourceRegistry.platformSource(source).searchTypedResult(q, type).let { it.songs to it.available }
-                source in MusicSourceRegistry.platformIds -> MusicSourceRegistry.platformSource(source).searchTyped(q, type) to true
-                else -> ApiClient.search(q, source, type) to true
+            when (typedSearchRoute(source, type, MusicSourceRegistry.platformIds)) {
+                TypedSearchRoute.TYPED_RESULT -> MusicSourceRegistry.platformSource(source).searchTypedResult(q, type).let { it.songs to it.available }
+                TypedSearchRoute.SONG_LIST -> searchSongs(q, source) to true
+                TypedSearchRoute.TYPED_LIST -> MusicSourceRegistry.platformSource(source).searchTyped(q, type) to true
+                TypedSearchRoute.SERVER -> ApiClient.search(q, source, type) to true
             }
         }
 
@@ -168,15 +198,6 @@ class SearchController(
                 }
             }
         }.awaitAll()
-    }
-
-    private fun <T> batchContent(batch: List<SearchBatch<T>>, unavailable: String): LoadableContent<List<T>> {
-        val rows = batch.flatMap { it.rows }
-        return when {
-            rows.isNotEmpty() -> LoadableContent.Available(rows)
-            batch.isNotEmpty() && batch.all { it.failed || !it.available } -> LoadableContent.Unavailable(unavailable)
-            else -> LoadableContent.Empty()
-        }
     }
 
     /** Load a genuinely personalized group from the selected platform; force is used by the visible refresh control. */
@@ -321,10 +342,10 @@ class SearchController(
                 searchPlResults = playlists
                 albumResults = albums
                 artistResults = artists
-                searchContent = batchContent(all.songs, "歌曲搜索暂不可用；可以重试")
-                plContent = batchContent(all.playlists, "歌单搜索暂不可用；可以重试")
-                albumContent = batchContent(all.albums, "专辑搜索暂不可用；可以重试")
-                artistContent = batchContent(all.artists, "歌手搜索暂不可用；可以重试")
+                searchContent = searchBatchContent(all.songs, "歌曲搜索暂不可用；可以重试")
+                plContent = searchBatchContent(all.playlists, "歌单搜索暂不可用；可以重试")
+                albumContent = searchBatchContent(all.albums, "专辑搜索暂不可用；可以重试")
+                artistContent = searchBatchContent(all.artists, "歌手搜索暂不可用；可以重试")
                 withContext(Dispatchers.IO) { try { HomeFeedCache.saveSearch(context, ck, songs, playlists) } catch (_: Exception) {} }
                 return@launch
             }
