@@ -243,7 +243,8 @@ fun SearchPage(
             Text(
                 "SEARCH / 01", color = designAccentTextColor(), fontSize = 8.sp, fontFamily = xyz.cncnlp.soundwave.ui.common.DesignFonts.DmMono,
                 fontWeight = FontWeight.Medium, letterSpacing = 0.12.em,
-                modifier = Modifier.padding(start = 32.dp, top = 6.dp, bottom = 6.dp)
+                // accept6-topbars（用户 2026-11-04 22:44）：顶栏上移后首块内容同步跟上移约 4dp，上距 6→2dp。
+                modifier = Modifier.padding(start = 32.dp, top = 2.dp, bottom = 6.dp)
             )
             Row(
                 Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, bottom = 10.dp)

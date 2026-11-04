@@ -1060,7 +1060,8 @@ fun MePage(
             userScrollEnabled = true
         ) {
             if (settingsSub == null) {
-                item { Spacer(Modifier.height(20.dp)) }
+                // accept6-topbars（用户 2026-11-04 22:44）：顶栏上移后首块内容同步跟上移约 4dp，20→16dp。
+                item { Spacer(Modifier.height(16.dp)) }
                 item { Box(Modifier.staggerEnter(0, settingsStagger)) { AccountIdentityCard() } }
                 item {
                     val mark = SettingsGroupMarks.Playback

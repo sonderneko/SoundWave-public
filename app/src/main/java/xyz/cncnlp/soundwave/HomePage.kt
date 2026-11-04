@@ -484,6 +484,9 @@ internal fun HomePage(
             rememberPagerState(initialPage = sectionIdx) { sections.size }
         }
         val currentSection = sections.getOrNull(pagerState.currentPage)?.first ?: "hot"
+        // accept6-topbars：首页（hot 分区）滚动联动顶栏状态 + 局部玻璃源（与详情页同挂法）。
+        val homeChromeState = remember { MainTabTopChromeState() }
+        val homeChromeGlass = xyz.cncnlp.soundwave.ui.common.rememberLocalGlassState()
         AppPageHeader(
             title = when (currentSection) { "rank" -> "排行榜"; "pl" -> "歌单广场"; else -> "首页" },
             loggedIn = loggedIn,
@@ -497,6 +500,9 @@ internal fun HomePage(
             serifTitle = true,
             designTitle = true,
             startPadding = 14.dp,
+            // accept6-topbars：仅 hot 分区接滚动联动；排行榜 / 歌单广场顶栏保持现状。
+            chromeState = if (currentSection == "hot") homeChromeState else null,
+            chromeGlass = homeChromeGlass,
             // 歌单广场与排行榜页顶部只显示标题，不显示左侧返回箭头（返回走系统返回/预测性返回手势，见下方 BackHandler）。
             leading = if (currentSection == "hot" || currentSection == "rank" || currentSection == "pl") null else ({
                 Box(Modifier.size(38.dp).clip(CircleShape).clickable { onSection("hot") }, contentAlignment = Alignment.CenterStart) {
@@ -620,6 +626,8 @@ internal fun HomePage(
                         ListScrollStore.save(homeContext, hotScrollId, hotListState.firstVisibleItemIndex, hotListState.firstVisibleItemScrollOffset)
                     }
                 }
+                // accept6-topbars：hot 流滚动进度 → 顶栏磨砂带 + 居中「首页」。
+                MainTabChromeDriver(hotListState, homeChromeState)
                 val hotScope = rememberCoroutineScope()
                 var hotShowTop by remember { mutableStateOf(false) }
                 var hotLastPos by remember { mutableStateOf(0) }
@@ -682,7 +690,7 @@ internal fun HomePage(
                 // r656：今日推荐与顶部间距再缩小 3dp（17→14dp）；详情页封面顶距与之统一（DetailHeroTopGap）。
                 // r657 修复（审计第 20 项）：首屏区块 60ms 错峰入场（页面级门，滚回顶部不重播；简洁动效关闭）。
                 val homeStagger = xyz.cncnlp.soundwave.ui.common.rememberStaggerGate()
-                LazyColumn(Modifier.fillMaxSize(), state = hotListState, contentPadding = PaddingValues(top = DetailHeroTopGap)) {
+                LazyColumn(Modifier.fillMaxSize().then(xyz.cncnlp.soundwave.ui.common.localGlassSourceModifier(homeChromeGlass)), state = hotListState, contentPadding = PaddingValues(top = DetailHeroTopGap)) {
                     item(key = "daily_signal") {
                         // 严格筛选可为空；热榜不属于当前风格，不能补位或打开成今日推荐。
                         val heroList = dailySongs

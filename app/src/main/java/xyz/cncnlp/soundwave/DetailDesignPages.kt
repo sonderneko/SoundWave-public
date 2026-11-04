@@ -98,8 +98,9 @@ private val DetailTitleInk = Color(0xFFF6F7F0)
 private val DetailCurrentTitle = Color(0xFFFF5C45) // r657 第三轮：原型 .row.on b = var(--accent)
 private val DangerRed = Color(0xFFB84F43)
 
-/** r656：首页今日推荐卡片与页头的间距（17→14dp）；所有设计稿详情页封面顶距统一使用该值。 */
-internal val DetailHeroTopGap = 14.dp
+/** r656：首页今日推荐卡片与页头的间距（17→14dp）；所有设计稿详情页封面顶距统一使用该值。
+ * accept6-topbars（用户 2026-11-04 22:44）：顶栏上移后下方内容同步跟上移约 4dp，14→10dp。 */
+internal val DetailHeroTopGap = 10.dp
 
 /** 珊瑚发光（与首页今日推荐播放键一致的柔光晕）：在控件背后绘制一层模糊的珊瑚色圆角块。 */
 internal fun Modifier.accentGlow(

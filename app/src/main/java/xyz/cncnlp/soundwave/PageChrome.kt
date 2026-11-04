@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +31,14 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 // ===== 页顶栏 + 竖向音波 + 居中 Tab 行 + 歌单迷你卡（自 MainActivity 迁入；private→internal） =====
+
+/**
+ * 页头行顶部留白（用户 2026-11-04 22:44：顶栏整行上移约 6dp——由 12dp 收至 6dp，
+ * 从顶栏自身留白里扣，状态栏安全区不动）。详情大页头（TodayDesignHeader）与沉浸浮动栏同值互锁，
+ * 主页滚动居中小标题行亦按此几何对齐，保证标题不跳位。
+ */
+internal val PageHeaderTopPad = 6.dp
+
 @Composable
 internal fun AppPageHeader(
     title: String,
@@ -49,23 +58,40 @@ internal fun AppPageHeader(
     /** 首页标题使用设计稿衬线字体。 */
     serifTitle: Boolean = false,
     /** 设计稿 v2 页头（首页/今日推荐）：31sp 衬线 600、42dp 行高，左右 14dp，上距 8dp。 */
-    designTitle: Boolean = false
+    designTitle: Boolean = false,
+    /**
+     * accept6-topbars（用户 2026-11-04 22:40）：主页滚动联动——非空时顶栏带随页列表滚动磨砂化、
+     * 大标题交叉淡出并淡入同几何居中小标题（见 MainTabTopChrome.kt）；为空时行为与旧版完全一致。
+     */
+    chromeState: MainTabTopChromeState? = null,
+    chromeGlass: xyz.cncnlp.soundwave.ui.common.LocalGlassState? = null
 ) {
     // J 波（截图 1000075125 实证）：页头本体保持无渐变，但必须有不透明底——此前纯透明 +
     // 右上圆钮为半透明磨砂，列表滚动到页头下沿时被裁的半行会从标题区透出/压在钮后。
     // 补主题 background 不透明底（页头在 Column 流内，静止时观感不变；滚动时标题区成完整遮挡）。
-    Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+    Box(
+        Modifier.fillMaxWidth()
+            .then(if (chromeState == null) Modifier.background(MaterialTheme.colorScheme.background) else Modifier)
+    ) {
+        if (chromeState != null) MainTabChromeBackdrop(chromeState, chromeGlass)
         Row(
-            if (designTitle) Modifier.fillMaxWidth().statusBarsPadding().padding(start = startPadding, end = 14.dp, top = 12.dp).height(42.dp)
+            if (designTitle) Modifier.fillMaxWidth().statusBarsPadding().padding(start = startPadding, end = 14.dp, top = PageHeaderTopPad).height(42.dp)
             else Modifier.fillMaxWidth().statusBarsPadding().height(LayoutTokens.TopBarH.dp)
-                .padding(start = startPadding, end = 16.dp),
+                .padding(start = startPadding, end = 16.dp)
+                // accept6-topbars（用户 2026-11-04 22:44）：非设计分支同样整行上移 6dp（当前无调用点，组件内保持一致）。
+                .offset(y = (-6).dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (leading != null) {
                 leading.invoke(this)
                 Spacer(Modifier.width(6.dp))
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+            Column(
+                Modifier.weight(1f).then(
+                    if (chromeState != null) Modifier.graphicsLayer { alpha = 1f - chromeState.titleProgress.value } else Modifier
+                ),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     title,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -106,6 +132,7 @@ internal fun AppPageHeader(
                 )
             }
         }
+        if (chromeState != null) MainTabChromeCenteredTitle(chromeState, title)
     }
 }
 

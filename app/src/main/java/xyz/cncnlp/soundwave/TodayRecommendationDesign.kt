@@ -90,9 +90,9 @@ internal fun TodayDesignHeader(
 ) {
     val colors = MaterialTheme.colorScheme
     Row(
-        // 与首页 AppPageHeader(designTitle) 同几何（上 12dp、行高 42dp），进入详情页标题/按钮不跳动。
+        // 与首页 AppPageHeader(designTitle) 同几何（上 PageHeaderTopPad=6dp、行高 42dp），进入详情页标题/按钮不跳动。
         // r657 第三轮：原型 .hdr——左右 14dp、间距 9dp；返回键为 42dp .cbtn 圆钮（表面色 + 线框 + 0 6 16 投影）。
-        Modifier.fillMaxWidth().statusBarsPadding().padding(start = 14.dp, end = 14.dp, top = 12.dp).height(42.dp),
+        Modifier.fillMaxWidth().statusBarsPadding().padding(start = 14.dp, end = 14.dp, top = PageHeaderTopPad).height(42.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (searchField != null) {

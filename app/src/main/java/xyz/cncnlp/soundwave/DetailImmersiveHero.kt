@@ -228,8 +228,8 @@ internal fun ImmersiveDetailFloatingBar(
 ) {
     AnimatedVisibility(visible, modifier, enter = fadeIn(tween(160)), exit = fadeOut(tween(120))) {
         val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-        // 与默认模式页头（TodayDesignHeader：状态栏下 12dp、42dp 行）同位置。
-        Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = top + 12.dp).height(42.dp), verticalAlignment = Alignment.CenterVertically) {
+        // 与默认模式页头（TodayDesignHeader：状态栏下 PageHeaderTopPad=6dp、42dp 行）同位置。
+        Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = top + PageHeaderTopPad).height(42.dp), verticalAlignment = Alignment.CenterVertically) {
             // r658c U #3（用户 10-20）：沉浸 / 默认模式左右圆钮统一为透明磨砂圆钮（原型 .cbtn.onimg：半透明 + 14dp 背后模糊 + 白色细描边 + 白色图标），
             // 替换 r658c #5（4fa3aaa2）的不透明表面样式。
             // r658d（用户 10-20）：顶部左侧返回箭头去除（系统返回手势仍可用）；上滑后的折叠栏保留返回。

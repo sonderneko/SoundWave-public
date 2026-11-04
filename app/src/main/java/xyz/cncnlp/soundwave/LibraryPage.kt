@@ -1918,6 +1918,11 @@ fun LibraryPage(
     // r673：音乐库页渲染树放进独立 composable lambda，避免 LibraryPage 合成超大 dex 方法（见 ui/common/IsolatedSection.kt）。
     IsolatedSection { Column(Modifier.fillMaxSize()) {
         // 首页、音乐库、设置共用状态栏内边距和顶栏高度；平台切换位于“我的歌单”操作菜单。
+        // accept6-topbars：音乐库滚动联动顶栏（列表 state 显式化，原为 LazyColumn 内部默认 state，行为等价）+ 局部玻璃源。
+        val libraryListState = androidx.compose.foundation.lazy.rememberLazyListState()
+        val libraryChromeState = remember { MainTabTopChromeState() }
+        val libraryChromeGlass = xyz.cncnlp.soundwave.ui.common.rememberLocalGlassState()
+        MainTabChromeDriver(libraryListState, libraryChromeState)
         val filterOrder = listOf(
             "" to "全部平台（清除歌单筛选）",
             "wy" to "网易云音乐",
@@ -1934,6 +1939,8 @@ fun LibraryPage(
             showAvatar = true,
             // 设计稿 v2 页头：31sp 衬线标题 + 42dp 白色圆形平台按钮 + 42dp 头像，无副标题。
             avatarSizeDp = 42f, titleSizeSp = 31, serifTitle = true, designTitle = true, startPadding = 14.dp,
+            chromeState = libraryChromeState,
+            chromeGlass = libraryChromeGlass,
             trailing = {
                 // 平台切换按钮与弹层与首页一致（锚定按钮下方的小卡片）。
                 Box {
@@ -1967,7 +1974,7 @@ fun LibraryPage(
                 if (pl.songs.isEmpty()) pl.copy(songs = LocalLibraryStore.songs(libCtx).toMutableList()) else pl
             }
         }
-        LazyColumn(Modifier.fillMaxSize()) {
+        LazyColumn(state = libraryListState, modifier = Modifier.fillMaxSize().then(xyz.cncnlp.soundwave.ui.common.localGlassSourceModifier(libraryChromeGlass))) {
 
             item(key = "library_shortcuts") {
                 if (libraryQuickCardsVisible(orderIds)) {
@@ -1975,7 +1982,7 @@ fun LibraryPage(
                     // r657（v4 #5 / v3 #10）：我的喜欢 = v2 唱片套卡（无 ♥ 数量角标）；本地歌单 = 横向卡（无手机图标、扫描按钮无底色）。
                     val localSongs = localShortcut.songs.toList()
                     val likedPlaying = playingNow && currentKey.isNotEmpty() && currentKey in favKeys
-                    Column(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Column(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         LibraryFavoritesSleeveCard(
                             title = "我的喜欢", eyebrow = "MY FAVORITES", subtitle = favSubtitle,
                             cover = favCover,

@@ -30,7 +30,8 @@ class R674ChromeAndPlayerTest {
         val header = src("TodayRecommendationDesign.kt")
         val i = header.indexOf("if (searchField != null) {")
         assertFalse(header.substring(i, header.indexOf("searchField()", i)).contains("Spacer(Modifier.width(10.dp))"))
-        assertTrue(header.contains(".padding(start = 14.dp, end = 14.dp, top = 12.dp)"))
+        // accept6-topbars（用户 2026-11-04 22:44 规格变更再钉）：页头上距随全站顶栏上移 12dp→PageHeaderTopPad(6dp)。
+        assertTrue(header.contains(".padding(start = 14.dp, end = 14.dp, top = PageHeaderTopPad)"))
         val field = src("DetailDesignPages.kt")
         val f = field.indexOf("internal fun DetailCompactSearchField(")
         val body = field.substring(f, field.indexOf("BasicTextField", f))
