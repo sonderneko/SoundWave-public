@@ -245,6 +245,7 @@ class DetailDesignScreenshotTest {
                         Spacer(Modifier.height(20.dp))
                         when (kind) {
                             DetailDesignKind.Playlist -> PlaylistDesignHero("Night Drive: 02 AM", "Playlist · 清宵绮梦", listOf("18 tracks", "1 HR 13 MIN", "网易云"), cover("pl1"), null, false, true, true, {}, {}, {})
+                            else -> Unit
                         }
                         Box(Modifier.onGloballyPositioned { toolbarY = it.positionInParent().y.toInt() }) {
                             DetailDesignToolbar(
