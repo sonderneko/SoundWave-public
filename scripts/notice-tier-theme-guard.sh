@@ -53,7 +53,7 @@ require('animateEnterExit' in host,
 require('detectDragGestures' in host, 'banner must support horizontal swipe-to-dismiss')
 require('triggerBannerClick' in host and 'bannerViewHandler' in notice,
         'banner tap-to-view must be wired through AppNotice.bannerViewHandler')
-require('settingsSub = "notifications"' in main,
+require('SettingsNavStack.pushed(settingsStack, "notifications")' in main,
         'MainActivity must register the notification-center destination for banner taps')
 
 # E. 页面背景统一（终局口径：偏白为准）：设计浅色 scheme 不许再用暖纸 Paper 作 background。

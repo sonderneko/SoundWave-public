@@ -35,7 +35,7 @@ checks = {
     'source selection remains exact and unnormalized': 'val src0 = s.source.ifBlank { searchPlatform }' in block and 'if (src0 in MusicSourceRegistry.platformIds)' in block and all(token not in block for token in ('.lowercase()', '.uppercase()', '.trim()')),
     'canonical platform route calls only artistDetail': 'MusicSourceRegistry.platformSource(src0).artistDetail(s.id, s.name)' in block,
     'noncanonical route preserves exact legacy API arguments': 'ApiClient.singerSongs(s.id, s.name, src0)' in block,
-    'placeholder Playlist and empty initial songs remain': 'val singerId = "singer_${src0}_${s.id}"' in block and 'plDetailSongs = emptyList()' in block,
+    'placeholder Playlist and empty initial songs remain': 'val singerId = "singer_${src0}_${s.id}"' in block and 'openDetail(' in block and 'singerId, s.name' in block and 'emptyList()' in block,
     'stale-navigation guard and empty-state behavior remain': 'if (plDetail?.id != singerId) return@launch' in block and 'AppNotice.toast("暂无歌手歌曲")' in block,
     'interface expresses artist detail with an unsupported null default': 'suspend fun artistDetail(artistId: String, singerName: String): Playlist? = null' in interface,
     'platform adapter delegates directly with canonical source': 'return api.singerSongs(artistId, singerName, source = platform)' in adapter,

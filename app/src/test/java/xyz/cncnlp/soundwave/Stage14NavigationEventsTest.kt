@@ -10,7 +10,8 @@ internal fun LegacyNavigationHarness.productionEvents(): MainNavigationEvents = 
         dismissDownloadPicker = { downloadPickSong = null; downloadPickQuality = "" },
         returnToTopLevelTab = ::returnToTopLevelTab,
         closeDetail = ::closeDetail,
-        setSettingsSub = { settingsSub = it },
+        // harness 只建模深度 ≤1 的设置栈：弹栈恒落根（与 legacy oracle 在矩阵内逐例等值）。
+        popSettingsSub = { settingsSub = null },
         clearSearch = { searchResult = null; searchKw = "" },
         finishActivity = { events += "finish" },
         showExitPrompt = { lastBackAt = it; events += "prompt" },

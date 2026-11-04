@@ -31,7 +31,7 @@ sealed interface AppRoute {
         val originTab: Tab
     ) : AppRoute
 
-    /** 设置分类及深层子页；具体父级由 settingsBackTarget 映射。 */
+    /** 设置分类及深层子页；父级由 SettingsNavStack 按进入路径记录（accept6-backnav）。 */
     data class SettingsSub(val sub: String) : AppRoute
 
     /** 搜索已提交（结果态）。 */
@@ -57,13 +57,8 @@ sealed interface AppRoute {
             else -> BackAction.BackToHome
         }
 
-        /**
-         * 设置深层页返回目标：返回「父级分类」或 null（回到设置根）。纯映射，便于回归测试。
-         */
-        fun settingsBackTarget(sub: String?): String? = when (sub) {
-            // r655：设置按设计稿扁平化——所有详情页与深层页都直接从设置主页进入，返回即回设置主页。
-            else -> null
-        }
+        // accept6-backnav：设置返回目标不再用静态映射——r655 扁平化时代的 settingsBackTarget
+        // 恒回根页，使深度-2 子页链（统计→历史等）跳过中间层；现由 SettingsNavStack 弹栈决定。
 
         /** Returning from an idle search route restores a content tab, never a transient route. */
         fun searchBackTarget(lastContentTab: Tab): Tab = when (lastContentTab) {

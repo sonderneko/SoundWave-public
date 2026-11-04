@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
 import xyz.cncnlp.soundwave.MotionPolicy
 
@@ -70,44 +71,144 @@ object DetailPush {
     fun offsetFraction(p: Float): Float = 1f - p.coerceIn(0f, 1f)
 }
 
-/** 当前应渲染的详情帧：[item] 为 null 表示不渲染；离场动画期间保留最后一帧内容。 */
-class DetailPushFrame<T>(val item: T?, val modifier: Modifier)
+/**
+ * 当前应渲染的详情帧（accept6-backnav 三层结构）：
+ * - [under]：主层之下的父级详情——压栈进入期间是被盖住的旧详情、预测性返回期间是栈顶
+ *   父级；仅在转场 / 手势期间组合，落位后撤下，父级不常驻组合。
+ * - [item]：主层详情（进入中或已落位）；弹栈返回时父级立即以静止帧成为主层。
+ * - [exiting]：弹栈 / 关闭时在主层（或 tab 底页）之上滑出的子详情。滑出期间其下
+ *   始终是父级详情（关闭到 tab 时才是底页），tab 根不会插入详情层之间。
+ */
+class DetailPushFrame<T>(
+    val under: T?,
+    val underModifier: Modifier,
+    val item: T?,
+    val modifier: Modifier,
+    val exiting: T?,
+    val exitingModifier: Modifier
+)
 
 /**
- * r657 修复（审计第 10 项，第二轮）：进入 360ms 推入、返回 300ms 推出（emphasized-accelerate），
- * 离场期间保留最后一帧详情内容（[current] 已为 null 时仍画旧详情直到滑出），同时驱动 [DetailPush.coverage]，
- * 让底页跟随左移 25% + 压暗 8%。「简洁动效」时进出都直接切换。
+ * r657 帧机制的 accept6-backnav 重构（用户 2026-11-04 23:17：歌手页 → 专辑 → 返回闪一帧首页）。
+ *
+ * 旧单层帧把「子 → 父恢复」当作全新进入：retained 立即换成父详情、progress 从 0 重播
+ * 360ms 进入动画，期间画面下层只有 tab 根页。本版按导航栈分工（见 [DetailPushFrame]）：
+ * - 压栈进入（current 变为新详情）：新详情滑入，旧详情作 under 层以 [DetailPush.underlay]
+ *   同式左移 25% + 压暗 8%（与 tab 底页同参数）；
+ * - 弹栈返回（current 变回主层落位时记录的 under 键）：父级立即静止落位为主层，子详情
+ *   转 exiting 层 300ms 滑出——父级在返回组合期间全程保持组合，tab 根不插入任何一帧；
+ * - 预测性返回：手势期间 under 层 = [underlayItem]（栈顶父级快照），随手势 parallax 归位；
+ *   提交后 closeDetail 触发的恢复由 suppressNextExit 抑制 exiting 重播（与旧版同口径）；
+ * - 关闭到 tab（current → null）：沿用旧 retained 语义，最后一帧滑出后撤层。
+ *
+ * [DetailPush.coverage] 口径：任一详情已落位在 tab 之上（under 在场 / exiting 在父级之上）
+ * 时为 1；仅根详情自身的进出与手势沿用旧公式 progress × (1 − 手势比例)。纯函数
+ * （underlay / offsetFraction / predictiveFraction）与 DetailPredictiveBackHandler 不变。
+ * 已知取舍：exiting 滑出未完（300ms 内）又发生程序化切目标时直接落位、不叠三层动画。
  */
 @Composable
-fun <T : Any> rememberDetailPushFrame(current: T?, key: (T) -> Any?): DetailPushFrame<T> {
+fun <T : Any> rememberDetailPushFrame(current: T?, underlayItem: T?, key: (T) -> Any?): DetailPushFrame<T> {
     val reduce = MotionPolicy.rememberReduceMotion()
-    var retained by remember { mutableStateOf(current) }
+    var mainItem by remember { mutableStateOf(current) }
     val progress = remember { Animatable(if (current != null && reduce) 1f else 0f) }
+    var pushUnder by remember { mutableStateOf<T?>(null) }
+    var exitItem by remember { mutableStateOf<T?>(null) }
+    var exitFraction by remember { mutableFloatStateOf(0f) }
+    var entering by remember { mutableStateOf(false) }
+    var pendingEnter by remember { mutableStateOf(current != null) }
+    var gestureActive by remember { mutableStateOf(false) }
+    // 主层当前详情落位时其下方的详情键（= underlayItem 的键）；current 变回该键即弹栈恢复。
+    var settledUnderKey by remember { mutableStateOf<Any?>(null) }
     val k = current?.let(key)
-    if (current != null) retained = current
-    LaunchedEffect(k, current == null, reduce) {
-        if (current != null) {
-            // 新详情（含嵌套详情回跳父级）清掉上一轮手势残留，抑制标志不得跨详情存活。
-            DetailPush.suppressNextExit = false
-            DetailPush.predictiveFollow.floatValue = 0f
-            DetailPush.predictiveCommit.floatValue = 0f
-            if (reduce) progress.snapTo(1f) else {
-                if (progress.value >= 1f) progress.snapTo(0f)
-                progress.animateTo(1f, tween(DetailPush.ENTER_MS, easing = DetailPush.Emphasized))
+
+    // ---- 组合期层转移（与旧版 retained 同步赋值同理，保证状态变更同帧换层） ----
+    if (current != null) {
+        val m = mainItem
+        when {
+            m == null -> { mainItem = current; pendingEnter = true }
+            key(m) != k -> {
+                if (exitItem == null && settledUnderKey != null && settledUnderKey == k) {
+                    // 弹栈恢复：父级落位为主层（静止），子详情转滑出层；手势已收尾 / 简洁动效时不建滑出层。
+                    if (!DetailPush.suppressNextExit && !reduce) { exitItem = m; exitFraction = 1f }
+                    DetailPush.suppressNextExit = false
+                    mainItem = current
+                    pushUnder = null
+                    pendingEnter = false
+                } else if (exitItem == null) {
+                    // 压栈进入：旧主层转 under，新详情成为主层并重播进入。
+                    pushUnder = m
+                    mainItem = current
+                    pendingEnter = true
+                } else {
+                    // 滑出未完又切目标（程序化竞态）：直接落位，不叠三层动画。
+                    exitItem = null
+                    pushUnder = null
+                    mainItem = current
+                    pendingEnter = false
+                }
             }
-        } else if (retained != null) {
-            // 预测性返回已用 300ms 收尾完成同一段位移的那一次 pop 不再重播推出（suppressNextExit），直接落位。
-            if (!reduce && !DetailPush.suppressNextExit) progress.animateTo(0f, tween(DetailPush.EXIT_MS, easing = DetailPush.EmphasizedAccelerate)) else progress.snapTo(0f)
-            DetailPush.suppressNextExit = false
-            DetailPush.predictiveFollow.floatValue = 0f
-            DetailPush.predictiveCommit.floatValue = 0f
-            retained = null
         }
+        // 主层身份与 current 一致时记录其下方详情键（下一轮弹栈判定依据）。
+        if (mainItem != null && key(mainItem) == k) settledUnderKey = underlayItem?.let(key)
+    } else if (mainItem != null && exitItem == null) {
+        // 关闭到 tab / 播放器：主层转滑出层（手势收尾已滑出的不重播），under 一并撤下。
+        exitItem = mainItem
+        exitFraction = if (DetailPush.suppressNextExit || reduce) 0f else 1f
+        mainItem = null
+        pushUnder = null
+        pendingEnter = false
+    }
+
+    // 进入动画：pendingEnter 置位时驱动主层 progress；完成后撤下 under 层。
+    LaunchedEffect(pendingEnter, reduce) {
+        if (!pendingEnter) return@LaunchedEffect
+        DetailPush.suppressNextExit = false
+        DetailPush.predictiveFollow.floatValue = 0f
+        DetailPush.predictiveCommit.floatValue = 0f
+        entering = true
+        if (reduce) progress.snapTo(1f) else {
+            if (progress.value >= 1f) progress.snapTo(0f)
+            progress.animateTo(1f, tween(DetailPush.ENTER_MS, easing = DetailPush.Emphasized))
+        }
+        entering = false
+        pendingEnter = false
+        pushUnder = null
+    }
+    // 滑出动画：exitItem 出现即驱动；弹栈恢复时先把主层（父级）progress 落位 1，保持静止在下。
+    LaunchedEffect(exitItem) {
+        val exitingNow = exitItem ?: return@LaunchedEffect
+        if (mainItem != null) progress.snapTo(1f)
+        if (exitFraction > 0f) {
+            if (reduce) exitFraction = 0f else androidx.compose.animation.core.animate(
+                exitFraction, 0f, tween(DetailPush.EXIT_MS, easing = DetailPush.EmphasizedAccelerate)
+            ) { v, _ -> exitFraction = v }
+        }
+        if (exitItem === exitingNow) { exitItem = null; exitFraction = 0f }
+    }
+    // 与旧版同口径：current 身份变化时清手势残留全局量，抑制标志不得跨详情存活
+    // （镜像流只在手势源值变化时写回全局量，清零后不会被旧值覆写）。
+    LaunchedEffect(k, current == null) {
+        DetailPush.predictiveFollow.floatValue = 0f
+        DetailPush.predictiveCommit.floatValue = 0f
+        if (current != null) DetailPush.suppressNextExit = false
     }
     LaunchedEffect(Unit) {
-        // coverage 随手势同步回落：底页（主路由常驻下层）左移与压暗随有效退出比例归位，手势时自然露出。
-        androidx.compose.runtime.snapshotFlow { progress.value to DetailPush.predictiveFraction() }
-            .collect { (p, f) -> DetailPush.coverage.floatValue = p * (1f - f) }
+        // 手势在途标志（结构量）：仅控制 under 层挂载，位移本身在绘制阶段读全局手势比例。
+        androidx.compose.runtime.snapshotFlow { DetailPush.predictiveFraction() > 0f }
+            .distinctUntilChanged()
+            .collect { gestureActive = it }
+    }
+    LaunchedEffect(Unit) {
+        // coverage：tab 底页随「压在其上的详情层」左移/压暗的程度（口径见类注释）。
+        androidx.compose.runtime.snapshotFlow {
+            val f = DetailPush.predictiveFraction()
+            when {
+                exitItem != null && mainItem != null -> 1f
+                exitItem != null -> exitFraction * (1f - f)
+                pushUnder != null -> 1f
+                else -> progress.value * (1f - f)
+            }
+        }.collect { DetailPush.coverage.floatValue = it }
     }
     // 总位移比例：推入 / 推出进度与手势有效退出比例叠加（手势只作用于尚未被转场覆盖的剩余部分）。
     fun totalOffset(p: Float): Float {
@@ -131,7 +232,45 @@ fun <T : Any> rememberDetailPushFrame(current: T?, key: (T) -> Any?): DetailPush
                 )
             }
         }
-    return DetailPushFrame(retained, mod)
+    // under 层：推入期间随主层 progress 取 underlay 位移/压暗；手势期间随手势比例 parallax 归位。
+    val underMod = Modifier
+        .graphicsLayer {
+            val p = when {
+                entering -> progress.value
+                gestureActive -> 1f - DetailPush.predictiveFraction()
+                else -> 1f
+            }
+            translationX = size.width * DetailPush.underlay(p).first
+        }
+        .drawWithContent {
+            drawContent()
+            val p = when {
+                entering -> progress.value
+                gestureActive -> 1f - DetailPush.predictiveFraction()
+                else -> 1f
+            }
+            val dim = DetailPush.underlay(p).second
+            if (dim > 0f) drawRect(Color.Black.copy(alpha = dim))
+        }
+    val exitingMod = Modifier
+        .graphicsLayer { translationX = size.width * DetailPush.offsetFraction(exitFraction) }
+        .drawBehind {
+            val t = DetailPush.offsetFraction(exitFraction)
+            if (t < 1f) {
+                val w = 18f * density
+                drawRect(
+                    Brush.horizontalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.10f * (1f - t))), startX = -w, endX = 0f),
+                    topLeft = Offset(-w, 0f), size = Size(w, size.height)
+                )
+            }
+        }
+    val under = when {
+        exitItem != null -> null
+        entering -> pushUnder
+        gestureActive -> underlayItem
+        else -> null
+    }
+    return DetailPushFrame(under, underMod, mainItem, mod, exitItem, exitingMod)
 }
 
 /**

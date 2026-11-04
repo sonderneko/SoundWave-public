@@ -42,7 +42,8 @@ internal class LegacyNavigationHarness {
             )) {
                 BackAction.ClosePlayer -> returnToTopLevelTab(prevTab)
                 BackAction.CloseDetail -> closeDetail()
-                BackAction.CloseSettingsSub -> settingsSub = AppRoute.settingsBackTarget(settingsSub)
+                // 冻结的 r655 历史 oracle：旧静态映射恒回根（accept6-backnav 后生产走 SettingsNavStack 弹栈，本复制体保持旧语义作对照）。
+                BackAction.CloseSettingsSub -> settingsSub = null
                 BackAction.ClearSearch -> { searchResult = null; searchKw = "" }
                 BackAction.BackToHome -> when {
                     tab == Tab.SEARCH -> {

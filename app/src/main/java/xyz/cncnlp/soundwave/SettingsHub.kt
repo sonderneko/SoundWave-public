@@ -177,6 +177,9 @@ import androidx.compose.ui.platform.LocalDensity
 fun SettingsHub(
     settingsSub: String? = null,
     onSettingsSub: (String?) -> Unit = {},
+    // accept6-backnav：导航栈（当前页 = 栈顶）与弹栈返回回调；预测性返回弹一层回直接父页。
+    settingsStack: List<String> = emptyList(),
+    onSettingsBack: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
     onSmartSource: () -> Unit = {},
     downloads: List<DownloadItem> = emptyList(),
@@ -280,7 +283,7 @@ fun SettingsHub(
     onImportWebDavProfileName: suspend (String) -> Boolean = { false },
     webDavBundle: LocalStore.UserBundle,
     onWebDavBundleApplied: (LocalStore.UserBundle) -> Unit
-) = xyz.cncnlp.soundwave.ui.motion.SettingsPushHost(settingsSub, onPredictiveBack = { onSettingsSub(null) }) { settingsSub -> // r657 第二轮：设置子页推入 / 推出转场；SW-12-11：预测性返回完成时回设置主页（settingsBackTarget 恒为 null）
+) = xyz.cncnlp.soundwave.ui.motion.SettingsPushHost(settingsSub, stack = settingsStack, onPredictiveBack = onSettingsBack) { settingsSub -> // r657 第二轮：设置子页推入 / 推出转场；accept6-backnav：预测性返回改为弹栈回直接父页（深度-1 时即设置主页）
     val primary = MaterialTheme.colorScheme.primary
     val onBg = MaterialTheme.colorScheme.onBackground
     // 分类下的深层页面保留明确返回入口；不重复展示账户头像和通用品牌图案。

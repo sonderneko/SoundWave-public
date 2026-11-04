@@ -53,12 +53,8 @@ import xyz.cncnlp.soundwave.MotionPolicy
  * 每一层用 SaveableStateProvider 保存 rememberSaveable 状态（设置主页列表滚动位置在返回后保留）。
  */
 object SettingsPush {
-    /** 深度：设置主页 0，任意子页 1（r655 起设置扁平化，所有子页都直接从主页进入）。 */
-    fun depth(sub: String?): Int = if (sub == null) 0 else 1
-
-    /** 纯函数：从 [from] 到 [to] 是否为前进（推入）。两个子页之间互跳（统计 → 历史）也按推入处理。 */
-    fun isForward(from: String?, to: String?): Boolean = depth(to) > depth(from) || (from != null && to != null && from != to)
-
+    // accept6-backnav：深度与方向判定改由 SettingsNavStack 按导航栈计算（深度-2 子页链
+    // 统计→历史等需要真实父级），本对象只保留转场变换本身。
     fun transform(forward: Boolean, reduceMotion: Boolean): ContentTransform = when {
         reduceMotion -> EnterTransition.None togetherWith ExitTransition.None
         // r657 第三轮（用户 10-18 真机：两页文字互相透出）：进入页不再 0.6→1 淡入，整页不透明底遮住下层，只做横向推入。
@@ -74,14 +70,15 @@ object SettingsPush {
  * 设置页宿主：普通推入 / 推出仍走 [AnimatedContent]（上方 transform）。
  *
  * SW-12-11（设置部分）结构取舍：AnimatedContent 的推栈里只有当前页，无法直接露出「下层页」，
- * 因此手势期间采用等效实现——下层静态渲染一层主页（sub=null 态，与槽位内根页共用
- * SaveableStateProvider 的 "__settings_root__" 键，滚动等状态不丢），顶层页以 graphicsLayer
- * 跟手位移；手势完成后先 300ms 手动收尾滑出，再回调 [onPredictiveBack] 走原 pop 路径，并抑制
- * 该次 pop 的 AnimatedContent 转场以免位移叠加。通知中心页的 onDispose 标已读依赖子页退出组合：
+ * 因此手势期间采用等效实现——下层静态渲染一层父级页（accept6-backnav 起为 [stack] 的
+ * 次顶层页；深度-1 时即主页 sub=null 态，与槽位内根页共用 SaveableStateProvider 的
+ * "__settings_root__" 键，滚动等状态不丢），顶层页以 graphicsLayer 跟手位移；手势完成后
+ * 先 300ms 手动收尾滑出，再回调 [onPredictiveBack] 走弹栈路径，并抑制该次弹栈的
+ * AnimatedContent 转场以免位移叠加。通知中心页的 onDispose 标已读依赖子页退出组合：
  * pop 后子页仍随宿主退出组合（抑制的只是转场动画），该依赖不受影响。
  */
 @Composable
-fun SettingsPushHost(sub: String?, onPredictiveBack: (() -> Unit)? = null, content: @Composable (String?) -> Unit) {
+fun SettingsPushHost(sub: String?, stack: List<String> = emptyList(), onPredictiveBack: (() -> Unit)? = null, content: @Composable (String?) -> Unit) {
     val reduce = MotionPolicy.rememberReduceMotion()
     val holder = rememberSaveableStateHolder()
     // SW-12-11（设置部分）：预测性返回。仅 API 34+ 系统手势（或同版本的回调完成事件）参与：
@@ -99,7 +96,7 @@ fun SettingsPushHost(sub: String?, onPredictiveBack: (() -> Unit)? = null, conte
                 backEdge = event.swipeEdge
                 backFollow.snapTo(event.progress.coerceIn(0f, 1f))
             }
-            // 手势完成：300ms 收尾（顶层页继续滑出、下层主页归位），随后走原 pop 路径（回调把路由置回主页）。
+            // 手势完成：300ms 收尾（顶层页继续滑出、下层父级页归位），随后走弹栈路径（回调弹一层回父级）。
             suppressPopFor = latestSub
             if (reduce) backCommit.snapTo(1f) else backCommit.animateTo(1f, tween(MotionTokens.Duration.PageExit, easing = MotionTokens.Easing.EmphasizedAccelerate))
             latestOnPredictiveBack?.invoke()
@@ -110,20 +107,21 @@ fun SettingsPushHost(sub: String?, onPredictiveBack: (() -> Unit)? = null, conte
         }
     }
     LaunchedEffect(sub) {
-        if (sub == null) {
-            backFollow.snapTo(0f)
-            backCommit.snapTo(0f)
-            suppressPopFor = null
-        }
+        // 每次落位（推入/弹栈/回根）后清手势残量；抑制标志在转场规格已于组合期读取后于此清除。
+        backFollow.snapTo(0f)
+        backCommit.snapTo(0f)
+        suppressPopFor = null
     }
     val gestureColors = MaterialTheme.colorScheme
     val gestureDark = gestureColors.background.luminance() < 0.5f
     val backDir = if (backEdge == BackEventCompat.EDGE_RIGHT) -1f else 1f
-    // 手势进行 / 收尾期间才渲染下层主页；普通转场仍由下方 AnimatedContent 独占（结构取舍见类注释与战役报告）。
+    // 手势进行 / 收尾期间才渲染下层父级页；普通转场仍由下方 AnimatedContent 独占（结构取舍见类注释与战役报告）。
     val underlayVisible = sub != null && !reduce && (backFollow.value > 0f || backCommit.value > 0f)
+    // accept6-backnav：手势下层 = 栈中父页（深度-1 时为 null 即设置主页），与弹栈落点一致。
+    val underlaySub = stack.dropLast(1).lastOrNull()
     Box(Modifier.fillMaxSize()) {
         if (underlayVisible) {
-            // 下层静态露出：设置主页（sub=null 态）由反向 25% 位移 + 8% 压暗随手势进度归位。
+            // 下层静态露出：父级页由反向 25% 位移 + 8% 压暗随手势进度归位。
             val underP = maxOf(backFollow.value, backCommit.value)
             Box(
                 Modifier.fillMaxSize()
@@ -135,7 +133,7 @@ fun SettingsPushHost(sub: String?, onPredictiveBack: (() -> Unit)? = null, conte
                     }
             ) {
                 if (xyz.cncnlp.soundwave.ui.common.FrostedPrefs.pageActive) FrostedPageBackdrop(Modifier.fillMaxSize(), gestureDark)
-                holder.SaveableStateProvider("__settings_root__") { content(null) }
+                holder.SaveableStateProvider(underlaySub ?: "__settings_root__") { content(underlaySub) }
             }
         }
         Box(
@@ -149,16 +147,17 @@ fun SettingsPushHost(sub: String?, onPredictiveBack: (() -> Unit)? = null, conte
     AnimatedContent(
         targetState = sub,
         transitionSpec = {
-            if (targetState == null && initialState != null && initialState == suppressPopFor) {
+            // 手势收尾已完成同一段位移的那次弹栈（落点为根或父页均同）抑制转场，避免叠加。
+            if (initialState != null && initialState == suppressPopFor && targetState != initialState) {
                 EnterTransition.None togetherWith ExitTransition.None
             } else {
-                SettingsPush.transform(SettingsPush.isForward(initialState, targetState), reduce)
+                SettingsPush.transform(xyz.cncnlp.soundwave.SettingsNavStack.isForward(stack, initialState, targetState), reduce)
             }
         },
         label = "settingsPush"
     ) { s ->
-        // 下层页（深度较浅的一方）随转场压暗 0 ⇄ 8%（原型旧页压暗 8%），上层页不压暗。
-        val lower = SettingsPush.depth(s) == 0
+        // 下层页（非当前目标的一方，即被盖住/被返回到的一页）随转场压暗 0 ⇄ 8%（原型旧页压暗 8%），上层页不压暗。
+        val lower = s != sub
         val dim by transition.animateFloat(label = "settingsDim") { st -> if (st == EnterExitState.Visible) 0f else DetailPush.UNDER_DIM }
         val colors = androidx.compose.material3.MaterialTheme.colorScheme
         val dark = colors.background.luminance() < 0.5f

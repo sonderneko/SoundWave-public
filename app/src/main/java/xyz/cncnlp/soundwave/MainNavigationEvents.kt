@@ -20,7 +20,7 @@ internal class MainNavigationEffects(
     val dismissDownloadPicker: () -> Unit,
     val returnToTopLevelTab: (Tab) -> Unit,
     val closeDetail: () -> Unit,
-    val setSettingsSub: (String?) -> Unit,
+    val popSettingsSub: () -> Unit,
     val clearSearch: () -> Unit,
     val finishActivity: () -> Unit,
     val showExitPrompt: (Long) -> Unit,
@@ -52,7 +52,8 @@ internal class MainNavigationEvents(
         )) {
             BackAction.ClosePlayer -> effects.returnToTopLevelTab(state.previousTab)
             BackAction.CloseDetail -> effects.closeDetail()
-            BackAction.CloseSettingsSub -> effects.setSettingsSub(AppRoute.settingsBackTarget(state.settingsSub))
+            // accept6-backnav：弹一层设置栈（深度-1 回根、深度-2 起回直接父页），目标由栈决定。
+            BackAction.CloseSettingsSub -> effects.popSettingsSub()
             BackAction.ClearSearch -> effects.clearSearch()
             BackAction.BackToHome -> when {
                 state.tab == Tab.SEARCH -> effects.returnToTopLevelTab(AppRoute.searchBackTarget(state.lastContentTab))

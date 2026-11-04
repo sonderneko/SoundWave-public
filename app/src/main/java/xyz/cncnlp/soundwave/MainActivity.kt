@@ -308,13 +308,15 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     }
     var preferQ by remember { mutableStateOf(readUserQuality("play_br")) }
     var downloadQ by remember { mutableStateOf(readUserQuality("down_br")) }
-    var settingsSub by remember { mutableStateOf<String?>(null) } // 设置分类或其深层子页；null 为设置根
+    // accept6-backnav：设置导航栈（当前页 = 栈顶，空栈为设置根）；深度-2 子页链返回回直接父页。
+    var settingsStack by remember { mutableStateOf<List<String>>(emptyList()) }
+    val settingsSub: String? get() = settingsStack.lastOrNull()
     // ACCEPT5：消息中心横幅（inbox 升级弹出）的整条点击落点——切设置 tab 并打开通知中心子页
     //（与深链打开 backup 子页同款既有模式）；组合退出时注销，避免持有过期状态引用。
     DisposableEffect(Unit) {
         AppNotice.bannerViewHandler = {
             tab = Tab.SETTINGS
-            settingsSub = "notifications"
+            settingsStack = SettingsNavStack.pushed(settingsStack, "notifications")
         }
         onDispose { AppNotice.bannerViewHandler = null }
     }
@@ -382,13 +384,26 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     // ACCEPT5（用户 2026-11-04 裁定）：播放器内点专辑直达——详情压在播放器之上打开，不切 tab、
     // 不退出播放器，关闭后回到完好播放器。仅 TrackNavigation 的 album 通道在 tab==PLAYER 时置真。
     var detailOverPlayer by remember { mutableStateOf(false) }
-    // 详情页页头标题覆盖（detail.id → 标题，如「新碟首发」）与上一级详情（歌手页 → 专辑，返回回到歌手页）。
+    // 详情页页头标题覆盖（detail.id → 标题，如「新碟首发」）。
     var detailHeaderOverride by remember { mutableStateOf("" to "") }
-    var detailParent by remember { mutableStateOf<Pair<Playlist, List<Song>>?>(null) }
+    // accept6-backnav：详情导航栈（替代旧 detailParent 单槽——单槽只覆盖歌手→专辑一条链且
+    // 三级链恢复错层）。打开新详情统一走 openDetail 压栈，返回弹栈逐级恢复。
+    var detailStack by remember { mutableStateOf<List<DetailFrame>>(emptyList()) }
+    /** 当前帧快照（压栈材料）：详情本体 + 歌曲 + 页头覆盖 + 加载失败标记，返回时逐项还原。 */
+    fun currentDetailFrame(): DetailFrame? = plDetail?.let { DetailFrame(it, plDetailSongs, detailHeaderOverride, plDetailLoadFailedId) }
+    /** 统一打开口：打开不同 id 的详情时把当前帧压栈（同 id 刷新不压栈）；各打开者原有的 loading/origin 写入仍由其自理。 */
+    val openDetail: (Playlist, List<Song>) -> Unit = { detail, songs ->
+        detailStack = DetailNavStack.pushed(detailStack, currentDetailFrame(), detail.id)
+        plDetail = detail
+        plDetailSongs = songs
+    }
     val closeDetail: () -> Unit = {
-        val parent = detailParent
-        detailParent = null
-        if (parent != null) { plDetail = parent.first; plDetailSongs = parent.second; plDetailLoading = false }
+        val frame = DetailNavStack.backFrame(detailStack)
+        if (frame != null) {
+            detailStack = DetailNavStack.popped(detailStack)
+            plDetail = frame.detail; plDetailSongs = frame.songs; plDetailLoading = false
+            detailHeaderOverride = frame.headerOverride; plDetailLoadFailedId = frame.loadFailedId
+        }
         // 压播放器详情的最终关闭：只清详情与标记，tab 保持 PLAYER——不走 returnToTopLevelTab。
         else if (detailOverPlayer) { detailOverPlayer = false; plDetail = null; plDetailSongs = emptyList(); plDetailLoading = false }
         else { plDetail = null; plDetailSongs = emptyList(); plDetailLoading = false; returnToTopLevelTab(detailOriginTab) }
@@ -1080,7 +1095,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                 }
                 is SchemeActionHolder.Action.ImportPlaylist -> { onlineImportPrefill = action.text; showOnlineImportDlg = true }
                 is SchemeActionHolder.Action.ImportScript -> importScriptUri(action.uri)
-                is SchemeActionHolder.Action.ImportBackup -> { ExternalFileImport.offerBackup(action.uri); tab = Tab.SETTINGS; settingsSub = "backup" }
+                is SchemeActionHolder.Action.ImportBackup -> { ExternalFileImport.offerBackup(action.uri); tab = Tab.SETTINGS; settingsStack = listOf("backup") }
                 is SchemeActionHolder.Action.Notice -> AppNotice.toast(action.message)
                 is SchemeActionHolder.Action.Search -> {
                     val entry = AppRoute.searchEntryDecision(tab, prevTab, lastContentTab)
@@ -1343,7 +1358,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             dismissDownloadPicker = { downloadPickSong = null; downloadPickQuality = "" },
             returnToTopLevelTab = { returnToTopLevelTab(it) },
             closeDetail = { closeDetail() },
-            setSettingsSub = { settingsSub = it },
+            popSettingsSub = { settingsStack = SettingsNavStack.popped(settingsStack) },
             clearSearch = { searchResult = null; searchKw = "" },
             finishActivity = { (context as? android.app.Activity)?.finish(); Unit },
             showExitPrompt = { now ->
@@ -1358,9 +1373,10 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             },
             applyMainTab = { target ->
                 tab = target
-                settingsSub = null
+                settingsStack = emptyList()
                 plDetail = null
                 plDetailLoading = false
+                detailStack = emptyList() // accept6-backnav：切主 tab 时导航栈一并清，防陈旧父帧复活
                 detailOverPlayer = false // ACCEPT5：切主 tab 时兜底清压播放器标记，防陈旧状态
             }
         )
@@ -1567,11 +1583,13 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
         detailOriginTab = singerOriginRef[0]
         singerOriginRef[0] = Tab.SEARCH
         val singerId = "singer_${src0}_${s.id}"
-        plDetail = Playlist(
-            singerId, s.name.ifBlank { "歌手" }, s.cover, mutableListOf(), false, src0,
-            author = s.name, description = "歌手", count = 0, remoteId = s.id
+        openDetail(
+            Playlist(
+                singerId, s.name.ifBlank { "歌手" }, s.cover, mutableListOf(), false, src0,
+                author = s.name, description = "歌手", count = 0, remoteId = s.id
+            ),
+            emptyList()
         )
-        plDetailSongs = emptyList()
         scope.launch {
             val pl = withContext(Dispatchers.IO) {
                 if (src0 in MusicSourceRegistry.platformIds) {
@@ -1721,23 +1739,26 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     }
     val openDiscoverCardCb: (DiscoverCard, Tab) -> Unit = { card, origin ->
         detailOriginTab = origin
-        // r658b 第 3 项：数字专辑详情页头标题 =「专辑详情」（此前按歌单判定显示「歌单详情」）。
-        detailHeaderOverride = card.id to if (origin == Tab.HOME && (card.kind.equals("new_album", true) || card.kind.equals("new_song", true))) "新碟首发" else if (card.kind.equals("digital", true)) "专辑详情" else ""
         if (!card.kind.equals("new_song", true)) AlbumFavoriteMarks.noteAlbum(card.source.ifBlank { "wy" }, card.id)
         // 先立即进入详情页，显示首页已拿到的封面/标题；曲目列表异步补齐，避免点击后白等 5~10 秒。
-        plDetailSongs = emptyList()
-        plDetail = Playlist(
-            id = card.id,
-            name = card.name.ifBlank { card.title.ifBlank { "专辑" } },
-            cover = card.cover,
-            songs = mutableListOf(),
-            source = card.source.ifBlank { "wy" },
-            author = card.artist,
-            description = if (card.kind.equals("new_song", true)) card.album.ifBlank { "新歌" } else card.title.ifBlank { "专辑" },
-            count = 0,
-            detailContentKind = card.kind.lowercase(java.util.Locale.ROOT),
-            remoteId = card.id
+        // accept6-backnav：先走 openDetail 压栈（快照须含父级自己的页头覆盖），再写本级的页头覆盖。
+        openDetail(
+            Playlist(
+                id = card.id,
+                name = card.name.ifBlank { card.title.ifBlank { "专辑" } },
+                cover = card.cover,
+                songs = mutableListOf(),
+                source = card.source.ifBlank { "wy" },
+                author = card.artist,
+                description = if (card.kind.equals("new_song", true)) card.album.ifBlank { "新歌" } else card.title.ifBlank { "专辑" },
+                count = 0,
+                detailContentKind = card.kind.lowercase(java.util.Locale.ROOT),
+                remoteId = card.id
+            ),
+            emptyList()
         )
+        // r658b 第 3 项：数字专辑详情页头标题 =「专辑详情」（此前按歌单判定显示「歌单详情」）。
+        detailHeaderOverride = card.id to if (origin == Tab.HOME && (card.kind.equals("new_album", true) || card.kind.equals("new_song", true))) "新碟首发" else if (card.kind.equals("digital", true)) "专辑详情" else ""
         scope.launch {
             val src = card.source.ifBlank { "wy" }
             val directSong = if (card.kind.equals("new_song", true) && card.songId.isNotBlank()) {
@@ -1822,13 +1843,17 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     }
     // ACCEPT5：album 通道在播放器内打开时置 detailOverPlayer（详情压播放器直达，不退播放器）；
     // artist / playlist 通道在压播放器详情内触发时不再抢切 tab（层级一致性守卫），标记为假时逐字不变。
-    TrackNavigation.bind(artist = { sg, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; homeArtistOrigin[0] = origin; homeArtistSrc[0] = sg.source; openHomeArtistCb(sg.singer, sg.cover, sg.singerId) }, album = { card, origin -> detailOverPlayer = tab == Tab.PLAYER; openDiscoverCardCb(card, origin) }, currentTab = { if (tab == Tab.PLAYER) prevTab else tab }, playlist = { pl, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; detailOriginTab = origin; plDetail = pl; plDetailSongs = pl.songs; plDetailLoading = false })
+    TrackNavigation.bind(artist = { sg, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; homeArtistOrigin[0] = origin; homeArtistSrc[0] = sg.source; openHomeArtistCb(sg.singer, sg.cover, sg.singerId) }, album = { card, origin -> detailOverPlayer = tab == Tab.PLAYER; openDiscoverCardCb(card, origin) }, currentTab = { if (tab == Tab.PLAYER) prevTab else tab }, playlist = { pl, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; detailOriginTab = origin; openDetail(pl, pl.songs); plDetailLoading = false })
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
     fun AppRootDetailOverlay(abovePlayer: Boolean = false) {
         val detailKeyboardController = LocalSoftwareKeyboardController.current
-        val pushFrame = xyz.cncnlp.soundwave.ui.motion.rememberDetailPushFrame(plDetail?.let { it to plDetailSongs }) { it.first.id } // r657 推入 / 推出（离场保留最后一帧）
+        // accept6-backnav：三层帧（under = 栈顶父级快照 / 主层 / exiting），返回时父级全程保持组合。
+        val pushFrame = xyz.cncnlp.soundwave.ui.motion.rememberDetailPushFrame(
+            current = plDetail?.let { it to plDetailSongs },
+            underlayItem = detailStack.lastOrNull()?.let { it.detail to it.songs }
+        ) { it.first.id }
         val renderedDetail = pushFrame.item?.first; val renderedDetailSongs = pushFrame.item?.second.orEmpty()
         // SW-12-11（详情部分）：预测性返回（API 34+）。启用条件与 AppRoute 返回优先级对齐：登录弹窗 / 下载选择器 / 播放器优先、详情居其后；
         // 注册在本层内容之前，详情内多选 / 弹层（LibraryPage 自带 BackHandler）与 AppOverlay、播放器的返回处理仍按既有注册顺序优先，不被抢占。
@@ -1843,46 +1868,29 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
         androidx.activity.compose.BackHandler(enabled = abovePlayer && plDetail != null && downloadPickSong == null) {
             detailKeyboardController?.hide(); closeDetail()
         }
-        if (renderedDetail != null) {
-            // 不透明根层直接覆盖，移除透明首帧及旧快照回写。
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    // ACCEPT5：abovePlayer 时 4f 压过播放器层（3f）；其余沿 r657 口径（播放器下 1f / 常规 2f）。
-                    .zIndex(if (abovePlayer) 4f else if (tab == Tab.PLAYER) 1f else 2f).then(pushFrame.modifier) // r657 推入 / 推出转场
-                    .background(bg.copy(alpha = 1f))
-                    .drawPlayerDetailUnderlayDuringTransition(
-                        playerLayout,
-                        fullPlayerVisibilityState.currentState,
-                        fullPlayerVisibilityState.targetState,
-                        playerDismissOffsetHolder
-                    )
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { }
-            ) {
-                FrostedPageBackdrop(Modifier.matchParentSize(), isDark)
-                SoundwaveDesignTheme(isDark = isDark) { LibraryPage(
+        // accept6-backnav：同一份 LibraryPage 调用按层复用——live 层为当前详情（行为与旧版逐字
+        // 一致）；under / exiting 层为冻结快照（触摸被主层屏蔽、不接管状态栏与多选回调）。
+        val detailLayer: @Composable (Playlist, List<Song>, Boolean) -> Unit = { layerDetail, layerSongs, live ->
+            SoundwaveDesignTheme(isDark = isDark) { LibraryPage(
                     bundle = userBundle,
                     history = history,
                     downloads = downloads,
                     loggedIn = true,
                     user = user,
                     avatarPath = avatarPath,
-                    detail = renderedDetail,
-                    detailSongs = renderedDetailSongs,
-                    detailLoading = plDetailLoading,
-                    detailLoadFailed = plDetailLoadFailedId != null && plDetailLoadFailedId == renderedDetail.id,
+                    detail = layerDetail,
+                    detailSongs = layerSongs,
+                    detailLoading = live && plDetailLoading,
+                    detailLoadFailed = live && plDetailLoadFailedId != null && plDetailLoadFailedId == layerDetail.id,
                     onRetryDetail = {
-                        val failed = userBundle.playlists.firstOrNull { it.id == renderedDetail.id } ?: renderedDetail
+                        val failed = userBundle.playlists.firstOrNull { it.id == layerDetail.id } ?: layerDetail
                         if (failed.isRemoteFavoriteEntry()) hydrateFavoriteDetail(failed)
                     },
                     detailCoverStyle = detailCoverStyle,
-                    onDetailStatusBarAppearance = { immersiveDetailStatusBarLight = it },
-                    onDetailSelectionModeChange = { detailSelectionActive = it },
-                    detailHeaderTitle = if (detailHeaderOverride.first == renderedDetail.id) detailHeaderOverride.second else "",
-                    onOpenSingerAlbum = { a -> detailParent = renderedDetail to renderedDetailSongs; openDiscoverCardCb(DiscoverCard(a.id, a.name, a.cover, renderedDetail.author, a.kind, if (a.kind == "digital") "数字专辑" else "专辑", source = a.source), detailOriginTab) },
+                    onDetailStatusBarAppearance = { if (live) immersiveDetailStatusBarLight = it },
+                    onDetailSelectionModeChange = { if (live) detailSelectionActive = it },
+                    detailHeaderTitle = if (detailHeaderOverride.first == layerDetail.id) detailHeaderOverride.second else "",
+                    onOpenSingerAlbum = { a -> openDiscoverCardCb(DiscoverCard(a.id, a.name, a.cover, layerDetail.author, a.kind, if (a.kind == "digital") "数字专辑" else "专辑", source = a.source), detailOriginTab) },
                     suppressArtworkBackdrop = playerImmersiveTransitionSurfaceVisible(
                         playerLayout, fullPlayerVisibilityState.currentState, fullPlayerVisibilityState.targetState
                     ),
@@ -1890,7 +1898,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     detailFromHome = detailOriginTab == Tab.HOME,
                     // 经典详情按来源隐藏不支持的远端收藏；Default2/沉浸封面始终提供安全的本地收藏状态入口。
                     showPlaylistFavorite = (detailOriginTab == Tab.HOME || detailOriginTab == Tab.SEARCH) &&
-                        !renderedDetail.id.startsWith("singer_"),
+                        !layerDetail.id.startsWith("singer_"),
                     isPlaylistFavorited = { pl ->
                         playlistIsFavorited(pl, pl.source.ifBlank { homePlatform }, userBundle.playlists)
                     },
@@ -2075,6 +2083,50 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     playingNow = playing,
                     onNewPlaylist = { newPlName = "新建歌单"; showNewPlDlg = true }
                 ) } // 详情页统一设计稿配色（去除旧版蓝色描边/主色）
+        }
+        // accept6-backnav 三层渲染：under（父级快照）→ 主层（当前详情，live）→ exiting（滑出中的
+        // 子详情快照）。任一层在场即整组覆盖（zIndex 沿旧口径）；触摸屏蔽与播放器转场底衬只挂主层。
+        if (renderedDetail != null || pushFrame.under != null || pushFrame.exiting != null) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    // ACCEPT5：abovePlayer 时 4f 压过播放器层（3f）；其余沿 r657 口径（播放器下 1f / 常规 2f）。
+                    .zIndex(if (abovePlayer) 4f else if (tab == Tab.PLAYER) 1f else 2f)
+            ) {
+                pushFrame.under?.let { underFrame ->
+                    Box(Modifier.fillMaxSize().then(pushFrame.underModifier).background(bg.copy(alpha = 1f))) {
+                        FrostedPageBackdrop(Modifier.matchParentSize(), isDark)
+                        detailLayer(underFrame.first, underFrame.second, false)
+                    }
+                }
+                if (renderedDetail != null) {
+                    // 不透明根层直接覆盖，移除透明首帧及旧快照回写。
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .then(pushFrame.modifier) // r657 推入 / 推出转场（accept6-backnav 后为主层位移）
+                            .background(bg.copy(alpha = 1f))
+                            .drawPlayerDetailUnderlayDuringTransition(
+                                playerLayout,
+                                fullPlayerVisibilityState.currentState,
+                                fullPlayerVisibilityState.targetState,
+                                playerDismissOffsetHolder
+                            )
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { }
+                    ) {
+                        FrostedPageBackdrop(Modifier.matchParentSize(), isDark)
+                        detailLayer(renderedDetail, renderedDetailSongs, true)
+                    }
+                }
+                pushFrame.exiting?.let { exitFrame ->
+                    Box(Modifier.fillMaxSize().then(pushFrame.exitingModifier).background(bg.copy(alpha = 1f))) {
+                        FrostedPageBackdrop(Modifier.matchParentSize(), isDark)
+                        detailLayer(exitFrame.first, exitFrame.second, false)
+                    }
+                }
             }
         }
     }
@@ -2147,12 +2199,14 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     plDetailLoading = seed.isEmpty() && !pl.local && pl.id !in setOf("liked", "local", "history") && !pl.id.startsWith("local_")
                     val seedCover = playlistDisplayCover(displayPlaylist, seed)
                     // 详情状态和请求均使用远端 id，不能把 reco_ 这种纯 UI 标识传入接口。
-                    plDetail = Playlist(
-                        remotePlaylistId, pl.name, seedCover, seed.toMutableList(), pl.local, src0,
-                        author = pl.author, description = pl.description, count = pl.count,
-                        remoteId = remotePlaylistId, favorited = isFavorite, playCount = pl.playCount
+                    openDetail(
+                        Playlist(
+                            remotePlaylistId, pl.name, seedCover, seed.toMutableList(), pl.local, src0,
+                            author = pl.author, description = pl.description, count = pl.count,
+                            remoteId = remotePlaylistId, favorited = isFavorite, playCount = pl.playCount
+                        ),
+                        seed
                     )
-                    plDetailSongs = seed
                     if (pl.id == "today_recommendation") {
                         plDetailLoading = false // Only the validated recommendation snapshot/update stream owns this detail.
                     } else if (seed.isNotEmpty() && !pl.id.startsWith("rank_")) {
@@ -2383,8 +2437,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                     AlbumFavoriteMarks.noteAlbum(song.source.ifBlank { "wy" }, song.albumId)
                                     resolvedAlbum?.let { AlbumFavoriteMarks.noteAlbum(it.source.ifBlank { song.source.ifBlank { "wy" } }, it.remoteId.ifBlank { it.id }) }
                                     if (resolvedAlbum != null) {
-                                        plDetail = resolvedAlbum
-                                        plDetailSongs = resolvedAlbum.songs
+                                        openDetail(resolvedAlbum, resolvedAlbum.songs)
                                     } else {
                                         // 专辑详情接口缺失时，仅使用当前搜索结果中同平台同专辑的真实歌曲兜底，禁止伪造数据。
                                         val sameAlbum = searchResults.filter {
@@ -2401,8 +2454,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                                 remoteId = song.id
                                             )
                                             AlbumFavoriteMarks.noteAlbum(detail.source, detail.remoteId.ifBlank { detail.id })
-                                            plDetail = detail
-                                            plDetailSongs = sameAlbum
+                                            openDetail(detail, sameAlbum)
                                         } else {
                                             AppNotice.toast("当前平台暂无专辑详情")
                                         }
@@ -2413,8 +2465,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                 val src0 = pl.source.ifEmpty { "wy" }
                                 detailOriginTab = Tab.SEARCH
                                 val seed = pl.songs
-                                plDetail = Playlist(pl.id, pl.name, playlistDisplayCover(pl, seed), seed.toMutableList(), pl.local, src0)
-                                plDetailSongs = seed
+                                openDetail(Playlist(pl.id, pl.name, playlistDisplayCover(pl, seed), seed.toMutableList(), pl.local, src0), seed)
                                 scope.launch {
                                     val cached = if (seed.isEmpty()) {
                                         try { HomeFeedCache.loadDetailOnIo(context, pl.id, src0, HomeFeedCache.ResourceTtl.PLAYLIST_DETAIL_MS) } catch (_: Exception) { emptyList() }
@@ -2541,16 +2592,18 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                 // （历史条目落盘的 local=true 是误标，不改存储、只在此纠正呈现），
                                 // 并启动回源水合；其余条目（自建/导入/本地）行为逐字不变。
                                 val remoteFavorite = pl.isRemoteFavoriteEntry()
-                                plDetail = if (remoteFavorite) pl.copy(local = false) else pl
-                                // 用叠层展示详情
-                                plDetailSongs = when {
-                                    pl.id == "liked" -> userBundle.favs.toList()
-                                    pl.id == "history" -> history
-                                    pl.id == "local" -> pl.songs.toList().ifEmpty {
-                                        userBundle.playlists.firstOrNull { it.id == "local" }?.songs?.toList().orEmpty()
+                                // 用叠层展示详情（accept6-backnav：统一走 openDetail 压栈口）
+                                openDetail(
+                                    if (remoteFavorite) pl.copy(local = false) else pl,
+                                    when {
+                                        pl.id == "liked" -> userBundle.favs.toList()
+                                        pl.id == "history" -> history
+                                        pl.id == "local" -> pl.songs.toList().ifEmpty {
+                                            userBundle.playlists.firstOrNull { it.id == "local" }?.songs?.toList().orEmpty()
+                                        }
+                                        else -> pl.songs.toList()
                                     }
-                                    else -> pl.songs.toList()
-                                }
+                                )
                                 if (remoteFavorite) hydrateFavoriteDetail(pl)
                             },
                             onBack = closeDetail,
@@ -2741,7 +2794,9 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
         ) {
         SettingsHub(
                             settingsSub = settingsSub,
-                            onSettingsSub = { settingsSub = it },
+                            settingsStack = settingsStack,
+                            onSettingsSub = { sub -> settingsStack = if (sub == null) emptyList() else SettingsNavStack.pushed(settingsStack, sub) },
+                            onSettingsBack = { settingsStack = SettingsNavStack.popped(settingsStack) },
                             onLoginClick = { openAccountEntry() },
                             onPrepareWebDavAvatarSync = { account.prepareWebDavAvatarSync() },
                             onPrepareWebDavProfileExtrasSync = { account.prepareWebDavProfileExtrasSync() },
