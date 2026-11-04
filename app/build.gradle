@@ -61,7 +61,7 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.13.1'
-    // ACCEPT6 启动页：core-splashscreen（与 core-ktx 1.13.1 同代 1.0.1），统一 26-34 的启动窗行为。
+    // 启动页：core-splashscreen（与 core-ktx 1.13.1 同代 1.0.1），统一 API 26-34 的启动窗行为。
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'androidx.activity:activity-compose:1.9.2'
     implementation platform('androidx.compose:compose-bom:2024.09.02')
@@ -80,11 +80,11 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'io.coil-kt:coil-compose:2.7.0'
-    // r657：真实背景模糊（底栏 / 迷你条 / 详情顶栏磨砂），API 31+ RenderEffect，低版本由 Glass.kt 退回 94% 实色。
+    // 真实背景模糊（底栏 / 迷你条 / 详情顶栏磨砂）：API 31+ RenderEffect，低版本由 Glass.kt 退回 94% 实色。
     implementation 'dev.chrisbanes.haze:haze:1.0.2'
     implementation 'androidx.work:work-runtime-ktx:2.9.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
-    // r656-G：侧载/非 Play 安装也能在首启后把 src/main/baseline-prof.txt 编译进 ART 配置（冷启动、首页滚动、打开播放器少走解释执行）。
+    // 侧载/非 Play 安装也能在首启后把 src/main/baseline-prof.txt 编译进 ART 配置（冷启动、首页滚动、打开播放器少走解释执行）。
     implementation 'androidx.profileinstaller:profileinstaller:1.3.1'
 
     testImplementation 'junit:junit:4.13.2'
@@ -97,7 +97,7 @@ dependencies {
     // WebDAV 兼容性（坚果云/Nextcloud 等）回环 HTTP 模拟。
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
 
-    // P2-② Android E2E：加密音频播放闭环（PlaybackDecryptE2ETest）
+    // Android E2E：加密音频播放闭环（PlaybackDecryptE2ETest）
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:core-ktx:1.5.0'
     androidTestImplementation 'androidx.test:runner:1.5.2'
