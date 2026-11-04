@@ -790,44 +790,6 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             prefs.edit().putString("lib_order_v1", restoredOrder.joinToString(",")).apply()
         }
     }
-    // 收藏自有顺序（用户 2026-11-05）：FavoriteOrderSync 戳记为权威、prefs 只作兜底/镜像，
-    // 与在线池 libOrder 同一镜像法但互不读写；歌单组/专辑组按 AlbumFavoriteMarks 分开各一份。
-    // 无戳记时的回退排列 = 今天的画面：歌单组沿池序带相对序、专辑组沿 bundle 原序，升级不跳位。
-    var libFavPlOrder by remember {
-        mutableStateOf(prefs.getString("lib_fav_order_pl_v1", "")?.split(",")?.filter { it.isNotEmpty() } ?: emptyList())
-    }
-    var libFavAlbumOrder by remember {
-        mutableStateOf(prefs.getString("lib_fav_order_album_v1", "")?.split(",")?.filter { it.isNotEmpty() } ?: emptyList())
-    }
-    fun favoriteGroupOrder(albums: Boolean): List<String> {
-        val marks = AlbumFavoriteMarks.marks(context)
-        val indexed = userBundle.playlists.withIndex()
-            .filter { (_, pl) -> pl.favorited && (pl.id in marks) == albums }
-        val candidates = if (albums) {
-            indexed.map { it.value }
-        } else {
-            val bandIndex = PlaylistOrderSync.displayOrder(userBundle.playlists, libOrder)
-                .withIndex().associate { (i, id) -> id to i }
-            indexed
-                .sortedWith(compareBy<IndexedValue<Playlist>> { bandIndex[it.value.id] ?: Int.MAX_VALUE }.thenBy { it.index })
-                .map { it.value }
-        }
-        return FavoriteOrderSync.displayOrder(candidates, if (albums) libFavAlbumOrder else libFavPlOrder)
-    }
-    val favoriteOrderKey = userBundle.playlists.map { "${it.id}:${it.favorited}:${it.favSyncOrderAt}:${it.favSyncOrder}" }
-    LaunchedEffect(favoriteOrderKey) {
-        val restoredPl = favoriteGroupOrder(false)
-        if (restoredPl != libFavPlOrder) {
-            libFavPlOrder = restoredPl
-            prefs.edit().putString("lib_fav_order_pl_v1", restoredPl.joinToString(",")).apply()
-        }
-        val restoredAlbums = favoriteGroupOrder(true)
-        if (restoredAlbums != libFavAlbumOrder) {
-            libFavAlbumOrder = restoredAlbums
-            prefs.edit().putString("lib_fav_order_album_v1", restoredAlbums.joinToString(",")).apply()
-        }
-    }
-
     // 封面真实磁盘缓存：热门/歌单/头像 URL 变了才下
     LaunchedEffect(homePlatform, homeFeed.multiHot, homeFeed.multiPl, homeFeed.multiRank, userBundle.favs.size, userBundle.playlists.map { it.id + it.cover + it.songs.size }, avatarPath) {
         delay(750L)
@@ -901,6 +863,17 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             if (removed.isNotEmpty()) playback.onOriginPlaylistSongsRemoved(playlistId, removed)
         }
     }
+    // 收藏自有顺序（用户 2026-11-05）：状态、戳记重算与落盘整体在 FavoriteOrderState（PlaybackController 同范式），此处只留接线；
+    // 置于 persistBundle 声明之后，因接线 lambda 要引用它（本地 fun 不可前向引用）。
+    val favoriteOrder = remember { FavoriteOrderState(
+        context = context,
+        prefs = prefs,
+        getPlaylists = { userBundle.playlists },
+        getPoolOrder = { libOrder },
+        onPlaylistsReordered = { pls -> userBundle = userBundle.copy(playlists = pls.toMutableList()) },
+        persist = { persistBundle() },
+    ) }
+    LaunchedEffect(favoriteOrder.stampKey) { favoriteOrder.syncFromStamps() }
     fun reorderLibraryPlaylists(order: List<String>) {
         val previousOrder = PlaylistOrderSync.displayOrder(userBundle.playlists, libOrder)
         val reorderedPlaylists = PlaylistOrderSync.withOrder(userBundle.playlists, order)
@@ -910,29 +883,6 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
         libOrder = restoredOrder
         prefs.edit().putString("lib_order_v1", restoredOrder.joinToString(",")).apply()
         // LibraryPage invokes this only after a valid up/down move; never save during a gesture.
-        persistBundle()
-    }
-    fun reorderFavoritePlaylists(order: List<String>, albums: Boolean) {
-        val marks = AlbumFavoriteMarks.marks(context)
-        val memberIds = userBundle.playlists
-            .filter { it.favorited && (it.id in marks) == albums }
-            .mapTo(hashSetOf()) { it.id }
-        if (memberIds.isEmpty()) return
-        val previousOrder = favoriteGroupOrder(albums)
-        val reorderedPlaylists = FavoriteOrderSync.withOrder(userBundle.playlists, memberIds, order)
-        val restoredOrder = FavoriteOrderSync.displayOrder(
-            reorderedPlaylists.filter { it.id in memberIds }, emptyList()
-        )
-        if (restoredOrder == previousOrder) return
-        userBundle = userBundle.copy(playlists = reorderedPlaylists.toMutableList())
-        if (albums) {
-            libFavAlbumOrder = restoredOrder
-            prefs.edit().putString("lib_fav_order_album_v1", restoredOrder.joinToString(",")).apply()
-        } else {
-            libFavPlOrder = restoredOrder
-            prefs.edit().putString("lib_fav_order_pl_v1", restoredOrder.joinToString(",")).apply()
-        }
-        // Same guarded save path as the pools: only after a completed drag, never during a gesture.
         persistBundle()
     }
     LaunchedEffect(avatarNeedSync, avatarPath) {
@@ -2133,9 +2083,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     onReorderPlaylists = { order ->
                         reorderLibraryPlaylists(order)
                     },
-                    onReorderFavorites = { order, albums ->
-                        reorderFavoritePlaylists(order, albums)
-                    },
+                    onReorderFavorites = { order, albums -> favoriteOrder.reorder(order, albums) },
                     onClearHistory = {
                         val prevHistory = history
                         history = emptyList()
@@ -2144,8 +2092,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                         AppNotice.undo("已清空播放历史") { history = prevHistory; LocalStore.prefs(context).edit().putString("play_history_v1", org.json.JSONArray().apply { prevHistory.forEach { put(it.toJson()) } }.toString()).apply(); persistBundle() }
                     },
                     libOrder = libOrder,
-                    favPlOrder = libFavPlOrder,
-                    favAlbumOrder = libFavAlbumOrder,
+                    favPlOrder = favoriteOrder.playlistOrder,
+                    favAlbumOrder = favoriteOrder.albumOrder,
                     playingNow = playing,
                     onNewPlaylist = { newPlName = "新建歌单"; showNewPlDlg = true }
                 ) } // 详情页统一设计稿配色（去除旧版蓝色描边/主色）
@@ -2815,9 +2763,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                             onReorderPlaylists = { order ->
                                 reorderLibraryPlaylists(order)
                             },
-                            onReorderFavorites = { order, albums ->
-                                reorderFavoritePlaylists(order, albums)
-                            },
+                            onReorderFavorites = { order, albums -> favoriteOrder.reorder(order, albums) },
                             onClearHistory = {
                                 val prevHistory = history
                                 history = emptyList()
@@ -2826,8 +2772,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                 AppNotice.undo("已清空播放历史") { history = prevHistory; LocalStore.prefs(context).edit().putString("play_history_v1", org.json.JSONArray().apply { prevHistory.forEach { put(it.toJson()) } }.toString()).apply(); persistBundle() }
                             },
                             libOrder = libOrder,
-                            favPlOrder = libFavPlOrder,
-                            favAlbumOrder = libFavAlbumOrder,
+                            favPlOrder = favoriteOrder.playlistOrder,
+                            favAlbumOrder = favoriteOrder.albumOrder,
                             playingNow = playing,
                             onNewPlaylist = { newPlName = "新建歌单"; showNewPlDlg = true },
                             onPlatformClick = { code ->
