@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ACCEPT6 图标换新 · 通知小图标（status bar small icon）专用单色剪影。
+  按 Android 通知图标规范：只用 alpha 通道成形（系统统一着色），白色填充 + evenOdd 镂空——
+  圆盘本体、芯标环带、中心孔。禁止拿彩色启动图标直接充当 small icon（旧 ScriptProbeScheduler 做法）。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M1.5,12 a10.5,10.5 0 1,0 21,0 a10.5,10.5 0 1,0 -21,0 Z M7.4,12 a4.6,4.6 0 1,0 9.2,0 a4.6,4.6 0 1,0 -9.2,0 Z M8.6,12 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0 Z M10.5,12 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0 Z" />
+</vector>

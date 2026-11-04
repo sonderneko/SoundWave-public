@@ -1,0 +1,103 @@
+[
+  {
+    "name": "shelves-p1-r20-home",
+    "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=20",
+    "time_utc": "2026-10-22T18:13:13.099072+00:00",
+    "status": 200,
+    "content_type": "application/json;charset=utf-8",
+    "bytes": 2089,
+    "final_url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=20",
+    "code": 200,
+    "success": true,
+    "size": 1,
+    "raw_count": 1,
+    "ids": [
+      "4965208"
+    ],
+    "names": [
+      "未完待旭 罗中旭经典全纪录1995-2017"
+    ]
+  },
+  {
+    "name": "shelves-p1-r12-exact",
+    "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=12",
+    "time_utc": "2026-10-22T18:12:11.988720+00:00",
+    "status": 200,
+    "content_type": "application/json;charset=utf-8",
+    "bytes": 2089,
+    "final_url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=12",
+    "code": 200,
+    "success": true,
+    "size": 1,
+    "raw_count": 1,
+    "ids": [
+      "4965208"
+    ],
+    "names": [
+      "未完待旭 罗中旭经典全纪录1995-2017"
+    ]
+  },
+  {
+    "name": "shelves-p1-r30",
+    "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=30",
+    "time_utc": "2026-10-22T18:12:11.989154+00:00",
+    "status": 200,
+    "content_type": "application/json;charset=utf-8",
+    "bytes": 2089,
+    "final_url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=1&rn=30",
+    "code": 200,
+    "success": true,
+    "size": 1,
+    "raw_count": 1,
+    "ids": [
+      "4965208"
+    ],
+    "names": [
+      "未完待旭 罗中旭经典全纪录1995-2017"
+    ]
+  },
+  {
+    "name": "shelves-p2-r12",
+    "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=2&rn=12",
+    "time_utc": "2026-10-22T18:12:11.990506+00:00",
+    "status": 200,
+    "content_type": "application/json;charset=utf-8",
+    "bytes": 175,
+    "final_url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=2&rn=12",
+    "code": 200,
+    "success": true,
+    "size": 1,
+    "raw_count": 0,
+    "ids": [],
+    "names": []
+  },
+  {
+    "name": "shelves-p0-r12",
+    "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=0&rn=12",
+    "time_utc": "2026-10-22T18:12:14.535626+00:00",
+    "status": 200,
+    "content_type": "application/json;charset=utf-8",
+    "bytes": 2089,
+    "final_url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=0&rn=12",
+    "code": 200,
+    "success": true,
+    "size": 1,
+    "raw_count": 1,
+    "ids": [
+      "4965208"
+    ],
+    "names": [
+      "未完待旭 罗中旭经典全纪录1995-2017"
+    ]
+  },
+  {
+    "name": "digital-official-data",
+    "url": "https://mobile.kuwo.cn/mpage/fspage/zhuanqu/getdata.jsp?mainid=48",
+    "time_utc": "2026-10-22T18:12:14.547055+00:00",
+    "status": 500,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 142162,
+    "final_url": "https://www.kuwo.cn",
+    "parse_error": "JSONDecodeError"
+  }
+]

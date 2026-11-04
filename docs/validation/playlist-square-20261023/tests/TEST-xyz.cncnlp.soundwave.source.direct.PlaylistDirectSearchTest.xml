@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:52:43" hostname="f4a76f4ca31d" time="0.015">
+  <properties/>
+  <testcase name="qq playlist status distinguishes valid empty list from malformed response" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.002"/>
+  <testcase name="kuwo playlist albumcover 320 variant upgrades only same modern resource path" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.004"/>
+  <testcase name="parses wy square playlists with trackCount playCount cover shrink and creator" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.001"/>
+  <testcase name="kuwo playlist cover upgrades only verified user playlist path and decodes full intro" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.001"/>
+  <testcase name="native page range uses bounded one based page and offset" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="maps qq live playlist introduction entities without borrowing another field" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="parses mg playlist result with musicNum and creator empty" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.001"/>
+  <testcase name="parses kg special with size placeholder and songcount" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.001"/>
+  <testcase name="decodes qq playlist title and author html entities exactly once" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="parses only provider supplied wy catalogue groups and category names" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="category direct parsers distinguish valid empty provider lists from malformed responses" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="normalize strips trailing digits with fallback and dedups by id-src" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.001"/>
+  <testcase name="parses kw abslist with DC_TARGETID fallback string songnum and cover shrink" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="parsers degrade to empty list on malformed input" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <testcase name="parses tx jsonp and plain json with title fallback and raw cover" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.001"/>
+  <testcase name="parses wy keyword playlists with id dedup" classname="xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

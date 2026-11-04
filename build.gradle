@@ -1,0 +1,18 @@
+// r658f：启动闪退根因——AGP 8.5.2 自带 R8 把超大 Compose 函数（LibraryPage，63 参）编出 ART 拒收的 dex
+// （java.lang.VerifyError: register has type PositiveByteConstant but expected Reference，MainActivity.onCreate 加载即崩）。
+// 是否触发随全局优化决策漂移，因此改无关文件也会时好时坏。固定使用更新的 R8 修复该代码生成缺陷。
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools:r8:8.9.35'
+    }
+}
+
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+    id 'org.jetbrains.kotlin.android' version '2.0.20' apply false
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.0.20' apply false
+}

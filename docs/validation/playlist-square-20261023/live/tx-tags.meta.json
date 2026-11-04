@@ -1,0 +1,6 @@
+{
+  "label": "tx-tags",
+  "url": "https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22tags%22%3A%7B%22module%22%3A%22playlist.PlaylistAllCategoriesServer%22%2C%22method%22%3A%22get_all_categories%22%2C%22param%22%3A%7B%22qq%22%3A%22%22%7D%7D%7D",
+  "status": 200,
+  "code": 0
+}

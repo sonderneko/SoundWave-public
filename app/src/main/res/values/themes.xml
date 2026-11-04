@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ACCEPT6 启动页收编：旧深蓝窗口底与旧紫 colorPrimary 一并清退——
+         窗口底与系统栏跟应用纸面（浅色纸面色值见下，夜间版在 values-night），
+         colorPrimary 对齐品牌珊瑚（ThemeTokens.PrimaryCoralDeep 同值）。 -->
+    <style name="Theme.SoundWave" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#F4F4F0</item>
+        <item name="android:navigationBarColor">#F4F4F0</item>
+        <item name="android:windowBackground">#F4F4F0</item>
+        <item name="android:colorPrimary">#E8452F</item>
+    </style>
+
+    <!-- ACCEPT6 启动页（core-splashscreen）：暖纸底 + 黑胶母题图标，退场后切回 Theme.SoundWave。
+         保持时长由 MainActivity 的 SplashGate 就绪驱动 + 1.5s 硬顶保险丝控制，本主题不设任何延时。 -->
+    <style name="Theme.SoundWave.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#F4F4F0</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_disc</item>
+        <item name="postSplashScreenTheme">@style/Theme.SoundWave</item>
+    </style>
+</resources>

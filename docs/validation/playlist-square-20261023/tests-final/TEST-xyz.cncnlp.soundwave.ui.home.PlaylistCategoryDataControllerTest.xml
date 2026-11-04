@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:53:31" hostname="f4a76f4ca31d" time="0.031">
+  <properties/>
+  <testcase name="laterTerminalPageDoesNotMarkTheFirstPageCacheAsExhausted" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.006"/>
+  <testcase name="categoryGroupsUseSixHourAndTenMinuteTtlsAndKeepExpiredSnapshotOnFailure" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.006"/>
+  <testcase name="groupCancellationKeepsLegacyEmptySnapshotWhilePageCancellationIsPropagated" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.003"/>
+  <testcase name="successfulEmptyCategoryResultIsNegativeCachedAndKeysStayIsolated" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.002"/>
+  <testcase name="everyPlatformRetriesFailedPageAndCanPassDuplicatesAndEmptyContinuingPages" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.004"/>
+  <testcase name="emptyAndFailedPagesRetrySamePageWhileDuplicateNonEmptyPageAdvances" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.002"/>
+  <testcase name="firstCategoryGroupFailurePersistsEmptySnapshotAndAvoidsImmediateRetry" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.001"/>
+  <testcase name="failedRefreshPreservesKnownTerminalCacheWithoutOverwritingIt" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.001"/>
+  <testcase name="unknownContinuationAndLegacySnapshotsStayConservative" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.001"/>
+  <testcase name="firstPageContinuationSurvivesCacheReentryForEveryPlatform" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.003"/>
+  <testcase name="firstPageFailureFallsBackToCachedResultsThenMatchingHomeTitlesWithoutCachingFailure" classname="xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,29 @@
+{
+  "label": "kw-all-p59",
+  "url": "https://wapi.kuwo.cn/api/pc/classify/playlist/getRcmPlayList?order=hot&loginUid=0&loginSid=0&appUid=76039576&pn=59&rn=30",
+  "status": 200,
+  "code": 200,
+  "data_keys": [
+    "total",
+    "data",
+    "rn",
+    "pn"
+  ],
+  "rows": 13,
+  "total": 1753,
+  "ids": [
+    "2395128153",
+    "2417896103",
+    "2381336019",
+    "316608824",
+    "2399082339",
+    "582191357",
+    "2398473064",
+    "2409834946",
+    "2234580349",
+    "2409953833",
+    "2432653113",
+    "2399331172",
+    "2429144663"
+  ]
+}

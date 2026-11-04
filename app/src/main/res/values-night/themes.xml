@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ACCEPT6 启动页夜间版：与浅色版同构，纸面换夜间纸 #101210（SoundwaveDesignPalette.NightPaper）。
+         启动页出现在应用内主题偏好加载之前，只能跟随系统夜间模式，故双主题在此成对维护。 -->
+    <style name="Theme.SoundWave" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#101210</item>
+        <item name="android:navigationBarColor">#101210</item>
+        <item name="android:windowBackground">#101210</item>
+        <item name="android:colorPrimary">#E8452F</item>
+    </style>
+
+    <style name="Theme.SoundWave.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#101210</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_disc</item>
+        <item name="postSplashScreenTheme">@style/Theme.SoundWave</item>
+    </style>
+</resources>

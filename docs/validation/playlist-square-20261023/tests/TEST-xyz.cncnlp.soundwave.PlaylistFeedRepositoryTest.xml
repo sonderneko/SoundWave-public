@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:52:43" hostname="f4a76f4ca31d" time="0.025">
+  <properties/>
+  <testcase name="categoryGroupsUseRegistryOnlyForExactCanonicalSourceIds" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.005"/>
+  <testcase name="legacyRecommendationListMappingKeepsDataAndMapsFailureToEmpty" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.0"/>
+  <testcase name="categoryQueriesRoundRobinAcrossProviderGroups" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.001"/>
+  <testcase name="categoryPageMergeRemovesSameSourceDuplicatesButKeepsCrossPlatformIds" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.0"/>
+  <testcase name="featuredSelectionInterleavesCategoryBatchesAndUsesRealPlayCounts" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.008"/>
+  <testcase name="featuredSelectionAvoidsRecentIdsAndLimitsRepeatedAuthorsBeforeBackfill" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.003"/>
+  <testcase name="categoryServerPayloadDistinguishesValidEmptyFromMalformedOrExplicitFailure" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.002"/>
+  <testcase name="categoryRefreshCachesSuccessfulEmptyButLeavesFailedRequestUncachedAndRetryable" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.001"/>
+  <testcase name="emptyOrFailedCategoryPagePreservesRetryStateAndReleasesLoading" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.001"/>
+  <testcase name="officialRecommendationOutcomeDistinguishesEmptyFromHttpTransportAndJsonFailure" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.001"/>
+  <testcase name="personalizedBatchPreservesTasteRelevanceOrderBeforeProviderPlayCountSort" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.002"/>
+  <testcase name="categoryFallbackKeepsOnlyAnAuthoritativeDirectEmptyWhenServerAlsoFails" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.001"/>
+  <testcase name="categoryWindowRotatesAcrossRealCatalogAndMissingCatalogDoesNotInventTerms" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.0"/>
+  <testcase name="nonEmptyDuplicateCategoryPageKeepsNextPageAvailable" classname="xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

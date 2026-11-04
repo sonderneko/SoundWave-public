@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.Batch3MediaCancellationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:46:16" hostname="f4a76f4ca31d" time="3.304">
+  <properties/>
+  <testcase name="cancellationDuringBlockingDecryptDoesNotLeakReturnedLease" classname="xyz.cncnlp.soundwave.Batch3MediaCancellationTest" time="3.231"/>
+  <testcase name="cancellationAtDispatcherReturnClosesPublishedLease" classname="xyz.cncnlp.soundwave.Batch3MediaCancellationTest" time="0.073"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,189 @@
+{
+  "red": {
+    "classes": 1,
+    "totals": {
+      "tests": 7,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0
+    },
+    "results": [
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest",
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "green": {
+    "classes": 7,
+    "totals": {
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "results": [
+      {
+        "class": "xyz.cncnlp.soundwave.AnonymousResolutionPolicyTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.Batch3MediaCancellationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.MediaCacheLeaseTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.MediaDecryptCacheConcurrencyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.StartupTempFileCleanerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.download.TrustedMediaCacheIdentityTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "final": {
+    "classes": 14,
+    "totals": {
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "results": [
+      {
+        "class": "xyz.cncnlp.soundwave.AnonymousResolutionPolicyTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.Batch3MediaCancellationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.Media3CacheReadLeaseTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.MediaCacheClearTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.MediaCacheLeaseTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.MediaDecryptCacheConcurrencyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackFailureRecoveryTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackHistoryPolicyTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackHistoryThemeGuardTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackOwnerBoundaryTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.PlaybackTransactionGateTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.StartupTempFileCleanerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "xyz.cncnlp.soundwave.download.TrustedMediaCacheIdentityTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  }
+}

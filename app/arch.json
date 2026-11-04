@@ -1,0 +1,5 @@
+{
+  "mainActivityLoc": 3835,
+  "legacyAccessorRefs": 5,
+  "note": "Ratchet caps, not floors: values are the committed baselines and only move DOWN after each approved refactor milestone that removes logic from MainActivity.kt or replaces legacy PlayerService accessors. Never raise a cap; update app/arch.json only together with the refactor that reduces the corresponding metric."
+}

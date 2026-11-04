@@ -1,0 +1,87 @@
+{
+  "classes": [
+    {
+      "name": "xyz.cncnlp.soundwave.HomeFeedCachePolicyTest",
+      "tests": "20",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.HomeFeedPlatformFreshnessTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.HomeFeedSearchCacheKeyTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.HomeFeedSnapshotIoTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.PlaylistFeedRepositoryTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.source.direct.PlaylistDirectSearchTest",
+      "tests": "16",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.source.direct.PlaylistSquareLiveEvidenceTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.source.direct.PlaylistSquarePagingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.source.direct.Step8DirectRegressionTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.source.direct.Step8FollowupRegressionTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "xyz.cncnlp.soundwave.ui.home.PlaylistCategoryDataControllerTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "totals": {
+    "tests": 93,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

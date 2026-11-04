@@ -1,0 +1,89 @@
+{
+ "code": "000000",
+ "info": "操作成功",
+ "data": {
+  "contents": [
+   {
+    "view": "ZJ-Singer-Song-Scroll",
+    "contents": [
+     {
+      "songItem": {
+       "contentId": "600929000000096577",
+       "copyrightId": "60054704965",
+       "songId": "1140505222",
+       "songName": "圣诞星（feat. 杨瑞代）",
+       "albumId": "1140505221",
+       "album": "圣诞星",
+       "duration": 182,
+       "img1": "/data/oss/resource/00/5u/7q/d0ebff37292f4a958bb5c193310859d0.webp",
+       "singerList": [
+        {
+         "id": "112",
+         "name": "周杰伦"
+        }
+       ],
+       "audioFormats": [
+        {
+         "resourceType": "2",
+         "formatType": "PQ"
+        },
+        {
+         "resourceType": "2",
+         "formatType": "HQ"
+        },
+        {
+         "resourceType": "E",
+         "formatType": "SQ"
+        },
+        {
+         "resourceType": "2",
+         "formatType": "ZQ24"
+        },
+        {
+         "resourceType": "2",
+         "formatType": "AV3A"
+        }
+       ]
+      }
+     },
+     {
+      "songItem": {
+       "contentId": "600902000006889294",
+       "copyrightId": "60054701941",
+       "songId": "6868",
+       "songName": "我的地盘",
+       "albumId": "7949",
+       "album": "七里香",
+       "duration": 245,
+       "img1": "/data/oss/resource/00/41/zf/65057d42f5f247cf9fc8879cf0ec677c.webp",
+       "singerList": [
+        {
+         "id": "112",
+         "name": "周杰伦"
+        }
+       ],
+       "audioFormats": [
+        {
+         "resourceType": "2",
+         "formatType": "PQ"
+        },
+        {
+         "resourceType": "2",
+         "formatType": "HQ"
+        },
+        {
+         "resourceType": "E",
+         "formatType": "SQ"
+        },
+        {
+         "resourceType": "2",
+         "formatType": "ZQ24"
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

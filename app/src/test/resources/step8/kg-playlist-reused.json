@@ -1,0 +1,5 @@
+{"data":{"info":[
+  {"hash":"abc123","filename":"歌手A - 歌名B - 副标题","album_id":"205415784"},
+  {"hash":"def456","filename":"无分隔符"},
+  {"filename":"无hash跳过"}
+]}}

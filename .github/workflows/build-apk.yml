@@ -1,0 +1,304 @@
+name: Build APK
+
+on:
+  # ✅ 2026-09-11:移除 pull_request 自动触发——每个 PR 都会消耗 Actions 分钟额度,
+  # 已把账户免费配额烧光(GitHub 报 job not started / payments failed)。
+  # 构建验证统一走 Codemagic 手动;需要 CI 时在 Actions 页手动 workflow_dispatch。
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Validates committed gradlew/gradlew.bat/JAR before any untrusted build logic runs.
+      - uses: gradle/actions/wrapper-validation@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          # The action's default package list still requests the retired `tools` package.
+          packages: platform-tools
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Verify committed lint baseline
+        run: test -s app/lint-baseline.xml
+
+      - name: Architecture guard (no new logic in MainActivity, ratchet legacy accessors)
+        shell: bash
+        run: bash scripts/arch-guard.sh
+
+      - name: Release log hygiene guard (song keys debug-only, R8 strips Log.v/d/i)
+        shell: bash
+        run: bash scripts/release-log-hygiene-guard.sh
+
+      - name: Classic UI appearance guard
+        shell: bash
+        run: bash scripts/ui-classic-appearance-guard.sh
+
+      - name: Player transition synchronization guard
+        shell: bash
+        run: bash scripts/player-transition-guard.sh
+
+      - name: Player mode coordinator guard
+        shell: bash
+        run: bash scripts/player-mode-coordinator-guard.sh
+
+      - name: Player system output controller guard
+        shell: bash
+        run: bash scripts/player-system-output-controller-guard.sh
+
+      - name: Player system volume controller guard
+        shell: bash
+        run: bash scripts/player-system-volume-controller-guard.sh
+
+      - name: Player DLNA session coordinator guard
+        shell: bash
+        run: bash scripts/player-dlna-session-coordinator-guard.sh
+
+      - name: Player lyrics header presentation guard
+        shell: bash
+        run: bash scripts/player-lyrics-header-presentation-guard.sh
+
+      - name: Player cover artwork presentation guard
+        shell: bash
+        run: bash scripts/player-cover-artwork-presentation-guard.sh
+
+      - name: Player menu sheet guard
+        shell: bash
+        run: bash scripts/player-menu-sheet-guard.sh
+
+      - name: Player default mode guard
+        shell: bash
+        run: bash scripts/player-default-mode-guard.sh
+
+      - name: Home category pagination guard
+        shell: bash
+        run: bash scripts/home-pagination-guard.sh
+
+      - name: Third-party music account removal guard
+        shell: bash
+        run: bash scripts/third-party-account-removal-guard.sh
+
+      - name: In-app privacy data-flow copy guard
+        shell: bash
+        run: bash scripts/privacy-data-flow-copy-guard.sh
+
+      - name: MainActivity route and overlay guard
+        shell: bash
+        run: bash scripts/mainactivity-route-overlay-guard.sh
+
+      - name: Additional portable source guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          guards=(
+            scripts/settings-page-cleanup-guard.sh
+            scripts/category-search-outcome-guard.sh
+            scripts/featured-playlist-wy-category-registry-guard.sh
+            scripts/home-feed-platform-freshness-guard.sh
+            scripts/home-album-detail-registry-guard.sh
+            scripts/home-hot-board-detail-registry-guard.sh
+            scripts/home-hot-keywords-registry-guard.sh
+            scripts/home-hot-songs-registry-guard.sh
+            scripts/home-manual-discover-registry-guard.sh
+            scripts/home-new-song-registry-rank-guard.sh
+            scripts/home-official-recommendation-registry-guard.sh
+            scripts/home-rank-board-directory-guard.sh
+            scripts/home-rank-detail-cache-miss-registry-guard.sh
+            scripts/home-topbar-presentation-guard.sh
+            scripts/home-hidden-page-clipping-guard.sh
+            scripts/download-encrypted-size-guard.sh
+            scripts/download-quality-evidence-guard.sh
+            scripts/download-manager-theme-guard.sh
+            scripts/startup-temp-cleanup-guard.sh
+            scripts/splash-screen-guard.sh
+            scripts/media-cache-lease-guard.sh
+            scripts/download-clear-fence-guard.sh
+            scripts/script-runtime-webview-guard.sh
+            scripts/suspend-cancellation-guard.sh
+            scripts/codemagic-signing-https-guard.sh
+            scripts/lyric-source-contract-guard.sh
+            scripts/script-import-bounded-read-guard.sh
+            scripts/main-hot-detail-registry-guard.sh
+            scripts/main-playlist-count-refresh-registry-guard.sh
+            scripts/main-playlist-detail-snapshot-registry-guard.sh
+            scripts/main-rank-detail-registry-guard.sh
+            scripts/official-rank-card-registry-guard.sh
+            scripts/playback-transaction-guard.sh
+            scripts/player-service-event-bridge-guard.sh
+            scripts/urlresolver-no-script-official-guard.sh
+            scripts/scheme-action-delivery-guard.sh
+            scripts/player-heart-similar-search-registry-guard.sh
+            scripts/player-similar-search-registry-guard.sh
+            scripts/press-haptics-coverage-guard.sh
+            scripts/search-album-detail-registry-guard.sh
+            scripts/search-typed-registry-guard.sh
+            scripts/search-entry-async-guard.sh
+            scripts/playback-main-thread-freeze-guard.sh
+            scripts/singer-detail-source-registry-guard.sh
+          )
+          for guard in "${guards[@]}"; do
+            printf 'Running %s\n' "$guard"
+            bash "$guard"
+          done
+
+      - name: Validate project quality gates
+        run: ./gradlew :app:testDebugUnitTest lintDebug --no-daemon --stacktrace
+
+      - name: Materialize managed release signing key
+        env:
+          ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
+          ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+          ANDROID_RELEASE_CERT_SHA256: ${{ secrets.ANDROID_RELEASE_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_RELEASE_KEYSTORE_B64"
+          test -n "$ANDROID_RELEASE_STORE_PASSWORD"
+          test -n "$ANDROID_RELEASE_KEY_ALIAS"
+          test -n "$ANDROID_RELEASE_KEY_PASSWORD"
+          test -n "$ANDROID_RELEASE_CERT_SHA256"
+          KEYSTORE="$RUNNER_TEMP/soundwave-release.jks"
+          printf '%s' "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > "$KEYSTORE"
+          test -s "$KEYSTORE"
+          keytool -list -v -keystore "$KEYSTORE" -storepass "$ANDROID_RELEASE_STORE_PASSWORD" -alias "$ANDROID_RELEASE_KEY_ALIAS" > "$RUNNER_TEMP/release-key.txt"
+          ACTUAL="$(awk -F': ' '/SHA256:/{print $2; exit}' "$RUNNER_TEMP/release-key.txt" | tr -d ': ' | tr 'a-f' 'A-F')"
+          WANT="$(printf '%s' "$ANDROID_RELEASE_CERT_SHA256" | tr -d ': ' | tr 'a-f' 'A-F')"
+          test "$ACTUAL" = "$WANT"
+          {
+            echo "ANDROID_RELEASE_KEYSTORE_PATH=$KEYSTORE"
+            echo "ANDROID_RELEASE_STORE_PASSWORD=$ANDROID_RELEASE_STORE_PASSWORD"
+            echo "ANDROID_RELEASE_KEY_ALIAS=$ANDROID_RELEASE_KEY_ALIAS"
+            echo "ANDROID_RELEASE_KEY_PASSWORD=$ANDROID_RELEASE_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/release-key.txt"
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Build signed release APK
+        run: ./gradlew :app:assembleRelease --no-daemon --stacktrace
+
+      - name: Release dex method size guard (r673 VerifyError regression)
+        run: REQUIRE_APK=1 bash scripts/release-dex-method-size-guard.sh app/build/outputs/apk/release/app-release.apk
+
+      - name: Verify APK
+        run: |
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          VER="$(tr -d '[:space:]' < VERSION)"
+          CODE="${VER##*.}"
+          GRADLE_VER="$(grep -E 'versionName "[^"]+"' app/build.gradle | head -1 | cut -d'"' -f2)"
+          GRADLE_CODE="$(grep -E 'versionCode [0-9]+' app/build.gradle | head -1 | awk '{print $2}')"
+          test "$VER" = "$GRADLE_VER"
+          test "$CODE" = "$GRADLE_CODE"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          test -x "$APKSIGNER"
+          test -x "$AAPT"
+          "$APKSIGNER" verify --print-certs "$APK"
+          "$AAPT" dump badging "$APK" | grep "versionCode='${CODE}' versionName='${VER}'"
+          APK_SHA="$(sha256sum "$APK" | awk '{print $1}')"
+          CERT_SHA="$("$APKSIGNER" verify --print-certs "$APK" 2>/dev/null | awk '/SHA-256 digest/{print $NF; exit}' | tr -d '[:space:]')"
+          test -n "$APK_SHA"
+          test -n "$CERT_SHA"
+          mkdir -p artifact
+          cp "$APK" "artifact/SoundWave-${VER}.apk"
+          {
+            echo "commit=$GITHUB_SHA"
+            echo "apk_sha256=$APK_SHA"
+            echo "cert_sha256=$CERT_SHA"
+            echo "versionName=$VER"
+            echo "versionCode=$CODE"
+            echo "ci_run=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > "artifact/SoundWave-${VER}.checksums.txt"
+
+      - uses: actions/upload-artifact@v4
+        # artifact 配额为账号级且删除后 6-12h 才重算；配额满时此步骤失败但不应阻断
+        # 后续 Release 上传（Release 存储独立）。见下方 Publish release asset。
+        continue-on-error: true
+        with:
+          name: soundwave-v2-apk
+          path: artifact/SoundWave-*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Verify shared APK artifact is downloadable
+        uses: actions/download-artifact@v4
+        with:
+          name: soundwave-v2-apk
+          path: artifact-verify
+
+      - name: Verify downloaded APK and CI checksum fields
+        run: |
+          set -euo pipefail
+          VER="$(tr -d '[:space:]' < VERSION)"
+          CODE="${VER##*.}"
+          APK="artifact-verify/SoundWave-${VER}.apk"
+          CHK="artifact-verify/SoundWave-${VER}.checksums.txt"
+          test -s "$APK"
+          test -s "$CHK"
+          test "$(awk -F= '$1 == "commit" {print $2}' "$CHK")" = "$GITHUB_SHA"
+          test "$(awk -F= '$1 == "versionName" {print $2}' "$CHK")" = "$VER"
+          test "$(awk -F= '$1 == "versionCode" {print $2}' "$CHK")" = "$CODE"
+          ACTUAL_SHA="$(sha256sum "$APK" | awk '{print $1}')"
+          MANIFEST_SHA="$(awk -F= '$1 == "apk_sha256" {print $2}' "$CHK")"
+          test -n "$MANIFEST_SHA"
+          test "$ACTUAL_SHA" = "$MANIFEST_SHA"
+
+      # Artifact 存储配额为账号级（删除后 6-12h 才重算，满时 upload 失败但 Release 存储独立），
+      # 因此同时发布到 GitHub Release，保证 APK 始终可下载。
+      - name: Publish release asset
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="$(tr -d '[:space:]' < VERSION)"
+          TAG="v${VER}"
+          APK="artifact/SoundWave-${VER}.apk"
+          CHK="artifact/SoundWave-${VER}.checksums.txt"
+          test -s "$APK"
+          test -s "$CHK"
+          # 同版本多次 push 会并发构建；旧 run 若晚完成，绝不可覆写较新 commit 的 Release APK。
+          REMOTE_SHA="$(git ls-remote origin refs/heads/master | awk '{print $1}')"
+          if [ "$REMOTE_SHA" != "$GITHUB_SHA" ]; then
+            echo "Skip stale release publish: run=$GITHUB_SHA current-master=$REMOTE_SHA"
+            exit 0
+          fi
+          APK_SHA="$(awk -F= '/^apk_sha256=/{print $2}' "$CHK")"
+          CERT_SHA="$(awk -F= '/^cert_sha256=/{print $2}' "$CHK")"
+          NOTES="APK SHA-256: \`$APK_SHA\`&#10;证书 SHA-256: \`$CERT_SHA\`"
+          gh release create "$TAG" "$APK" "$CHK" --repo "$GITHUB_REPOSITORY" --title "SoundWave ${VER}" --notes "$NOTES" 2>/dev/null \
+            || gh release upload "$TAG" "$APK" "$CHK" --repo "$GITHUB_REPOSITORY" --clobber
+
+      # 非 master 手动构建：发布为预发布 Release（dev-v<版本>），便于直接下载测试包。
+      - name: Publish prerelease asset (manual non-master)
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="$(tr -d '[:space:]' < VERSION)"
+          BR="${GITHUB_REF_NAME//\//-}"
+          TAG="${BR}-v${VER}"
+          APK="artifact/SoundWave-${VER}.apk"
+          CHK="artifact/SoundWave-${VER}.checksums.txt"
+          test -s "$APK"
+          test -s "$CHK"
+          gh release create "$TAG" "$APK" "$CHK" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title "SoundWave ${VER} (${GITHUB_REF_NAME})" --notes "测试包 · ${GITHUB_REF_NAME} @ ${GITHUB_SHA}" 2>/dev/null \
+            || gh release upload "$TAG" "$APK" "$CHK" --repo "$GITHUB_REPOSITORY" --clobber

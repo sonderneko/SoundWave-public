@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_name_large">SoundWave 播放器</string>
+    <string name="widget_name_compact">SoundWave 播放条</string>
+    <string name="widget_desc_large">当前歌曲、封面与播放控制</string>
+    <string name="widget_desc_compact">单行当前歌曲与播放控制</string>
+    <string name="widget_empty_title">SoundWave</string>
+    <string name="widget_empty_subtitle">打开 SoundWave 开始播放</string>
+</resources>

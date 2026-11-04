@@ -1,0 +1,21 @@
+{
+  "label": "tx-all-p388",
+  "url": "https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22playlist%22%3A%7B%22module%22%3A%22playlist.PlayListPlazaServer%22%2C%22method%22%3A%22get_playlist_by_tag%22%2C%22param%22%3A%7B%22id%22%3A10000000%2C%22sin%22%3A11610%2C%22size%22%3A30%2C%22order%22%3A5%2C%22cur_page%22%3A388%7D%7D%7D",
+  "status": 200,
+  "code": 0,
+  "data_keys": [
+    "total",
+    "v_playlist"
+  ],
+  "rows": 7,
+  "total": 11617,
+  "ids": [
+    "39965608",
+    "33616161",
+    "39470804",
+    "39737827",
+    "39450804",
+    "39715827",
+    "31451250"
+  ]
+}

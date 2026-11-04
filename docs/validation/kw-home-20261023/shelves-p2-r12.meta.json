@@ -1,0 +1,15 @@
+{
+  "name": "shelves-p2-r12",
+  "url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=2&rn=12",
+  "time_utc": "2026-10-22T18:12:11.990506+00:00",
+  "status": 200,
+  "content_type": "application/json;charset=utf-8",
+  "bytes": 175,
+  "final_url": "https://wapi.kuwo.cn/openapi/v1/pc/disc/shelves?pn=2&rn=12",
+  "code": 200,
+  "success": true,
+  "size": 1,
+  "raw_count": 0,
+  "ids": [],
+  "names": []
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path name="music" path="Music/"/>
+    <external-files-path name="music_sw" path="Music/SoundWave/"/>
+    <external-files-path name="backup" path="backup/"/>
+    <files-path name="covers" path="covers/"/>
+</paths>

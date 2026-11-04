@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:46:22" hostname="f4a76f4ca31d" time="0.436">
+  <properties/>
+  <testcase name="cancelled verified download releases and removes both staging paths" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.049"/>
+  <testcase name="rotated signed URL reuses only byte-identical content without exposing credentials" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.037"/>
+  <testcase name="clear preserves every active resource and missing or empty cache rebuilds" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.036"/>
+  <testcase name="failed revalidation cannot fall back to old plaintext or leak staging leases" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.043"/>
+  <testcase name="incomplete provenance never reuses a previous plaintext" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.047"/>
+  <testcase name="same song quality and URL with changed equal-size ciphertext cannot hit old plaintext" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.041"/>
+  <testcase name="account generation switch cannot reuse same song and quality" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.031"/>
+  <testcase name="concurrent verified prepares preserve staging during clear and share completed lease" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.037"/>
+  <testcase name="different recorded owners with same generation cannot share plaintext" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.036"/>
+  <testcase name="platform candidate script and actual quality each isolate plaintext" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.043"/>
+  <testcase name="legacy song quality cache is neither reused nor removed while leased" classname="xyz.cncnlp.soundwave.PlaybackDecryptIdentityTest" time="0.034"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

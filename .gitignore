@@ -1,0 +1,11 @@
+*.apk
+*.jks
+*.keystore
+.gradle/
+build/
+/local.properties
+
+app/src/main/assets/scripts/
+.hermes/
+__pycache__/
+*.pyc

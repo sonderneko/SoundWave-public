@@ -1,0 +1,104 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
+
+android {
+    namespace 'xyz.cncnlp.soundwave'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "xyz.cncnlp.soundwave"
+        minSdk 26
+        targetSdk 34
+        versionCode 675
+        versionName "1.0.675"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            // CI materializes this file from GitHub Secrets for the release build only.
+            // Developers never need the private release key locally.
+            def keystorePath = System.getenv("ANDROID_RELEASE_KEYSTORE_PATH")
+            if (keystorePath != null && !keystorePath.isBlank()) {
+                storeFile file(keystorePath)
+                storeType "JKS"
+                storePassword System.getenv("ANDROID_RELEASE_STORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_RELEASE_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources false
+            if (System.getenv("ANDROID_RELEASE_KEYSTORE_PATH")) {
+                signingConfig signingConfigs.release
+            }
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = '17' }
+    testOptions { unitTests.includeAndroidResources = true }
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+    // Freeze pre-existing debt; CI lint still fails on findings introduced after this baseline.
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    // ACCEPT6 启动页：core-splashscreen（与 core-ktx 1.13.1 同代 1.0.1），统一 26-34 的启动窗行为。
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation 'androidx.activity:activity-compose:1.9.2'
+    implementation platform('androidx.compose:compose-bom:2024.09.02')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.6'
+    implementation 'androidx.media3:media3-exoplayer:1.4.1'
+    implementation 'androidx.media3:media3-session:1.4.1'
+    implementation 'androidx.media3:media3-ui:1.4.1'
+    implementation 'androidx.media3:media3-datasource:1.4.1'
+    implementation 'androidx.media3:media3-database:1.4.1'
+    implementation 'androidx.media:media:1.7.0'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'io.coil-kt:coil-compose:2.7.0'
+    // r657：真实背景模糊（底栏 / 迷你条 / 详情顶栏磨砂），API 31+ RenderEffect，低版本由 Glass.kt 退回 94% 实色。
+    implementation 'dev.chrisbanes.haze:haze:1.0.2'
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+    // r656-G：侧载/非 Play 安装也能在首启后把 src/main/baseline-prof.txt 编译进 ART 配置（冷启动、首页滚动、打开播放器少走解释执行）。
+    implementation 'androidx.profileinstaller:profileinstaller:1.3.1'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
+    // unit test 里 android.jar 的 org.json 是 stub（抛 not mocked）；用真实实现覆盖，direct 解析单测依赖它。
+    testImplementation 'org.json:json:20240303'
+    // WebDAV 兼容性（坚果云/Nextcloud 等）回环 HTTP 模拟。
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+
+    // P2-② Android E2E：加密音频播放闭环（PlaybackDecryptE2ETest）
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test:core-ktx:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+}

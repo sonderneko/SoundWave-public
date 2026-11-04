@@ -1,0 +1,6 @@
+Current working tree:
+[category-search-outcome-guard] FAIL: category source contract must distinguish successful empty lists from failures
+[home-pagination-guard] FAIL: must release the loading lock on every completion path
+Baseline 31558464:
+[category-search-outcome-guard] FAIL: category source contract must distinguish successful empty lists from failures
+[home-pagination-guard] FAIL: must release the loading lock on every completion path

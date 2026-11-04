@@ -1,0 +1,6 @@
+# r675 RememberReturnType lint fix
+
+- Reproduced all four `RememberReturnType` errors in `lintDebug` at the four test call sites; the holder is a non-Unit class with `state` and mutating methods (`PlayerLayout.kt`). The same direct `remember { PlayerDismissOffsetHolder() }` pattern is used in `MainActivity.kt` without a production diagnostic. Explicitly specifying `remember<PlayerDismissOffsetHolder>` did not change the unit-test lint findings, while an explicitly typed test factory did. This points to a false `Unit` inference in lint's unit-test source analysis for the constructor expression, rather than a runtime/API incompatibility.
+- Added `createPlayerDismissOffsetHolderForTest(): PlayerDismissOffsetHolder` in test support and used it inside the existing `remember` blocks. This retains the same remembered holder and composition lifecycle; no production code, lint rules, baseline, or tests were changed/removed.
+- Verification: `:app:lintDebug` passed (0 errors; existing baseline debt remains). Four focused unit tests passed, one in each affected test class. Test sources also compiled via `compileDebugUnitTestKotlin`.
+- Logs: `/workspace/soundwave-ui-lint-results/lint/r675-before-lintDebug.log`, `/workspace/soundwave-ui-lint-results/lint/r675-after-lintDebug.log`, `/workspace/soundwave-ui-lint-results/lint/r675-targeted-unit-tests.log`.

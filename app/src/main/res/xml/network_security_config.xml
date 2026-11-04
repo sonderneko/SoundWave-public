@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <!-- 明文仅为已确认的酷狗 API 双域与 HTTP-only 酷我封面保留；其余目标默认 HTTPS。 -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">mobilecdn.kugou.com</domain>
+        <domain includeSubdomains="false">mobilecdnbj.kugou.com</domain>
+        <domain includeSubdomains="false">img1.kwcdn.kuwo.cn</domain>
+    </domain-config>
+</network-security-config>

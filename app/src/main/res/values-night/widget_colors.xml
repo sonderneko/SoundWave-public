@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Night widget palette: NightSurface card, NightInk text, same coral core. -->
+<resources>
+    <color name="widget_paper">#191C19</color>
+    <color name="widget_ink">#F1F2EC</color>
+    <color name="widget_ink_secondary">#A6A99F</color>
+    <color name="widget_accent">#E8452F</color>
+    <color name="widget_outline">#1FFFFFFF</color>
+    <color name="widget_ghost_fill">#14FFFFFF</color>
+    <color name="widget_cover_bg">#262824</color>
+</resources>

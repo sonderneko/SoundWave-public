@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ACCEPT6 图标换新：adaptive icon 背景 = 暖纸（SoundwaveDesignPalette.Paper #F4F4F0）。 -->
+    <color name="ic_launcher_background">#F4F4F0</color>
+</resources>

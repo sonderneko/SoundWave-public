@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:14:07" hostname="f4a76f4ca31d" time="0.209">
+  <properties/>
+  <testcase name="successfulEmptyFeaturedResultIsAValidNegativeCacheForTheExistingTtl" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.027"/>
+  <testcase name="completeFreshCacheWithoutCurrentPlatformFeaturedPlaylistMustFetch" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="recommendationCacheRefreshesOnlyWhenMissingOrOutsideExistingTtl" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="recommendationSnapshotUsesProductionJsonCodecForPersistentRoundTripAndTtl" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.002"/>
+  <testcase name="browseCategorySnapshotsRoundTripHasMoreTriStateForEveryPlatform" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.003"/>
+  <testcase name="legacyListCompatibilityMapsSuccessDataAndFailureToTheOriginalValues" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="browseCategorySnapshotsTreatInvalidHasMoreJsonValuesAsUnknown" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="successfulEmptyHotKeywordsAreNegativeCachedForTheExistingTtlAndCanShortCircuit" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="onlyARealPlaylistFromTheCurrentPlatformCountsAsFeaturedCache" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="noCacheNeverShortCircuits" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="personalRecommendationCacheKeySurvivesTasteProfileChanges" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="forceNetworkNeverShortCircuits" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="failedFeaturedRequestRetainsStaleValueAndRemainsRetryable" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="homeApiOutcomesDistinguishValidEmptyFromTransportAndParseFailures" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.166"/>
+  <testcase name="hotStaleNeverShortCircuits" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="keywordOrDiscoverSuccessEmptyIsNotFailureButFailureBlocksShortCircuit" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="allFreshWithCompleteCacheShortCircuits" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="rankStaleNeverShortCircuits" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <testcase name="browseCategorySnapshotsWithoutHasMoreRemainUnknownForEveryPlatform" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.0"/>
+  <testcase name="playlistStaleNeverShortCircuits" classname="xyz.cncnlp.soundwave.HomeFeedCachePolicyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

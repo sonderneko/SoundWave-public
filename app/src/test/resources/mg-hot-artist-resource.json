@@ -1,0 +1,62 @@
+{
+  "code": "000000",
+  "resource": [
+    {
+      "songId": "3790007",
+      "contentId": "600902000006889366",
+      "copyrightId": "60054701923",
+      "artists": [
+        {
+          "id": "112",
+          "name": "周杰伦",
+          "nameSpelling": "zhoujielun"
+        }
+      ],
+      "singerImg": {
+        "112": {
+          "singerName": "周杰伦",
+          "miguImgItems": [
+            {
+              "imgSizeType": "01",
+              "img": "https://d.musicapp.migu.cn/data/oss/resource/00/5l/4k/73263a79db124bc5b554541813652daa.webp",
+              "imgOri": "",
+              "webpImg": ""
+            },
+            {
+              "imgSizeType": "02",
+              "img": "https://d.musicapp.migu.cn/data/oss/resource/00/5l/4k/180c79991fbb4dfb8e664adc2befc0b4.webp",
+              "imgOri": "",
+              "webpImg": ""
+            },
+            {
+              "imgSizeType": "03",
+              "img": "https://d.musicapp.migu.cn/data/oss/resource/00/5l/4k/e7632d663a6846e1b3d357b35052150f.webp",
+              "imgOri": "",
+              "webpImg": ""
+            }
+          ]
+        }
+      },
+      "albumImgs": [
+        {
+          "imgSizeType": "01",
+          "img": "https://d.musicapp.migu.cn/data/oss/resource/00/4t/9y/a64e69c4d8c54f59b580b1a25ae5ceb3.webp",
+          "imgOri": "",
+          "webpImg": ""
+        },
+        {
+          "imgSizeType": "02",
+          "img": "https://d.musicapp.migu.cn/data/oss/resource/00/4t/9y/b604231d05474ddfb7a48a094cb63e37.webp",
+          "imgOri": "",
+          "webpImg": ""
+        },
+        {
+          "imgSizeType": "03",
+          "img": "https://d.musicapp.migu.cn/data/oss/resource/00/4t/9y/679feb591df148ddbc1e98110cd108de.webp",
+          "imgOri": "",
+          "webpImg": ""
+        }
+      ]
+    }
+  ]
+}

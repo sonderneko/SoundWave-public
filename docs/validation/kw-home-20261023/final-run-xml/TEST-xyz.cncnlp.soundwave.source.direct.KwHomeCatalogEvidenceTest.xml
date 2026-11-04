@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:14:07" hostname="f4a76f4ca31d" time="0.086">
+  <properties/>
+  <testcase name="duplicateAndInvalidRowsCannotBecomeExtraAlbums" classname="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" time="0.041"/>
+  <testcase name="recordedSecondPageIsEmptyEvenThoughSizeStillReportsOne" classname="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" time="0.007"/>
+  <testcase name="parserAndNormalizationDoNotImposeASingleAlbumCap" classname="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" time="0.019"/>
+  <testcase name="errorsOrMissingCatalogRemainEmptyNotPlaceholderAlbums" classname="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" time="0.0"/>
+  <testcase name="recordedFirstPageRetainsEverySourceAlbumWithoutRelabellingAsDigital" classname="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" time="0.012"/>
+  <testcase name="recordedLargerRequestDoesNotContainHiddenAdditionalAlbums" classname="xyz.cncnlp.soundwave.source.direct.KwHomeCatalogEvidenceTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

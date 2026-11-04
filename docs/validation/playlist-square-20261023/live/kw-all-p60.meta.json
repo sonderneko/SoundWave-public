@@ -1,0 +1,15 @@
+{
+  "label": "kw-all-p60",
+  "url": "https://wapi.kuwo.cn/api/pc/classify/playlist/getRcmPlayList?order=hot&loginUid=0&loginSid=0&appUid=76039576&pn=60&rn=30",
+  "status": 200,
+  "code": 200,
+  "data_keys": [
+    "total",
+    "data",
+    "rn",
+    "pn"
+  ],
+  "rows": 0,
+  "total": 1753,
+  "ids": []
+}

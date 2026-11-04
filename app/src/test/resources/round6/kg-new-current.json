@@ -1,0 +1,631 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="keywords" content="酷狗正式版,专辑,专辑下载,歌手,明星,音乐,在线音乐,在线听歌,听歌,新专辑,港台,日本,韩国,欧美,英国" />
+<meta name="description" content="酷狗音乐提供华语、欧美、韩国、日本的最新专辑、热门专辑。每天上架好听的专辑。" />
+<link rel="dns-prefetch" href="//static.kgimg.com/">
+<link rel="dns-prefetch" href="//sdn.kugou.com/">
+<title>华语专辑_专辑_乐库频道_酷狗网</title>
+<link rel="stylesheet" href="https://www.kugou.com/yy/static/css/main.css?201505211743" type="text/css" />
+<link href="https://www.kugou.com/yy/static/images/favicon.ico" rel="shortcut icon" />
+</head>
+<body style="min-width: 1000px;">
+
+<script>
+  // ie9及以下 提示升级浏览器
+  var checkIe9 = function() {
+    function IEVersion () {
+      if (document.documentMode) return document.documentMode;
+    }
+    if (IEVersion()) {
+      if (IEVersion() <= 9) {
+        document.body.innerHTML = ('<p style="position:absolute;width:100%;height:100%;background:#fff;z-index:99999999;left:0;top:0;font-size: 30px;text-align: center;color: #0062FF;">您的浏览器版本过低，可能存在安全风险，建议升级或更换浏览器后浏览本站</p>')
+      }
+    } else {
+    }
+  }
+  checkIe9()
+</script>
+<link rel="stylesheet" href="https://www.kugou.com/common/css/cmdialog.css?20220113">
+<link rel="stylesheet" href="https://www.kugou.com/common/css/cmhead_v20.css?20220113">
+<div class="cmhead1" >
+    <div class="cmhead1_d0">
+        <div class="cmhead1_d1">
+            <a href="https://www.kugou.com" class="cmhead1_a2">
+                <img src="https://www.kugou.com/common/images/icon_logo_v20.png" alt="" class="cmhead1_i1">
+            </a>
+            <div class="cmhead1_d7">
+                <div class="cmhead1_nd0"></div>
+                <div class="cmhead1_nd1 _nfCon"></div>
+                <input type="text" class="cmhead1_ipt1 _cmheadsearchinput" />
+                <div class="cmhead1_d8 _searchbtn4cmhead"></div>
+                <div class="cmhead1_d12 _recommend4cmhead">
+                    <ul class="cmhead1_ul1 _recommendsong">
+                    </ul>
+                    <div class="cmhead1_d13">
+                        <span class="cmhead1_sp2"></span>
+                        <span class="cmhead1_sp3">MV</span>
+                    </div>
+                    <ul class="cmhead1_ul1 _recommendmv">
+                    </ul>
+                </div>
+                <div class="cmhead1_d14 _history4cmhead">
+                    <ul class="cmhead1_ul1 _historysong">
+                    </ul>
+                    <div class="cmhead1_d15 _clearhistorysong">清空搜索历史</div>
+                </div>
+            </div>
+        </div>
+        <div class="cmhead1_d2">
+            <a target="_blank" href="https://www.kugou.com/imusic/" target="_blank" class="cmhead1_a1">音乐人</a>
+            <a target="_blank" href="https://mp.tencentmusic.com/home" target="_blank" class="cmhead1_a1" rel="nofollow">声播创作</a>
+            <a target="_blank" href="http://vip.kugou.com/" target="_blank" class="cmhead1_a1" rel="nofollow">VIP会员</a>
+
+            <div class="cmhead1_d3"></div>
+
+            <div class="cmhead1_d4">
+                <div class="cmhead1_d5 _login">登录</div>
+                <div class="cmhead1_d6 _userinfoBox">
+                    <div class="cmhead1_d9">
+                        <img src="" alt="" class="cmhead1_i2">
+                        <span class="cmhead1_sp1"></span>
+                    </div>
+                    <div class="cmhead1_d10">
+                        <a class="cmhead1_d11 _userinfo" target="_blank" href="https://www.kugou.com/newuc/user/uc/type=edit" rel="nofollow">个人账号</a>
+                        <a class="cmhead1_d11 _logout" href="https://www.kugou.com/newuc/login/outlogin" rel="nofollow">退出登录</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+</div>
+<div class="cmhead2" >
+    <div class="cmhead2_d0"></div>
+    <div class="cmhead2_d01"></div>
+    <ul class="cmhead2_ul1">
+        <li class="cmhead2_li1">
+            <a href="https://www.kugou.com/" class="cmhead2_a1">首页</a>
+        </li>
+        <li class="cmhead2_li1" id="_rankhome">
+            <a href="https://www.kugou.com/yy/html/rank.html" class="cmhead2_a1">榜单</a>
+        </li>
+        <li class="cmhead2_li1" id="_tshome">
+            <a href="https://www.kugou.com/ts/" class="cmhead2_a1">听书</a>
+        </li>
+        <li class="cmhead2_li1">
+            <a href="http://fanxing.kugou.com/?action=spreadIndex&id=3" target="_blank" class="cmhead2_a1">直播</a>
+        </li>
+        <li class="cmhead2_li1" id="_downloadhome">
+            <a href="https://download.kugou.com/" class="cmhead2_a1">下载酷狗</a>
+        </li>
+        <li class="cmhead2_li1" >
+            <a href="https://www.kugou.com/about/business.html" class="cmhead2_a1">商务合作</a>
+        </li>
+        <li class="cmhead2_li1 _more">
+            <div class="cmhead2_d2">
+                更多
+                <div class="cmhead2_d3"></div>
+            </div>
+            <ul class="cmhead2_ul2">
+                <li style="
+                    height: 15px;
+                    margin-top: -25px;
+                    position: absolute;
+                    width: 100%;
+                "></li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/fmweb/html/index.html" class="cmhead2_a2">频道</a>
+                </li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/mvweb/html/" class="cmhead2_a2">MV</a>
+                </li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/yy/html/special.html" class="cmhead2_a2">歌单</a>
+                </li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/yy/html/singer.html" class="cmhead2_a2">歌手</a>
+                </li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/yy/album/index/1-1-1.html" class="cmhead2_a2">专辑</a>
+                </li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/burntool/" class="cmhead2_a2">煲机</a>
+                </li>
+                <li class="cmhead2_li2">
+                    <a href="https://www.kugou.com/mvweb/html/mtv/movie_1.html" class="cmhead2_a2">影视</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<script src="https://m.kugou.com/static/js/share/npm/sentry5.6.1.min.js" crossorigin="anonymous"></script>
+<script>
+    Sentry.init({
+        dsn: "https://fc8678a0071145128f0c8314c07f8407@sentry.kugou.com/33",
+        // integrations: [new Sentry.Integrations.BrowserTracing()],
+        sampleRate: 0.1,
+    })
+</script>
+
+<script type="text/javascript" src="https://staticssl.kugou.com/public/root/javascripts/jslib/jquery-3.7.0.min.js"></script>
+<script type="text/javascript" src="https://www.kugou.com/common/js/lib.js"></script>
+<script type="text/javascript" src="https://www.kugou.com/common/js/utility.js"></script>
+<script src="https://staticssl.kugou.com/common/js/min/login/kguser.v2.min.js?20190111"></script>
+<script src="https://staticssl.kugou.com/common/js/repalceHttpsImg.js"></script>
+<script src="https://staticssl.kugou.com/common/js/min/npm/getBaseInfo.min.js"></script>
+<script src="https://staticssl.kugou.com/common/js/min/infSign.min.js"></script>
+<script type="text/javascript" src="https://staticssl.kugou.com/verify/static/js/registerDev.v1.min.js?appid=1014&20190408" charset="utf-8"></script>
+<script type="text/javascript" src="https://www.kugou.com/common/js/cmhead.min.js?20220119"></script>
+<script type="text/javascript" src="https://www.kugou.com/common/js/outlogin.js?202609221054"></script>
+
+<!--专辑-->
+<div class="wrap album clear_fix">  
+  <div class="l">
+      <strong>按语言</strong>
+      <dl>
+          <dt><a title="华语专辑" class="current" href="https://www.kugou.com/yy/album/index/1-1-1.html" onclick="sdnClick(12104)" hidefocus="true">华语</a></dt>
+          <dt><a title="欧美专辑"  href="https://www.kugou.com/yy/album/index/1-1-2.html" onclick="sdnClick(12105)" hidefocus="true">欧美</a></dt>
+          <dt><a title="日语专辑"  href="https://www.kugou.com/yy/album/index/1-1-3.html" onclick="sdnClick(12106)" hidefocus="true">日语</a></dt>
+          <dt><a title="韩语专辑"  href="https://www.kugou.com/yy/album/index/1-1-4.html" onclick="sdnClick(12107)" hidefocus="true">韩语</a></dt>
+
+        </dl>
+  </div>
+
+  <div class="r">
+      <div class="head">
+          <strong id="album_title">华语专辑(共50张)</strong>
+          <!-- <div class="sort">排序：
+              <select id="px">
+                  <option value="1" selected>按时间</option>
+                  <option value="2" >按浏览</option>
+              </select>
+          </div> -->
+          <!--  div class="search_ipt">
+              <form name="from1" onsubmit="Search();return false">
+                  <input type="text" maxlength="25" name="sword" value="搜索专辑" id="s_ipt"/><button type="submit"></button>
+              </form>
+          </div-->
+      </div>
+    <ul id="ulAlbums">
+                 
+        <li  class="a_3i8yulc2">
+        <a href="https://www.kugou.com/album/info/3i8yulc2/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="放下（看淡）">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261019/20261019160343528704.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="放下（看淡）">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212050029" class="play_album"  title="放下（看淡）"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8yulc2/" title="放下（看淡）">放下（看淡）</a></strong>
+            <!-- <p>唱片公司：济南放下映画网络文化传媒有限责任公司<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_1">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212050029, '放下（看淡）', 'http://imge.kugou.com/stdmusic/100/20261019/20261019160343528704.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li  class="a_3i8xjq15">
+        <a href="https://www.kugou.com/album/info/3i8xjq15/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="爱情堡垒">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261020/20261020160653478228.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="爱情堡垒">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212048342" class="play_album"  title="爱情堡垒"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8xjq15/" title="爱情堡垒">爱情堡垒</a></strong>
+            <!-- <p>唱片公司：佳语合制<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_2">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212048342, '爱情堡垒', 'http://imge.kugou.com/stdmusic/100/20261020/20261020160653478228.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li class="last" class="a_3i8xjcc5">
+        <a href="https://www.kugou.com/album/info/3i8xjcc5/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="相思浓">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261020/20261020095332367188.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="相思浓">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212048328" class="play_album"  title="相思浓"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8xjcc5/" title="相思浓">相思浓</a></strong>
+            <!-- <p>唱片公司：初乐文化<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_3">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212048328, '相思浓', 'http://imge.kugou.com/stdmusic/100/20261020/20261020095332367188.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li  class="a_3i8xj0cb">
+        <a href="https://www.kugou.com/album/info/3i8xj0cb/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="原来你什么都不要">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261019/20261019163831500658.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="原来你什么都不要">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212048316" class="play_album"  title="原来你什么都不要"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8xj0cb/" title="原来你什么都不要">原来你什么都不要</a></strong>
+            <!-- <p>唱片公司：酷音天籁<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_4">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212048316, '原来你什么都不要', 'http://imge.kugou.com/stdmusic/100/20261019/20261019163831500658.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li  class="a_3i8ae79e">
+        <a href="https://www.kugou.com/album/info/3i8ae79e/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="我还在树下等一个人">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261019/20261019163714107853.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="我还在树下等一个人">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212018335" class="play_album"  title="我还在树下等一个人"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8ae79e/" title="我还在树下等一个人">我还在树下等一个人</a></strong>
+            <!-- <p>唱片公司：星奥娱乐<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_5">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212018335, '我还在树下等一个人', 'http://imge.kugou.com/stdmusic/100/20261019/20261019163714107853.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li class="last" class="a_3i8xet0f">
+        <a href="https://www.kugou.com/album/info/3i8xet0f/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="我是不是你最爱的人">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261017/20261017200324366641.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="我是不是你最爱的人">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212048165" class="play_album"  title="我是不是你最爱的人"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8xet0f/" title="我是不是你最爱的人">我是不是你最爱的人</a></strong>
+            <!-- <p>唱片公司：独立发行<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_6">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212048165, '我是不是你最爱的人', 'http://imge.kugou.com/stdmusic/100/20261017/20261017200324366641.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li  class="a_3i8ncnbe">
+        <a href="https://www.kugou.com/album/info/3i8ncnbe/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="电量1%都没等到你消息(对唱版)">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261020/20261020181458573373.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="电量1%都没等到你消息(对唱版)">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212035127" class="play_album"  title="电量1%都没等到你消息(对唱版)"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8ncnbe/" title="电量1%都没等到你消息(对唱版)">电量1%都没等到你消息(对唱版)</a></strong>
+            <!-- <p>唱片公司：有音有乐<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_7">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212035127, '电量1%都没等到你消息(对唱版)', 'http://imge.kugou.com/stdmusic/100/20261020/20261020181458573373.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li  class="a_3i8n4ma6">
+        <a href="https://www.kugou.com/album/info/3i8n4ma6/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="电量1%都没等到你消息(童声对唱版)">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261020/20261020180747910645.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="电量1%都没等到你消息(童声对唱版)">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212034838" class="play_album"  title="电量1%都没等到你消息(童声对唱版)"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8n4ma6/" title="电量1%都没等到你消息(童声对唱版)">电量1%都没等到你消息(童声对唱版)</a></strong>
+            <!-- <p>唱片公司：有音有乐<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_8">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212034838, '电量1%都没等到你消息(童声对唱版)', 'http://imge.kugou.com/stdmusic/100/20261020/20261020180747910645.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li class="last" class="a_3i8mzhbf">
+        <a href="https://www.kugou.com/album/info/3i8mzhbf/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="电量1%都没等到你消息(童声对唱版)">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261020/20261020180703693234.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="电量1%都没等到你消息(童声对唱版)">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212034653" class="play_album"  title="电量1%都没等到你消息(童声对唱版)"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8mzhbf/" title="电量1%都没等到你消息(童声对唱版)">电量1%都没等到你消息(童声对唱版)</a></strong>
+            <!-- <p>唱片公司：有音有乐<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_9">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212034653, '电量1%都没等到你消息(童声对唱版)', 'http://imge.kugou.com/stdmusic/100/20261020/20261020180703693234.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+        <li  class="a_3i8m4y3e">
+        <a href="https://www.kugou.com/album/info/3i8m4y3e/" hidefocus="true" class="pic" onclick="sdnClick(12112)" title="谁能陪我吹一吹风（治愈版）">
+            <img height="100" width="100" _src="http://imge.kugou.com/stdmusic/100/20261020/20261020175253939613.jpg" _def="https://www.kugou.com/yy/static/images/default2.jpg" src="https://www.kugou.com/yy/static/images/blank.gif" alt="谁能陪我吹一吹风（治愈版）">
+            <!-- <i onmouseout="this.className=''" onmousemove="this.className='hover'" data-albumId="212033554" class="play_album"  title="谁能陪我吹一吹风（治愈版）"></i> -->
+            <b></b>
+        </a>
+        <div class="fl">
+            <strong><a hidefocus="true" onclick="sdnClick(12112)" href="https://www.kugou.com/album/info/3i8m4y3e/" title="谁能陪我吹一吹风（治愈版）">谁能陪我吹一吹风（治愈版）</a></strong>
+            <!-- <p>唱片公司：人间共鸣<br /> -->
+            发行时间：2026-10-21<br />
+                <span class='bdsharebuttonbox' data-tag="share_10">
+                    <em>分享 </em>
+                    <i class="share_icon" onclick="albumHomePage.share(212033554, '谁能陪我吹一吹风（治愈版）', 'http://imge.kugou.com/stdmusic/100/20261020/20261020175253939613.jpg')"></i>
+                </span>
+            </p>
+        </div>
+        </li>
+         
+
+    </ul>
+    <!--=S 分页 -->
+    <div class="nvg" id="nvg">
+        <span id="mypage"><a style='visibility:hidden' id="page_first"  href = "https://www.kugou.com/yy/album/index/1.html" title="首页" class="direct btnPage">首页</a><span style='visibility:hidden' class="PrePageSpan"><a id="page_pr_e" href = "#" title="上一页"  class="direct btnPage back">上一页</a></span><span id="page_1" class="current">1</span><a  id="page_2" href = "https://www.kugou.com/yy/album/index/2-1-1.html" >2</a><a  id="page_3" href = "https://www.kugou.com/yy/album/index/3-1-1.html" >3</a><a  id="page_4" href = "https://www.kugou.com/yy/album/index/4-1-1.html" >4</a><a  id="page_5" href = "https://www.kugou.com/yy/album/index/5-1-1.html" >5</a><span class="NextPageSpan"><a id="page_next_2" href = "https://www.kugou.com/yy/album/index/2-1-1.html" title="下一页"  class="direct btnPage"  >下一页</a></span><a  id="page_last_5" href = "https://www.kugou.com/yy/album/index/5-1-1.html" title="尾页" class="direct btnPage">尾页</a></span>
+	</div>
+    <!--=E 分页 -->
+  </div>
+</div>
+<div id="album_box"></div>
+<link rel="stylesheet" href="https://www.kugou.com/common/css/cmfoot.css?20220127" />
+<div class="cmfoot">
+    <ul class="cmfoot_ul1">
+        <li class="cmfoot_li1">
+            <a href="https://www.tencentmusic.com/" target="_blank" class="cmfoot_a1 _a4i1" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i1"></div>
+                <p class="cmfoot_a1_p1">腾讯音乐娱乐集团</p>
+            </a>
+        </li>
+        <li class="cmfoot_li1">
+            <a href="https://y.tencentmusic.com/" target="_blank" class="cmfoot_a1 _a4i2" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i2"></div>
+                <p class="cmfoot_a1_p1">腾讯音乐人</p>
+            </a>
+        </li>
+        <li class="cmfoot_li1">
+            <a href="https://www.kugou.com/imusic/" target="_blank" class="cmfoot_a1 _a4i3" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i3"></div>
+                <p class="cmfoot_a1_p1">酷狗音乐人</p>
+            </a>
+        </li>
+        <li class="cmfoot_li1">
+            <a href="https://tui.kugou.com/" target="_blank" class="cmfoot_a1 _a4i4" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i4"></div>
+                <p class="cmfoot_a1_p1">音乐推</p>
+            </a>
+        </li>
+        <li class="cmfoot_li1">
+            <a href="http://5sing.kugou.com/" target="_blank" class="cmfoot_a1 _a4i5" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i5"></div>
+                <p class="cmfoot_a1_p1">5sing原创音乐</p>
+            </a>
+        </li>
+        <li class="cmfoot_li1">
+            <a href="https://www.kugou.com/music_recognition/?from=pcweb" target="_blank" class="cmfoot_a1 _a4i7" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i7"></div>
+                <p class="cmfoot_a1_p1">听歌识曲</p>
+            </a>
+        </li>
+        <!-- <li class="cmfoot_li1">
+            <a href="https://gejigeji.kugou.com/" target="_blank" class="cmfoot_a1 _a4i8">
+                <div class="cmfoot_a1_d1 _i8"></div>
+                <p class="cmfoot_a1_p1">歌叽歌叽</p>
+            </a>
+        </li> -->
+        <li class="cmfoot_li1">
+            <a href="https://pulu.kugou.com/?hreffrom=kugouweb_official" target="_blank" class="cmfoot_a1 _a4i9" rel="nofollow">
+                <div class="cmfoot_a1_d1 _i9"></div>
+                <p class="cmfoot_a1_p1">Pulu曲谱</p>
+            </a>
+        </li>
+    </ul>
+    
+    <ul class="cmfoot_ul2">
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/about/aboutus.html" target="_blank" class="cmfoot_a3" rel="nofollow">关于酷狗</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/about/business.html" target="_blank" class="cmfoot_a3" rel="nofollow">商务合作</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/about/adservice.html" target="_blank" class="cmfoot_a3" rel="nofollow">广告服务</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/about/copyRightGuide.html" target="_blank" class="cmfoot_a3" rel="nofollow">投诉指引</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://activity.kugou.com/privacy4pcweb/v-d45bb170/index.html" target="_blank" class="cmfoot_a3" rel="nofollow">隐私政策</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://activity.kugou.com/privacy4pcweb/v-5115fce0/index.html" target="_blank" class="cmfoot_a3" rel="nofollow">儿童隐私政策</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://activity.kugou.com/privacy4pcweb/v-e010f2d0/index.html" target="_blank" class="cmfoot_a3" rel="nofollow">用户服务协议</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/hr/kugouHr/dist/index.html" target="_blank" class="cmfoot_a3" rel="nofollow">招聘信息</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/shop/help/serviceCenter" class="cmfoot_a3" rel="nofollow">客服中心</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a href="https://www.kugou.com/shop/help/serviceCenter?showlist=1" class="cmfoot_a3" rel="nofollow">举报中心</a>
+        </li>
+    </ul>
+    
+    <ul class="cmfoot_ul2">
+        <li class="cmfoot_li2">
+            <a target="_blank" href="https://www.kugou.com/common/images/kugou_wangluowenhua.jpg" class="cmfoot_a3" rel="nofollow">粤网文（2025）1226-111号</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a target="_blank" href="https://www.kugou.com/common/images/kugou_xinxiwangluo_2025.jpg" class="cmfoot_a3" rel="nofollow">网络视听许可证 1910564号</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a target="_blank" href="https://beian.miit.gov.cn/#/Integrated/index" class="cmfoot_a3" rel="nofollow">增值电信业务 粤B2-20060339</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a target="_blank" href="https://beian.miit.gov.cn/" class="cmfoot_a3" rel="nofollow">粤ICP备09017694号</a>
+        </li>
+    </ul>
+    
+    <ul class="cmfoot_ul2">
+        <li class="cmfoot_li2">
+            <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44010602000141" class="cmfoot_a3" rel="nofollow">粤公网安备 44030002000001号</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a target="_blank" href="https://www.kugou.com/common/images/kugou_zhongjiaoxukezheng.jpg" class="cmfoot_a3" rel="nofollow">互联网宗教信息服务许可证 粤（2025）0000021</a>
+        </li>
+        <li class="cmfoot_li2">
+            <a target="_blank" href="https://www.kugou.com/common/images/kugou_yingyezhizhao.jpg" rel="nofollow" class="cmfoot_a3">营业执照</a>
+        </li>
+    </ul>
+
+    <div class="cmfoot_d1">
+        <a target="_blank" href="https://www.12377.cn/" class="cmfoot_d1_a1" rel="nofollow">互联网不良信息举报中心</a>
+        <span class="cmfoot_d1_sp1">酷狗不良信息举报邮箱：kg_jb_music@tencentmusic.com</span>
+        <span class="cmfoot_d1_sp1">客服电话：020-22043742</span>
+    </div>
+
+    <div class="cmfoot_d1">
+        <span class="cmfoot_d1_sp1">Copyright © 2004-2026 KuGou-Inc.All Rights Reserved</span>
+    </div>
+    
+</div>
+
+<!--百度---统计-->
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        
+        var _this = this,
+            tUrl = location.href,
+            reg = /\d+/g,
+            ua = navigator.userAgent.toLowerCase(),
+            ipad = /ipad/gi.test(ua),
+            android = /android|Adr/gi.test(ua),
+            iphone = /iphone/gi.test(ua),
+            mobileUa = !!ua.match(/AppleWebKit.*Mobile.*/),
+            frwrap = /fr=wrap/gi.test(tUrl);
+        var bdScriptSrc = 'https://hm.baidu.com/hm.js?aedee6983d4cfc62f509129360d6bb3d'
+        if (!frwrap) {
+            if (!ipad) {
+                if ((android || iphone || mobileUa) && tUrl.indexOf('m.kugou') != -1) { // 手机UA且访问站点位m.kugou.com (听书移动端页面场景)
+                    bdScriptSrc = "https://hm.baidu.com/hm.js?c0eb0e71efad9184bda4158ff5385e91"
+                }
+            }
+        }
+        
+        var hm = document.createElement("script")
+        hm.src = bdScriptSrc
+        var s = document.getElementsByTagName("script")[0]
+        s.parentNode.insertBefore(hm, s)
+
+    })();
+    (function () {
+        setTimeout(function () {
+            var d = document.createElement("script");
+            d.src = "https://staticssl.kugou.com/common/js/min/hijacked-min.js";
+            document.body.appendChild(d);
+        }, 2000);
+    })();
+</script>
+<script>
+    (function () {
+        setTimeout(function () {
+            var d = document.createElement("script");
+            d.onload = function(){
+                var d2 = document.createElement("script");
+                d2.src = "https://www.kugou.com/common/js/reportStat.js";
+                document.body.appendChild(d2);
+            };
+            d.src = "https://staticssl.kugou.com/collect/common/dist/js/collect-2400.js";
+            document.body.appendChild(d);
+        }, 0);
+    })();
+</script>
+
+<!--脚步-->
+<script src="https://www.kugou.com/yy/static/js/base-min.js?201505211743"></script>
+<script type="text/javascript" src="https://www.kugou.com/yy/static/js/lazyload-min.js?201505211743"></script>
+<script type="text/javascript" src="https://www.kugou.com/yy/static/js/album.lib.min.js?201505211743"></script>
+<script type="text/javascript" src="https://www.kugou.com/yy/static/js/album.homePage.js?201505211743"></script>
+<script charset="utf-8" type="text/javascript">
+/*
+ *全局定义
+ */
+//定义域
+var kg_album_domain="https://www.kugou.com/yy";
+//当前类别编号
+var currentType = "1";
+//当前选中专辑数据
+var curAlbumData = null;
+//当前选中专辑歌曲每页数
+var albumSongPageSize = 10;
+//当前选中专辑页数
+var curAlbumPageCount = 1;
+ //搜索专辑
+var searchPage = 1;
+var keywords='';
+var focusNum = 0;
+var data = [{"quality":0,"singername":"\u6cb3\u5357\u4e09\u59b95233","albumid":212050029,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":17905249,"privilege":0,"company":"\u6d4e\u5357\u653e\u4e0b\u6620\u753b\u7f51\u7edc\u6587\u5316\u4f20\u5a92\u6709\u9650\u8d23\u4efb\u516c\u53f8","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261019\/20261019160343528704.jpg","albumname":"\u653e\u4e0b\uff08\u770b\u6de1\uff09","intro":"\u653e\u4e0b\u8bf4\u4e5f\u5f88\u7b80\u5355\uff0c\u653e\u4e0b\u505a\u5230\u53c8\u5f88\u96be\u3002","grade":0,"encode_albumid":"3i8yulc2"},{"quality":0,"singername":"\u70df\u55d3\u8239\u957f","albumid":212048342,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":10388299,"privilege":0,"company":"\u4f73\u8bed\u5408\u5236","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261020\/20261020160653478228.jpg","albumname":"\u7231\u60c5\u5821\u5792","intro":"\u90a3\u4e00\u5929\u964c\u751f\u7684\u4e0e\u4f60\u64e6\u80a9\n\u4f60\u7684\u80cc\u5f71\u5e38\u5e38\u5728\u8111\u91cc\u51fa\u73b0\n\u6211\u81ea\u5bfc\u81ea\u6f14\u4e0e\u4f60\u6709\u4e00\u6b21\u59fb\u7f18\n\u6211\u628a\u4f60\u8bb0\u5728\u5fc3\u91cc\u9762\n\u8fd9\u4e00\u5929 \u6211\u7ec8\u4e8e\u4e0e\u4f60\u76f8\u89c1\n\u4f60\u9732\u51fa\u4e86\u5df2\u4e45\u4e0d\u89c1\u7684\u7b11\u8138\n\u4f60\u7684\u5c0f\u9152\u7a9d \u8ba9\u6211\u6d6e\u60f3\u8054\u7fe9\n\u6211\u771f\u7684\u597d\u4e45\u90fd\u6ca1\u8fd9\u79cd\u611f\u89c9","grade":0,"encode_albumid":"3i8xjq15"},{"quality":0,"singername":"\u738b\u4e00\u4f73","albumid":212048328,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":91241,"privilege":0,"company":"\u521d\u4e50\u6587\u5316","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261020\/20261020095332367188.jpg","albumname":"\u76f8\u601d\u6d53","intro":"\u4e00\u7eb8\u76f8\u601d\u5199\u4e0d\u5c3d\uff0c\u4e00\u66f2\u79bb\u6101\u5531\u4e0d\u5b8c\uff0c\u4e00\u5f80\u60c5\u6df1\uff0c\u7ec8\u7a76\u53ea\u662f\u6d77\u5e02\u8703\u697c\uff0c\u9065\u9065\u4e0d\u53ef\u89e6\u78b0\u3002\n\u5728\u6708\u5149\u4e0e\u5b64\u706f\u4e4b\u4e0b\uff0c\u770b\u82b1\u5f00\u53c8\u82b1\u843d\uff0c\u7b49\u4e00\u4e2a\u6ca1\u6709\u5f52\u671f\u7684\u4eba\uff0c\u4efb\u7531\u601d\u5ff5\u7ffb\u6d8c\uff0c\u773c\u6cea\u65e0\u58f0\u5760\u843d\u3002","grade":0,"encode_albumid":"3i8xjcc5"},{"quality":0,"singername":"\u4ed8\u8c6a","albumid":212048316,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":976060,"privilege":0,"company":"\u9177\u97f3\u5929\u7c41","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261019\/20261019163831500658.jpg","albumname":"\u539f\u6765\u4f60\u4ec0\u4e48\u90fd\u4e0d\u8981","intro":"\u97f3\u4e50\u4eba\u4ed8\u8c6a2026\u5e74\u5168\u65b0\u4f01\u5212\u4e13\u8f91\u300a\u751f\u4e8e1996\u300b\u7cfb\u5217\uff0c\u8fd9\u5f20\u4e13\u8f91\u4e5f\u662f\u4ed8\u8c6a\u6b65\u5165\u800c\u7acb\u4e4b\u5e74\u7684\u8bda\u610f\u4e4b\u4f5c\u3002\u4eba\u751f\u8fc8\u5165\u65b0\u9636\u6bb5\uff0c\u521d\u5fc3\u5374\u4ece\u672a\u6539\u53d8\uff0c\u624e\u5b9e\u505a\u97f3\u4e50\uff0c\u8e0f\u5b9e\u505a\u81ea\u5df1\u3002\n\u5168\u65b0\u7ffb\u5531\u5355\u66f2\u300a\u539f\u6765\u4f60\u4ec0\u4e48\u90fd\u4e0d\u8981\u300b\u90ac\u88d5\u5eb7\u4f5c\u8bcd\u3001\u90ed\u5b50\u4f5c\u66f2\u3002\u5728\u4e0d\u5bf9\u7b49\u7684\u5173\u7cfb\u91cc\uff0c\u4e0d\u65ad\u7d22\u53d6\u53ea\u662f\u6e34\u671b\u5f97\u5230\u7684\u5bf9\u65b9\u4e00\u70b9\u771f\u5fc3\uff0c\u6700\u4f24\u75db\u7684\u4ece\u6765\u4e0d\u662f\u4e89\u5435\uff0c\u800c\u662f\u53e6\u4e00\u65b9\u7528\u6c89\u9ed8\u6765\u56de\u5e94\u3002\u4ece\u539f\u7248\u7684\u7231\u5230\u5931\u671b\uff0c\u5230\u8fd9\u4e00\u7248\u7684\u7231\u5230\u65e0\u529b\uff0c\u90fd\u662f\u611f\u60c5\u91cc\u7684\u59d4\u5c48\u548c\u5fc3\u613f\u843d\u7a7a\u7684\u9057\u61be\u3002","grade":0,"encode_albumid":"3i8xj0cb"},{"quality":0,"singername":"\u9646\u864e","albumid":212018335,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":1686,"privilege":0,"company":"\u661f\u5965\u5a31\u4e50","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261019\/20261019163714107853.jpg","albumname":"\u6211\u8fd8\u5728\u6811\u4e0b\u7b49\u4e00\u4e2a\u4eba","intro":"\u591c\u8272\u662f\u4e00\u5f20\u63c9\u76b1\u53c8\u94fa\u5e73\u7684\u6df1\u84dd\u4fe1\u7eb8\uff0c\u4e0a\u9762\u6084\u6084\u5199\u4e86\u5c11\u5e74\u7684\u4e24\u4ef6\u5fc3\u4e8b\uff1a\u4e00\u5f2f\u65b0\u6708\u548c\u4e00\u68f5\u7ed3\u6ee1\u76f8\u601d\u7684\u6811\u3002\u5f53\u6700\u540e\u4e00\u74e3\u7c89\u7ea2\u62c2\u8fc7\u989d\u5934\uff0c\u6811\u4fbf\u892a\u53bb\u4e86\u6240\u6709\u55a7\u54d7\uff0c\u53ea\u5269\u758f\u6717\u7684\u679d\u4e2b\uff0c\u548c\u6811\u4e0b\u7684\u4eba\u4e00\u6837\u9759\u9759\u644a\u5f00\u201c\u624b\u638c\u201d\uff0c\u63a5\u4f4f\u6c38\u6052\u7684\u6708\u5149\uff0c\u4e5f\u5b88\u7740\u6c38\u4e45\u7684\u7ea2\u8c46\u3002\n\n\u9646\u864e\u53e3\u4e2d\u7684\u300a\u6211\u8fd8\u5728\u6811\u4e0b\u7b49\u4e00\u4e2a\u4eba\u300b\uff0c\u4fbf\u662f\u8fd9\u6837\u4e00\u573a\u542b\u84c4\u7684\u6708\u4e0b\u544a\u767d\uff0c\u4e5f\u662f\u4e00\u4efd\u56de\u5e94\u4eba\u751f\u6f2b\u6f2b\u7684\u6df1\u60c5\u8bb8\u8bfa\u3002\u4ed6\u4e0d\u8bf4\u201c\u7231\u201d\uff0c\u4ed6\u8bf4\u201c\u6458\u4e0b\u4e00\u9897\u7ea2\u8c46\u201d\uff1b\u4ed6\u4e0d\u8bf4\u201c\u7b49\u201d\uff0c\u4ed6\u8bf4\u201c\u6211\u8fd8\u5728\u6811\u4e0b\u201d\u3002\u6574\u9996\u6b4c\u50cf\u4e00\u573a\u4e0d\u7d27\u4e0d\u6162\u7684\u6563\u6b65\uff0c\u4e00\u6b65\u4e24\u6b65\uff0c\u8e29\u7740\u6708\u5149\u7684\u788e\u5c51\uff0c\u7275\u7740\u4f0a\u4eba\u7684\u8863\u8896\uff0c\u628a\u201c\u6c38\u4e45\u201d\u8fd9\u6837\u4e00\u4e2a\u6c89\u7538\u7538\u7684\u8bcd\uff0c\u8d70\u6210\u4e86\u671d\u671d\u66ae\u66ae\u7684\u8f7b\u76c8\u3002\n\n \u201c\u4eba\u9762\u4e0d\u77e5\u4f55\u5904\u53bb\uff0c\u6843\u82b1\u4f9d\u65e7\u7b11\u6625\u98ce\u3002\u201d\u5343\u5e74\u524d\u5d14\u62a4\u7684\u6005\u60d8\uff0c\u5728\u9646\u864e\u7684\u541f\u5531\u91cc\u88ab\u6e29\u67d4\u5730\u7ffb\u4e86\u4e2a\u9762\u3002\u7231\u60c5\u5728\u8fd9\u91cc\u4e0d\u518d\u662f\u60ca\u5929\u52a8\u5730\u7684\u8a93\u8a00\uff0c\u800c\u662f\u4e00\u4e2a\u4f4e\u5934\u7684\u77ac\u95f4\uff0c\u4e00\u62b9\u85cf\u4e0d\u4f4f\u7684\u7eef\u8272\uff0c\u4e00\u53e5\u201c\u4f60\u839e\u5c14\u4e00\u7b11\uff0c\u80dc\u8fc7\u4e16\u95f4\u7684\u6240\u6709\u201d\u7684\u5bc2\u9759\u6b22\u559c\u3002\u4e8e\u662f\uff0c\u65f6\u95f4\u505c\u4f4f\u4e86\u811a\u6b65\uff0c\u505c\u5728\u201c\u6811\u4e0b \u4f0a\u4eba \u6021\u4eba \u6c38\u4e45\u201d\u8fd9\u53e5\u8f7b\u58f0\u7684\u5462\u5583\uff0c\u505c\u5728\u4e00\u53cc\u5f71\u5b50\u4ea4\u53e0\u7684\u6811\u4e0b\uff0c\u505c\u5728\u4e00\u4e2a\u518d\u4e5f\u6ca1\u6709\u5176\u4ed6\u613f\u671b\u7684\u6b64\u523b\u3002\n\n\u5f53\u6708\u4eae\u5f2f\u6210\u94a9\u5b50\uff0c\u94a9\u4f4f\u4e24\u4e2a\u5f71\u5b50\uff0c\u4e00\u4e2a\u5728\u6811\u4e0b\uff0c\u4e00\u4e2a\u4fbf\u5728\u6b4c\u91cc\u2014\u2014\u9646\u864e\u5168\u65b0\u6e05\u751c\u56fd\u98ce\u5355\u66f2\u300a\u6211\u8fd8\u5728\u6811\u4e0b\u7b49\u4e00\u4e2a\u4eba\u300b\u6b63\u5f0f\u4e0a\u7ebf\u3002\u5982\u679c\u4f60\u4e5f\u66fe\u542c\u8bf4\u201c\u4eca\u665a\u7684\u6708\u8272\u771f\u7f8e\u201d\uff0c\u4e0d\u59a8\u6765\u542c\u542c\u4ed6\u7684\u58f0\u97f3\uff0c\u6bd4\u98ce\u6e29\u67d4\u3002","grade":0,"encode_albumid":"3i8ae79e"},{"quality":0,"singername":"\u840d\u59d0","albumid":212048165,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":8297576,"privilege":0,"company":"\u72ec\u7acb\u53d1\u884c","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261017\/20261017200324366641.jpg","albumname":"\u6211\u662f\u4e0d\u662f\u4f60\u6700\u7231\u7684\u4eba","intro":"\u6211\u662f\u4e0d\u662f\u4f60\u6700\u75bc\u7231\u7684\u4eba\n\u4f60\u4e3a\u4ec0\u4e48\u4e0d\u8bf4\u8bdd","grade":0,"encode_albumid":"3i8xet0f"},{"quality":0,"singername":"\u8d75\u6d0b","albumid":212035127,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":1100598,"privilege":0,"company":"\u6709\u97f3\u6709\u4e50","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261020\/20261020181458573373.jpg","albumname":"\u7535\u91cf1%\u90fd\u6ca1\u7b49\u5230\u4f60\u6d88\u606f(\u5bf9\u5531\u7248)","intro":"\u7535\u91cf\u767e\u5206\u4e4b\u4e00\u90fd\u6ca1\u7b49\u5230\u4f60\u6d88\u606f\n\u6211\u767e\u5206\u767e\u7684\u7231\u610f\u88ab\u4f60\u72e0\u5fc3\u5c4f\u853d\n\u7231\u7684\u6b7b\u5fc3\u584c\u5730\u7231\u5230\u6ca1\u529b\u6c14\n\u62fc\u6b7b\u62fc\u6d3b\u7231\u4f60\u6211\u8ff7\u5931\u4e86\u81ea\u5df1","grade":0,"encode_albumid":"3i8ncnbe"},{"quality":0,"singername":"\u8d75\u6d0b","albumid":212034838,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":1100598,"privilege":0,"company":"\u6709\u97f3\u6709\u4e50","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261020\/20261020180747910645.jpg","albumname":"\u7535\u91cf1%\u90fd\u6ca1\u7b49\u5230\u4f60\u6d88\u606f(\u7ae5\u58f0\u5bf9\u5531\u7248)","intro":"\u7535\u91cf\u767e\u5206\u4e4b\u4e00\u90fd\u6ca1\u7b49\u5230\u4f60\u6d88\u606f\n\u6211\u767e\u5206\u767e\u7684\u7231\u610f\u88ab\u4f60\u72e0\u5fc3\u5c4f\u853d\n\u7231\u7684\u6b7b\u5fc3\u584c\u5730\u7231\u5230\u6ca1\u529b\u6c14\n\u62fc\u6b7b\u62fc\u6d3b\u7231\u4f60\u6211\u8ff7\u5931\u4e86\u81ea\u5df1","grade":0,"encode_albumid":"3i8n4ma6"},{"quality":0,"singername":"\u6e29\u5c0f\u6ee1","albumid":212034653,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":22889491,"privilege":0,"company":"\u6709\u97f3\u6709\u4e50","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261020\/20261020180703693234.jpg","albumname":"\u7535\u91cf1%\u90fd\u6ca1\u7b49\u5230\u4f60\u6d88\u606f(\u7ae5\u58f0\u5bf9\u5531\u7248)","intro":"\u7535\u91cf\u767e\u5206\u4e4b\u4e00\u90fd\u6ca1\u7b49\u5230\u4f60\u6d88\u606f\n\u6211\u767e\u5206\u767e\u7684\u7231\u610f\u88ab\u4f60\u72e0\u5fc3\u5c4f\u853d\n\u7231\u7684\u6b7b\u5fc3\u584c\u5730\u7231\u5230\u6ca1\u529b\u6c14\n\u62fc\u6b7b\u62fc\u6d3b\u7231\u4f60\u6211\u8ff7\u5931\u4e86\u81ea\u5df1","grade":0,"encode_albumid":"3i8mzhbf"},{"quality":0,"singername":"\u5c0f\u5409\u513f","albumid":212033554,"publish_time":"2026-10-21","old_hide":0,"is_publish":1,"language_type":1,"the_first":0,"song_count":0,"sort":0,"singerid":22950210,"privilege":0,"company":"\u4eba\u95f4\u5171\u9e23","img":"http:\/\/imge.kugou.com\/stdmusic\/100\/20261020\/20261020175253939613.jpg","albumname":"\u8c01\u80fd\u966a\u6211\u5439\u4e00\u5439\u98ce\uff08\u6cbb\u6108\u7248\uff09","intro":"\u8c01\u80fd\u966a\u6211\u5439\u4e00\u5439\u98ce \u5439\u8d70\u5fc3\u4e2d\u7684\u75db\n\u5439\u8d70\u4f60\u7684\u6d77\u8a93\u5c71\u76df","grade":0,"encode_albumid":"3i8m4y3e"}]; 
+</script>
+<script src="https://staticssl.kugou.com/collect/common/dist/js/collect-2400.js"></script>
+<script src="https://staticssl.kugou.com/common/js/min/npm/getBaseInfo.min.js"></script>
+<script>
+	//埋点需求mtp111977 
+	var uaType2 = function () {
+		var fs = 0;
+		var ua = navigator.userAgent.toLowerCase();
+		if (ua && ua.search(/spider/i) > -1) {
+			if (ua.search(/Baiduspider/i) > -1) {
+				fs = "Baiduspider";
+			} else if (ua.search(/Bytespider/i) > -1) {
+				fs = "Bytespider";
+			} else {
+				fs = "Otherspider";
+			}
+		}
+		return fs;
+	}
+	var getQueryString = function(name) {
+		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+		var r = window.location.search.substr(1).match(reg); 
+		if (r != null) return unescape(r[2]); return null; 
+	}
+	window.getBaseInfo(1014, function(bInfo) {
+        var logPar = {
+			a: 28445,
+			b: '曝光',
+			ft: 'pc',
+			r: '专辑列表页',
+			userid: bInfo.userid || 0,
+			mid: bInfo.mid,
+			uuid: bInfo.uuid,
+			fo: document.referrer ? document.referrer.substr(0, 200) : '',
+			svar1: window.location.href.substr(0, 200),
+			svar2: location.origin,
+			svar3: navigator.userAgent,
+			svar4: getQueryString('hreffrom') || getQueryString('from'),
+			svar5: uaType2(),
+		}
+		newLogCount(30050, logPar)
+	})
+</script>
+</body>
+</html>
+

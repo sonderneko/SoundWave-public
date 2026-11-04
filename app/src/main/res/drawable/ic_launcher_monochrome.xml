@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ACCEPT6 图标换新 · Android 13 主题图标 monochrome 层（108dp 画布）。
+  单色剪影：圆盘本体 + 芯标环带镂空 + 中心孔镂空（evenOdd），系统按主题着色，fillColor 本身不呈现。
+  几何与 ic_launcher_foreground 对齐：盘 r31、芯标环带 8.4–10.2、孔 2.2。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#FF000000"
+        android:pathData="M23,54 a31,31 0 1,0 62,0 a31,31 0 1,0 -62,0 Z M43.8,54 a10.2,10.2 0 1,0 20.4,0 a10.2,10.2 0 1,0 -20.4,0 Z M45.6,54 a8.4,8.4 0 1,0 16.8,0 a8.4,8.4 0 1,0 -16.8,0 Z M51.8,54 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0 Z" />
+</vector>

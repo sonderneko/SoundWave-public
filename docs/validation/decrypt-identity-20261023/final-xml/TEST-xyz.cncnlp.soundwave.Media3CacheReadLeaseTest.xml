@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="xyz.cncnlp.soundwave.Media3CacheReadLeaseTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-22T18:46:20" hostname="f4a76f4ca31d" time="2.071">
+  <properties/>
+  <testcase name="open and read errors plus close cancellation release cache leases" classname="xyz.cncnlp.soundwave.Media3CacheReadLeaseTest" time="0.059"/>
+  <testcase name="resource removal and lease acquisition serialize without a deletion gap" classname="xyz.cncnlp.soundwave.Media3CacheReadLeaseTest" time="0.05"/>
+  <testcase name="multiple readers keep one resource active until the final close" classname="xyz.cncnlp.soundwave.Media3CacheReadLeaseTest" time="0.039"/>
+  <testcase name="real cache span open cannot race manual resource clear" classname="xyz.cncnlp.soundwave.Media3CacheReadLeaseTest" time="1.86"/>
+  <testcase name="automatic lru leaves active resource over budget then trims after release" classname="xyz.cncnlp.soundwave.Media3CacheReadLeaseTest" time="0.063"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
