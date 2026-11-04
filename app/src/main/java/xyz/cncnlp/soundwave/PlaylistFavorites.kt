@@ -48,6 +48,24 @@ internal fun Playlist.isRemoteFavoriteEntry(): Boolean =
     id.startsWith("fav_") && playlistFavoriteRemoteId(this).isNotBlank() &&
         source.ifEmpty { "wy" } in MusicSourceRegistry.platformIds
 
+/**
+ * BATCH2 反馈 F3(c)：导入的在线歌单条目（非本地、非系统歌单、非收藏）且 id/remoteId 像远程 id。
+ * 远程 id 形态与首页 onOpenPl 的 canRemote 同口径（全数字或长度 ≥ 6）。
+ */
+internal fun Playlist.isRemoteImportedEntry(): Boolean =
+    !local && id != "liked" && id != "history" && id != "local" && !id.startsWith("local_") &&
+        !id.startsWith("fav_") &&
+        source.ifEmpty { "wy" } in MusicSourceRegistry.platformIds &&
+        (remoteId.isNotBlank() || id.all { it.isDigit() } || id.length >= 6)
+
+/**
+ * 音乐库打开时是否必须回源水合：远程条目（收藏书签 / 导入在线歌单）且落盘快照残缺
+ * （为空，或少于标称 count）。快照完整时不触发，水合成功后回填快照、自然退出该状态。
+ */
+internal fun Playlist.needsRemoteHydration(): Boolean =
+    (isRemoteFavoriteEntry() || isRemoteImportedEntry()) &&
+        (songs.isEmpty() || (count > 0 && songs.size < count))
+
 internal fun togglePlaylistFavorite(
     pl: Playlist,
     fallbackSource: String,

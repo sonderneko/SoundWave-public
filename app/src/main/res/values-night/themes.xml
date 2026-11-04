@@ -9,9 +9,9 @@
         <item name="android:colorPrimary">#E8452F</item>
     </style>
 
-    <style name="Theme.SoundWave.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#101210</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_disc</item>
-        <item name="postSplashScreenTheme">@style/Theme.SoundWave</item>
-    </style>
+    <!-- BATCH2 反馈 F1：本文件不再定义 Theme.SoundWave.Splash——启动页只保留 values 的
+         品牌纸面一稿（浅 #F4F4F0 + 选定浅色标记）。原夜间稿使系统夜间 + App 浅色时启动页
+         发黑（用户点名）；按 App 偏好切启动页主题需 core-splashscreen 1.2.0 的
+         setSplashScreenTheme，而 1.2.0 要求 compileSdk 35、本仓工具链为 SDK 34 不可用。
+         待工具链升 SDK 35 后可恢复双稿（设计见 BATCH2-FEEDBACK 台账）。 -->
 </resources>
