@@ -53,7 +53,14 @@ data class ResolveAttempt(
      * 毫秒）。路径弹层与文本导出据此定位步骤时刻，与逐次耗时、取链总时长同属
      * 一个时钟基；-1 = 无记录（旧数据/合成行），展示层回退累计口径。
      */
-    val startedAtMs: Long = -1L
+    val startedAtMs: Long = -1L,
+    /**
+     * ACCEPT6（mgquality）：命中行在实测盖章推翻声称档时留存的声称档（如脚本阶梯档
+     * flac）；quality 字段自此只放实测盖章后的结果档。空 = 声称与实测一致/无实测
+     * 证据。路径弹层据此渲染「声称 X · 实测 Y」，不许声称冒充交付（与 oiapi 段
+     * 「禁止再拿请求档盖章」同纪律）。
+     */
+    val claimedQuality: String = ""
 ) {
     enum class Outcome { HIT, EMPTY, ERROR, SKIPPED, TIMEOUT }
     enum class Reason {

@@ -181,6 +181,54 @@ object AudioQualityEvidence {
     fun stampedDownloadQuality(claimed: String, formatLabel: String?, totalBytes: Long, durationMs: Long): String =
         estimateDeliveredQuality(formatLabel, totalBytes, durationMs) ?: claimed
 
+    /**
+     * ACCEPT6（mgquality）：播放盖章——与 oiapi/下载同纪律的播放版。解析声称档
+     * （脚本阶梯档/直连偏好档）与实测证据冲突时以实测为准，不许声称冒充交付。
+     * 证据强度：响应首字节魔数（fLaC/ID3/MP3 帧同步/WAVE）> Content-Type 格式
+     * 线索 > 无。URL 扩展名是声称方自带数据（formatEvidence 为「URL 扩展名…」时），
+     * 不作证据——.flac 后缀的链完全可能吐 MP3 字节。
+     * - 跨族推翻（无损声称 → 有损盖章）必须有格式实证（魔数或 CT 判明 MP3）：
+     *   实测档按字节+时长码率定档，码率不可测时按 oiapi 先例落保守地板 128k。
+     * - 字节实证无损（魔数 fLaC/WAVE）可把有损声称上修至 flac 为止；无损族声称
+     *   （flac/hires/master）遇无损字节保持声称（容器自证与声称不矛盾，
+     *   hires/master 的细分不可由容器魔数证伪）。
+     * - 无格式实证时只许同族下修：有损声称可用字节+时长码率估计下修，
+     *   无损声称不许以纯码率推翻（与下载盖章「无格式线索不推翻」同规）。
+     * - 证据不足 → 原样返回声称档，不造数据。
+     */
+    fun stampedPlaybackQuality(
+        claimed: String,
+        magicFormat: String?,
+        formatHintLabel: String?,
+        formatEvidence: String?,
+        totalBytes: Long,
+        durationMs: Long
+    ): String {
+        val claimRank = qualityRank(claimed)
+        if (claimRank == 0) return claimed
+        val magic = magicFormat.orEmpty().uppercase(Locale.ROOT)
+        val ctFormat = formatHintLabel.orEmpty().uppercase(Locale.ROOT)
+            .takeIf { formatEvidence.orEmpty().startsWith("Content-Type") }
+        val proven = when {
+            magic == "FLAC" || magic == "WAV" -> "FLAC"
+            magic == "MP3" -> "MP3"
+            ctFormat == "FLAC" -> "FLAC"
+            ctFormat == "MP3" -> "MP3"
+            else -> null
+        }
+        return when (proven) {
+            "FLAC" -> if (claimRank < qualityRank("flac")) "flac" else claimed
+            "MP3" -> estimateDeliveredQuality("MP3", totalBytes, durationMs) ?: "128k"
+            else -> {
+                if (claimRank in 1..qualityRank("320k")) {
+                    val est = estimateDeliveredQuality(null, totalBytes, durationMs)
+                    if (est != null && qualityRank(est) < claimRank) return est
+                }
+                claimed
+            }
+        }
+    }
+
     fun qualityLabel(value: String): String = when (value.lowercase(Locale.ROOT)) {
         "master" -> "Master"
         "atmos", "dolby" -> "Atmos"

@@ -185,7 +185,9 @@ object ScriptProbeCache {
         val contentRange: String = "",
         val sizeSource: String = "",
         val formatHint: String = "",
-        val formatEvidence: String = ""
+        val formatEvidence: String = "",
+        /** ACCEPT6（mgquality）：响应首字节魔数判明的格式族（FLAC/MP3/WAV；判不明为空）。字节级实证，强度高于 URL 扩展名/Content-Type 线索。 */
+        val magicFormat: String = ""
     ) {
         val latencyMs: Long get() = when {
             firstByteMs > 0 && resolveMs > 0 -> resolveMs + firstByteMs

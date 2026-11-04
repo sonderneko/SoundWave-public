@@ -390,7 +390,8 @@ object UrlResolver {
             outcome: ResolveAttempt.Outcome,
             reasonCode: ResolveAttempt.Reason = ResolveAttempt.Reason.NONE,
             reason: String = "",
-            route: String = ""
+            route: String = "",
+            claimedQuality: String = ""
         ) {
             // ACCEPT5（时钟基统一）：每行尝试落其在本轮解析内的开始偏移
             // （now − elapsed − 起点）。旧形态只有逐次耗时，展示层靠「累计求和」
@@ -401,7 +402,8 @@ object UrlResolver {
                 .coerceAtLeast(0L)
             attempts += ResolveAttempt(
                 stage, platform, script, quality, elapsed.coerceAtLeast(0L), outcome,
-                reasonCode, reason, route, startedAtMs = startedOffset
+                reasonCode, reason, route, startedAtMs = startedOffset,
+                claimedQuality = claimedQuality
             )
             if (onProgress != null) {
                 val label = when {
@@ -568,8 +570,14 @@ object UrlResolver {
                     // 完整性（与 oiapi「命中先测链」同口径）；不过则落脚本链。
                     val media = validateProbeMedia(src, preferQuality, directUrl, System.currentTimeMillis() - directStarted, purpose, song.duration)
                     if (media.playable) {
-                        trace("official-direct", src, "kg-direct", preferQuality, 0L, ResolveAttempt.Outcome.HIT)
-                        return@withContext finish(directUrl to preferQuality)
+                        // ACCEPT6（mgquality）：直连命中同按实测盖章（kg 出链由 FileHash
+                        // 定文件，偏好档只是声称；探针证据冲突时以实测为准，口径同脚本段）。
+                        val stampedQ = AudioQualityEvidence.stampedPlaybackQuality(
+                            preferQuality, media.magicFormat, media.formatHint, media.formatEvidence,
+                            media.bytes, song.duration
+                        )
+                        trace("official-direct", src, "kg-direct", stampedQ, 0L, ResolveAttempt.Outcome.HIT, claimedQuality = if (stampedQ != preferQuality) preferQuality else "")
+                        return@withContext finish(directUrl to stampedQ)
                     }
                     trace("official-direct", src, "kg-direct", preferQuality, System.currentTimeMillis() - directStarted, ResolveAttempt.Outcome.SKIPPED, ResolveAttempt.Reason.MEDIA_UNVERIFIED, media.reason.ifBlank { "media_unverified" })
                 } else {
@@ -587,8 +595,13 @@ object UrlResolver {
                     // ACCEPT6（qqslow）：同 kg 口径——直连命中先测链再交付。
                     val media = validateProbeMedia(src, preferQuality, directUrl, System.currentTimeMillis() - directStarted, purpose, song.duration)
                     if (media.playable) {
-                        trace("official-direct", src, "mg-direct", preferQuality, 0L, ResolveAttempt.Outcome.HIT)
-                        return@withContext finish(directUrl to preferQuality)
+                        // ACCEPT6（mgquality）：同 kg 口径——直连命中按实测盖章。
+                        val stampedQ = AudioQualityEvidence.stampedPlaybackQuality(
+                            preferQuality, media.magicFormat, media.formatHint, media.formatEvidence,
+                            media.bytes, song.duration
+                        )
+                        trace("official-direct", src, "mg-direct", stampedQ, 0L, ResolveAttempt.Outcome.HIT, claimedQuality = if (stampedQ != preferQuality) preferQuality else "")
+                        return@withContext finish(directUrl to stampedQ)
                     }
                     trace("official-direct", src, "mg-direct", preferQuality, System.currentTimeMillis() - directStarted, ResolveAttempt.Outcome.SKIPPED, ResolveAttempt.Reason.MEDIA_UNVERIFIED, media.reason.ifBlank { "media_unverified" })
                 } else {
@@ -625,8 +638,14 @@ object UrlResolver {
                         // ACCEPT6（qqslow）：outer 命中同过探针+时长完整性（同 kg/mg 口径）。
                         val media = validateProbeMedia(src, preferQuality, outerOutcome.url, System.currentTimeMillis() - outerStarted, purpose, song.duration)
                         if (media.playable) {
-                            trace("official-direct", src, "wy-direct", preferQuality, 0L, ResolveAttempt.Outcome.HIT)
-                            return@withContext finish(outerOutcome.url to preferQuality)
+                            // ACCEPT6（mgquality）：同 kg 口径——outer 命中按实测盖章
+                            // （outer 实际只发标准档，偏好 320k 时旧盖章即虚标）。
+                            val stampedQ = AudioQualityEvidence.stampedPlaybackQuality(
+                                preferQuality, media.magicFormat, media.formatHint, media.formatEvidence,
+                                media.bytes, song.duration
+                            )
+                            trace("official-direct", src, "wy-direct", stampedQ, 0L, ResolveAttempt.Outcome.HIT, claimedQuality = if (stampedQ != preferQuality) preferQuality else "")
+                            return@withContext finish(outerOutcome.url to stampedQ)
                         }
                         trace("official-direct", src, "wy-direct", preferQuality, System.currentTimeMillis() - outerStarted, ResolveAttempt.Outcome.SKIPPED, ResolveAttempt.Reason.MEDIA_UNVERIFIED, media.reason.ifBlank { "media_unverified" })
                     }
@@ -955,7 +974,17 @@ object UrlResolver {
                         val contentEvidence = TrustedMediaCacheIdentity.contentEvidence(
                             media.httpStatus, media.mime, media.bytes, media.formatHint, ""
                         )
-                        trace(if (cross) "cross" else "origin", source, sc.id, q, attemptElapsed, ResolveAttempt.Outcome.HIT, route = runtime.lastRoute(sc.id))
+                        // ACCEPT6（mgquality）：脚本命中自此按实测盖章（与 oiapi 段同
+                        // 纪律）——脚本是黑盒，阶梯档 q 只是声称；探针已握有魔数/格式
+                        // 线索/总字节，证据与声称冲突时以实测档为结果档，声称档留存
+                        // claimedQuality 供路径弹层标注「声称 X · 实测 Y」。裁决/超时/
+                        // 探针记忆等一切状态机仍按 q 记账（那是请求侧事实），不因盖章
+                        // 改变——本改动只动交付档位的认定与展示。
+                        val stampedQ = AudioQualityEvidence.stampedPlaybackQuality(
+                            q, media.magicFormat, media.formatHint, media.formatEvidence,
+                            media.bytes, music.duration
+                        )
+                        trace(if (cross) "cross" else "origin", source, sc.id, stampedQ, attemptElapsed, ResolveAttempt.Outcome.HIT, route = runtime.lastRoute(sc.id), claimedQuality = if (stampedQ != q) q else "")
                         // H1-a：该组合真实出链成功，任何既有裁决立即失效。
                         ScriptVerdictStore.clearVerdict(runtime.ownerContext, sc, source, q)
                         // ACCEPT4（修2）：真实出链成功同样清除该脚本的超时短记忆。
@@ -966,16 +995,16 @@ object UrlResolver {
                         ScriptSlowEmptyMemory.clearOnSuccess(runtime.ownerContext, sc, source)
                         // 原生网络已按请求取消；迟到 JS 仍需身份校验，禁止回写状态。
                         if (!requestStillCurrent()) return null
-                        val pair = mediaUrl to q
+                        val pair = mediaUrl to stampedQ
                         val verifiedIdentity = TrustedMediaCacheIdentity(
                             ownerKey(runtime.ownerContext), candidateIdentity(music), source,
-                            q, sc.id, mediaUrl, contentEvidence
+                            stampedQ, sc.id, mediaUrl, contentEvidence
                         )
                         onResolvedMedia?.invoke(verifiedIdentity)
                         synchronized(cacheLock) {
                             val cached = CachedUrl(
                                 url = mediaUrl,
-                                actualQuality = q,
+                                actualQuality = stampedQ,
                                 scriptId = sc.id,
                                 candidateKey = candidateIdentity(music),
                                 platform = source,
@@ -997,7 +1026,7 @@ object UrlResolver {
                                             id = music.id,
                                             source = music.source,
                                             url = mediaUrl,
-                                            quality = q,
+                                            quality = stampedQ,
                                             name = music.name,
                                             singer = music.singer
                                         )
@@ -1227,8 +1256,13 @@ object UrlResolver {
                                         // 则继续该候选的脚本池，不算命中。
                                         val media = validateProbeMedia(plat, platPreferQ, directUrl, 0L, purpose, cand.duration)
                                         if (media.playable) {
-                                            trace("cross", plat, "$plat-direct", platPreferQ, 0L, ResolveAttempt.Outcome.HIT)
-                                            return@withTimeoutOrNull directUrl to platPreferQ
+                                            // ACCEPT6（mgquality）：跨源直连同按实测盖章（口径同官方阶段）。
+                                            val stampedQ = AudioQualityEvidence.stampedPlaybackQuality(
+                                                platPreferQ, media.magicFormat, media.formatHint, media.formatEvidence,
+                                                media.bytes, cand.duration
+                                            )
+                                            trace("cross", plat, "$plat-direct", stampedQ, 0L, ResolveAttempt.Outcome.HIT, claimedQuality = if (stampedQ != platPreferQ) platPreferQ else "")
+                                            return@withTimeoutOrNull directUrl to stampedQ
                                         }
                                         trace("cross", plat, "$plat-direct", platPreferQ, 0L, ResolveAttempt.Outcome.SKIPPED, ResolveAttempt.Reason.MEDIA_UNVERIFIED, media.reason.ifBlank { "media_unverified" })
                                     }
@@ -2008,7 +2042,8 @@ object UrlResolver {
                     contentRange = contentRange,
                     sizeSource = measured.second,
                     formatHint = formatHint?.label.orEmpty(),
-                    formatEvidence = formatHint?.evidence.orEmpty()
+                    formatEvidence = formatHint?.evidence.orEmpty(),
+                    magicFormat = magicAudioFormat(buf, n)
                 )
                 if (n <= 0 && !resp.isSuccessful && resp.code != 206) {
                     return observed(ScriptProbeCache.Outcome.FAILED, "HTTP ${resp.code}")
@@ -2101,6 +2136,28 @@ object UrlResolver {
      * （JSON）即非音频正文。任何真实音频容器（ID3/帧同步/fLaC/OggS/RIFF/ftyp）
      * 都不会以这两个字节开头，误杀面为零。
      */
+    /**
+     * ACCEPT6（mgquality）：响应首字节魔数判格式族——只认字节自证的三种：
+     * fLaC → FLAC；ID3 头或 MPEG 音频帧同步（层位非 0）→ MP3；RIFF/WAVE → WAV。
+     * Ogg/MP4 容器内编码不可由魔数细分、加密封装不可见内层，一律返回空（不猜）。
+     */
+    private fun magicAudioFormat(bytes: ByteArray, n: Int): String {
+        val limit = n.coerceIn(0, bytes.size)
+        fun at(i: Int, s: String): Boolean {
+            if (limit < i + s.length) return false
+            for (j in s.indices) if (bytes[i + j] != s[j].code.toByte()) return false
+            return true
+        }
+        return when {
+            at(0, "fLaC") -> "FLAC"
+            at(0, "ID3") -> "MP3"
+            limit >= 2 && bytes[0] == 0xFF.toByte() && (bytes[1].toInt() and 0xE0) == 0xE0 &&
+                (bytes[1].toInt() and 0x06) != 0 -> "MP3"
+            at(0, "RIFF") && at(8, "WAVE") -> "WAV"
+            else -> ""
+        }
+    }
+
     private fun isHtmlOrJsonBody(bytes: ByteArray, n: Int): Boolean {
         val limit = n.coerceIn(0, bytes.size)
         var i = 0

@@ -323,10 +323,18 @@ internal fun playbackPathStepsWithAttempts(
         val matchReason = if (a.reasonCode == ResolveAttempt.Reason.CANDIDATE_NOT_MATCHED)
             matchRejectReasonLabel(a.reason) else ""
         val transportDetail = if (a.outcome == ResolveAttempt.Outcome.EMPTY) directEmptyDetailLabel(a.reason) else ""
+        // ACCEPT6（mgquality）：命中行经实测盖章推翻声称档时，行内明示两值
+        // 「声称 FLAC · 实测 320K」——quality 只放实测结果档，声称不冒充交付。
+        val qualityDetail = when {
+            a.claimedQuality.isNotBlank() && a.quality.isNotBlank() &&
+                !a.claimedQuality.equals(a.quality, ignoreCase = true) ->
+                "声称 ${a.claimedQuality.uppercase()} · 实测 ${a.quality.uppercase()}"
+            else -> a.quality.takeIf { it.isNotBlank() }?.uppercase()
+        }
         val detail = listOf(
             platLabel,
             script,
-            a.quality.takeIf { it.isNotBlank() }?.uppercase(),
+            qualityDetail,
             outcomeText + if (reasonLabel.isNotBlank() && a.outcome != ResolveAttempt.Outcome.HIT) "：$reasonLabel" else "",
             probeReason,
             matchReason,

@@ -31,6 +31,21 @@ class PlaybackPathAttemptsTest {
         assertEquals("原平台解析 → 跨源解析 → 跨平台换源", strategy.detail)
     }
 
+    // ACCEPT6（mgquality）：命中行带 claimedQuality 时行内明示「声称 X · 实测 Y」，
+    // quality 本身只放实测结果档；无 claimedQuality 的行保持旧渲染。
+    @Test fun measuredHitRowShowsClaimedAndMeasuredQuality() {
+        val attempts = listOf(
+            attempt("origin", quality = "master"),
+            ResolveAttempt(
+                "origin", "mg", "s2", "320k", 800, ResolveAttempt.Outcome.HIT,
+                claimedQuality = "flac"
+            )
+        )
+        val steps = playbackPathStepsWithAttempts(entry(), attempts)
+        assertTrue(steps[3].detail.contains("声称 FLAC · 实测 320K"))
+        assertTrue(steps[3].tags.any { it == "320K" })
+    }
+
     @Test fun attemptStepsAreCumulativeWithOutcomeAndReason() {
         val attempts = listOf(
             attempt("origin", elapsed = 1200, reason = ResolveAttempt.Reason.SCRIPT_ERROR, outcome = ResolveAttempt.Outcome.ERROR),

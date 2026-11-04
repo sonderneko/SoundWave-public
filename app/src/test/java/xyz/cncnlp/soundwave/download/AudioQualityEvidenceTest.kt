@@ -209,6 +209,30 @@ class AudioQualityEvidenceTest {
         assertEquals("320k", AudioQualityEvidence.stampedDownloadQuality("320k", null, 0L, 0L))
     }
 
+    // ACCEPT6（mgquality）：播放盖章——声称与实测冲突以实测为准。咪咕实证：
+    // 官方目录 SQ 为真 FLAC（androidFileType=flac），但匿名/脚本通道只出 MP3，
+    // 脚本按阶梯档声称 FLAC 交付 MP3 时必须按实测 MP3 码率档盖章，不得标 FLAC。
+    @Test
+    fun `stampedPlaybackQuality trusts measured evidence over the claimed tier`() {
+        // 渡千关（128s）：魔数判明 MP3 + PQ 尺寸 2,062,003B ≈ 129kbps → 128k。
+        assertEquals("128k", AudioQualityEvidence.stampedPlaybackQuality("flac", "MP3", "MP3", "URL 扩展名 .mp3", 2_062_003L, 128_000L))
+        // 同歌 HQ 尺寸 5,154,692B ≈ 322kbps → 320k。
+        assertEquals("320k", AudioQualityEvidence.stampedPlaybackQuality("flac", "MP3", "MP3", "URL 扩展名 .mp3", 5_154_692L, 128_000L))
+        // CT 判明 MP3（无魔数）+ 码率不可测 → oiapi 先例的保守地板 128k。
+        assertEquals("128k", AudioQualityEvidence.stampedPlaybackQuality("master", "", "MP3", "Content-Type audio/mpeg", -1L, 0L))
+        // 魔数判明 FLAC：无损族声称（master）保持声称——容器自证不与声称矛盾。
+        assertEquals("master", AudioQualityEvidence.stampedPlaybackQuality("master", "FLAC", "FLAC", "Content-Type audio/flac", 15_208_797L, 128_000L))
+        // 魔数判明 FLAC + 有损声称 → 字节实证上修至 flac 为止。
+        assertEquals("flac", AudioQualityEvidence.stampedPlaybackQuality("320k", "FLAC", "", "", 15_208_797L, 128_000L))
+        // 无格式实证（仅 .flac 扩展名线索=声称方自带数据）→ 不以纯码率推翻无损声称。
+        assertEquals("flac", AudioQualityEvidence.stampedPlaybackQuality("flac", "", "FLAC", "URL 扩展名 .flac", 2_062_003L, 128_000L))
+        // 无格式实证 + 有损声称 → 同族内可按码率下修（kg FileHash 128k 文件冒充 320k 偏好档）。
+        assertEquals("128k", AudioQualityEvidence.stampedPlaybackQuality("320k", "", "", "", 4_000_000L, 250_000L))
+        // 证据全无 → 声称原样，不造数据。
+        assertEquals("flac", AudioQualityEvidence.stampedPlaybackQuality("flac", "", "", "", -1L, 0L))
+        assertEquals("320k", AudioQualityEvidence.stampedPlaybackQuality("320k", "", "", "", -1L, 0L))
+    }
+
     // ACCEPT5（本地直读）：本地文件实测档——路径扩展名给格式线索；无扩展名
     // 线索（SAF content:// 等）返回 null，禁止以纯码率推翻落盘盖章。
     @Test
