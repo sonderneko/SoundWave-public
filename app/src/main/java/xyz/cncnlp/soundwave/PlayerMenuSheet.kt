@@ -122,6 +122,7 @@ internal fun FullPlayerMenuSheet(
                     onDownload = onDownload, onDelete = {}, onDislike = onToggleDislike, onNavigate = onDismiss,
                     disliked = disliked, onPlaybackLink = onPlaybackLink,
                     playbackSourceLabel = PlaySourceTracker.label(), playbackSourcePlaylist = PlaySourceTracker.originPlaylist(),
+                    playbackSourceSection = PlaySourceTracker.originSection(),
                     listScrollState = menuScrollState,
                     headerTrailing = {
                         val line = designLineColor()

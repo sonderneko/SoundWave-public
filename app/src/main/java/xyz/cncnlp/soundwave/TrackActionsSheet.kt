@@ -60,7 +60,8 @@ import xyz.cncnlp.soundwave.ui.common.rememberDesignSheetDismiss
  * （M 波的固定区/内滚区拆分废止：720dp 机高下动作行曾只露 0–1 行）。内滚 state 仍 hoist 给
  * 面板拖拽关闭连接（nestedScroll 改绑整区）。出处区只保留一行「播放来源」：无封面，点击按
  * 来源身份直达来源详情页（歌单/专辑/榜单）；歌手、专辑移入动作行作普通选项；旧「播放来源」
- * 候选列表整套已删除、无任何回退——来源身份缺失时该行不出（案 i）。
+ * 候选列表整套已删除、无任何回退——来源身份与分区落点皆缺失时该行不出（案 i）；
+ * ACCEPT6-HOMEORIGIN 起，无歌单身份的首页松散分区队列以分区键作落点（回首页滚动到该分区）。
  * 关闭动画（审计 §9 C 类）：瓷砖与动作行由内容侧在动作执行后统一走 J8 退场句柄关闭，
  * 宿主 prop 不再同步清状态（状态清除由退场完成后的 onDismiss 承担）。
  *
@@ -78,15 +79,21 @@ internal val TRACK_ACTION_ROW_HEIGHT = 52.dp
 internal fun trackActionQuickTileKeys(showDownload: Boolean): List<String> =
     listOf("like", "next", if (showDownload) "download" else "add", "similar", "dislike")
 
-/** 「播放来源」行的来源类型（决定无障碍文案；跳转一律走歌单身份直达）。 */
-internal enum class TrackSourceKind(val label: String) { PLAYLIST("歌单"), PLAYBACK("播放来源") }
+/** 「播放来源」行的来源类型（决定无障碍文案与点击落点：歌单身份直达详情 / 首页分区回首页滚动定位）。 */
+internal enum class TrackSourceKind(val label: String) { PLAYLIST("歌单"), PLAYBACK("播放来源"), HOME_SECTION("首页分区") }
 
-/** 「播放来源」行（纯数据，组装见 [trackPlaybackSourceEntry]）。身份恒非空——无身份时整行不出（案 i）。 */
+/**
+ * 「播放来源」行（纯数据，组装见 [trackPlaybackSourceEntry]）。
+ * 落点二选一：歌单身份 [playlist]（直达详情）或首页分区 [homeSection]（回首页滚动到分区）；
+ * 两者皆空的条目不会被组装出来——无落点时整行不出（案 i）。
+ */
 internal data class TrackSourceEntry(
     val kind: TrackSourceKind,
     val title: String,
     val subtitle: String,
-    val playlist: Playlist
+    val playlist: Playlist?,
+    /** 首页分区落点（[HomePlaySections] 键）；非空时点击走 TrackNavigation.openHomeSection，playlist 恒为 null。 */
+    val homeSection: String = ""
 )
 
 /** 歌单行副行补充：本地歌单 / 平台名 + 歌曲数（count 优先，未知时以已加载曲目数兜底）。 */
@@ -101,24 +108,39 @@ internal fun playlistSourceMeta(playlist: Playlist): String {
 
 /**
  * 「播放来源」行组装（纯函数，ACCEPT4 用户裁定）：出处只一行，标题 = 来源名，副行 = 「播放来源 · <meta>」。
- * - 播放器场景（传了 [playbackLabel] 或 [playbackPlaylist]）：身份 = [playbackPlaylist]；标题优先用 label。
+ * - 播放器场景（传了 [playbackLabel] / [playbackPlaylist] / [playbackSection]）：歌单身份优先，标题优先用 label；
+ *   无身份但有首页分区落点（[playbackSection]，ACCEPT6-HOMEORIGIN）时组装分区行，标题 = label（即「首页-<分区名>」）。
  * - 其余场景：身份 = [originPlaylist]（容器歌单）；菜单开在来源页之外时由宿主传入。
- * - 身份缺失（只有名字、没有可直达的 Playlist）→ 返回 null，整行不出（案 i，不回退任何候选列表）。
+ * - 落点缺失（只有名字、既无可直达的 Playlist 也无分区落点）→ 返回 null，整行不出（案 i，不回退任何候选列表）。
  */
 internal fun trackPlaybackSourceEntry(
     originPlaylist: Playlist?,
     playbackLabel: String = "",
-    playbackPlaylist: Playlist? = null
+    playbackPlaylist: Playlist? = null,
+    playbackSection: String = ""
 ): TrackSourceEntry? {
-    val playerScene = playbackLabel.isNotBlank() || playbackPlaylist != null
+    val playerScene = playbackLabel.isNotBlank() || playbackPlaylist != null || playbackSection.isNotBlank()
     if (playerScene) {
-        val identity = playbackPlaylist ?: return null
-        return TrackSourceEntry(
-            kind = TrackSourceKind.PLAYBACK,
-            title = playbackLabel.ifBlank { identity.name },
-            subtitle = listOf("播放来源", playlistSourceMeta(identity)).filter { it.isNotBlank() }.joinToString(" · "),
-            playlist = identity
-        )
+        val identity = playbackPlaylist
+        if (identity != null) {
+            return TrackSourceEntry(
+                kind = TrackSourceKind.PLAYBACK,
+                title = playbackLabel.ifBlank { identity.name },
+                subtitle = listOf("播放来源", playlistSourceMeta(identity)).filter { it.isNotBlank() }.joinToString(" · "),
+                playlist = identity
+            )
+        }
+        val sectionLabel = HomePlaySections.labelFor(playbackSection)
+        if (sectionLabel.isNotBlank()) {
+            return TrackSourceEntry(
+                kind = TrackSourceKind.HOME_SECTION,
+                title = playbackLabel.ifBlank { sectionLabel },
+                subtitle = "播放来源",
+                playlist = null,
+                homeSection = playbackSection
+            )
+        }
+        return null
     }
     val origin = originPlaylist ?: return null
     return TrackSourceEntry(
@@ -200,6 +222,8 @@ internal fun ColumnScope.TrackActionsSheetContent(
     playbackSourceLabel: String = "",
     /** 播放器场景：PlaySourceTracker.originPlaylist()；非空时播放来源行按身份直达详情，为空整行不出（案 i）。 */
     playbackSourcePlaylist: Playlist? = null,
+    /** 播放器场景：PlaySourceTracker.originSection()；队列来自首页松散分区时为分区键，出处行点击回首页滚动到该分区。 */
+    playbackSourceSection: String = "",
     /** 整区滚动的 ScrollState（宿主须与 DesignSheetDialog 的 contentScrollState 传同一实例，拖拽关闭改绑它）。 */
     listScrollState: ScrollState? = null
 ) {
@@ -243,11 +267,16 @@ internal fun ColumnScope.TrackActionsSheetContent(
             }
         })
         // 出处（ACCEPT5 移位）：五宫格之下、下方信息/导航行组第一块；组装与直达行为不变。
-        val sourceEntry = remember(originPlaylist, playbackSourceLabel, playbackSourcePlaylist) {
-            trackPlaybackSourceEntry(originPlaylist, playbackSourceLabel, playbackSourcePlaylist)
+        val sourceEntry = remember(originPlaylist, playbackSourceLabel, playbackSourcePlaylist, playbackSourceSection) {
+            trackPlaybackSourceEntry(originPlaylist, playbackSourceLabel, playbackSourcePlaylist, playbackSourceSection)
         }
         if (sourceEntry != null) {
-            TrackSourceSection(sourceEntry) { dismiss(); TrackNavigation.openPlaylist(sourceEntry.playlist) }
+            TrackSourceSection(sourceEntry) {
+                dismiss()
+                // 落点二选一：首页分区回首页滚动定位；歌单身份直达详情（组装保证至少其一非空）。
+                if (sourceEntry.homeSection.isNotBlank()) TrackNavigation.openHomeSection(sourceEntry.homeSection)
+                else sourceEntry.playlist?.let { TrackNavigation.openPlaylist(it) }
+            }
         }
         // 动作行：添加到歌单（高频）→ 歌手 / 专辑（ACCEPT4 自出处区移入的普通选项行）→ 分享 → 播放取链链路
         // → 调用方专属行 → 危险区（从歌单删除）垫底。

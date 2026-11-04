@@ -2,6 +2,9 @@ package xyz.cncnlp.soundwave
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import xyz.cncnlp.soundwave.ui.notice.AppNotice
 
 /**
@@ -13,6 +16,7 @@ object TrackNavigation {
     @Volatile private var artistNav: ((Song, Tab) -> Unit)? = null
     @Volatile private var albumNav: ((DiscoverCard, Tab) -> Unit)? = null
     @Volatile private var playlistNav: ((Playlist, Tab) -> Unit)? = null
+    @Volatile private var homeSectionNav: ((String) -> Unit)? = null
     @Volatile private var tabNow: (() -> Tab)? = null
 
     fun bind(
@@ -20,9 +24,11 @@ object TrackNavigation {
         album: (DiscoverCard, Tab) -> Unit,
         currentTab: () -> Tab,
         /** M 波「出处」歌单行：与 artistNav/albumNav 同模式，绑定到既有歌单详情打开路径（plDetail 设置链）。 */
-        playlist: ((Playlist, Tab) -> Unit)? = null
+        playlist: ((Playlist, Tab) -> Unit)? = null,
+        /** ACCEPT6-HOMEORIGIN「出处」首页分区行：绑定到根部「切回首页 + 登记分区滚动请求」路径。 */
+        homeSection: ((String) -> Unit)? = null
     ) {
-        artistNav = artist; albumNav = album; tabNow = currentTab; playlistNav = playlist
+        artistNav = artist; albumNav = album; tabNow = currentTab; playlistNav = playlist; homeSectionNav = homeSection
     }
 
     /**
@@ -77,6 +83,13 @@ object TrackNavigation {
         val nav = playlistNav
         if (nav == null || playlist.id.isBlank()) { AppNotice.toast("暂无歌单信息"); return }
         nav(playlist, tabNow?.invoke() ?: Tab.HOME)
+    }
+
+    /** ACCEPT6-HOMEORIGIN「出处」首页分区行跳转：切回首页并滚动到来源分区；未绑定/未知分区时明确提示，不静默。 */
+    fun openHomeSection(section: String) {
+        val nav = homeSectionNav
+        if (nav == null || !HomePlaySections.isKnown(section)) { AppNotice.toast("暂无来源信息"); return }
+        nav(section)
     }
 
     fun shareText(song: Song): String {
@@ -148,4 +161,26 @@ object TrackNavigation {
             context.startActivity(Intent.createChooser(send, "分享歌曲").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }.onFailure { AppNotice.toast("没有可用的分享应用", AppNotice.Kind.FAILURE) }
     }
+}
+
+/**
+ * ACCEPT6-HOMEORIGIN：首页分区滚动请求（跨组件单次消费）：出处行点击在根部登记目标分区，
+ * 首页 "hot" 分支组合后消费并滚动。用状态而非事件：登记时首页可能尚未切回/未组合到热门页，
+ * 状态保留到消费为止，时序竞态自解；消费后清空，不会污染后续普通回首页。
+ */
+internal object HomeSectionScrollRequest {
+    var pending by mutableStateOf<String?>(null)
+        private set
+
+    fun request(section: String) {
+        if (HomePlaySections.isKnown(section)) pending = section
+    }
+
+    /** 消费指定请求（仅当当前待办正是它时清，避免清掉更新的请求）。 */
+    fun consume(section: String) {
+        if (pending == section) pending = null
+    }
+
+    /** 测试用。 */
+    fun reset() { pending = null }
 }

@@ -91,6 +91,40 @@ class TrackSourceEntriesTest {
         assertEquals("歌单A", entry?.title)
     }
 
+    // ---------- 首页分区出处（ACCEPT6-HOMEORIGIN）：无歌单身份但有分区落点时组装分区行 ----------
+
+    @Test
+    fun `home section without playlist identity becomes section entry`() {
+        val entry = trackPlaybackSourceEntry(null, playbackLabel = "首页-热门歌曲", playbackPlaylist = null, playbackSection = HomePlaySections.HOT_SONGS)
+        assertEquals(TrackSourceKind.HOME_SECTION, entry?.kind)
+        assertEquals("首页-热门歌曲", entry?.title)
+        assertEquals("播放来源", entry?.subtitle)
+        assertNull(entry?.playlist)
+        assertEquals(HomePlaySections.HOT_SONGS, entry?.homeSection)
+    }
+
+    @Test
+    fun `home section entry falls back to section label when playback label blank`() {
+        val entry = trackPlaybackSourceEntry(null, playbackLabel = "", playbackPlaylist = null, playbackSection = HomePlaySections.NEW_SONGS)
+        assertEquals("首页-新歌速递", entry?.title)
+        assertEquals(HomePlaySections.NEW_SONGS, entry?.homeSection)
+    }
+
+    @Test
+    fun `unknown home section still yields no entry per case i`() {
+        assertNull(trackPlaybackSourceEntry(null, playbackLabel = "首页-不存在的分区", playbackPlaylist = null, playbackSection = "nope"))
+        assertNull(trackPlaybackSourceEntry(null, playbackLabel = "", playbackPlaylist = null, playbackSection = "nope"))
+    }
+
+    @Test
+    fun `playlist identity wins over home section`() {
+        val origin = Playlist(id = "pl9", name = "今日推荐")
+        val entry = trackPlaybackSourceEntry(null, playbackLabel = "今日推荐", playbackPlaylist = origin, playbackSection = HomePlaySections.TODAY)
+        assertEquals(TrackSourceKind.PLAYBACK, entry?.kind)
+        assertEquals(origin, entry?.playlist)
+        assertEquals("", entry?.homeSection)
+    }
+
     // ---------- 播放来源身份携带 ----------
 
     @Before fun resetTracker() = PlaySourceTracker.reset()
@@ -124,6 +158,52 @@ class TrackSourceEntriesTest {
         assertNull(PlaySourceTracker.originPlaylist())
     }
 
+    // ---------- 首页分区绑定（ACCEPT6-HOMEORIGIN） ----------
+
+    @Test
+    fun `force with section binds label and section without playlist identity`() {
+        val queue = listOf(song(), song().copy(id = "s2"))
+        PlaySourceTracker.force("首页-热门歌曲", queue, HomePlaySections.HOT_SONGS)
+        assertEquals("首页-热门歌曲", PlaySourceTracker.label())
+        assertEquals(HomePlaySections.HOT_SONGS, PlaySourceTracker.originSection())
+        assertNull(PlaySourceTracker.originPlaylist())
+        // resolveAndPlay 的 noteQueue 同签名不换绑：分区归因在队列存续期内稳定。
+        PlaySourceTracker.noteQueue(queue)
+        assertEquals("首页-热门歌曲", PlaySourceTracker.label())
+        assertEquals(HomePlaySections.HOT_SONGS, PlaySourceTracker.originSection())
+    }
+
+    @Test
+    fun `noteQueue rebind to a scoped page clears the home section`() {
+        val queue = listOf(song(), song().copy(id = "s2"))
+        PlaySourceTracker.force("首页-新歌速递", queue, HomePlaySections.NEW_SONGS)
+        val pl = Playlist(id = "pl1", name = "我的歌单")
+        PlaySourceTracker.push(Any(), "我的歌单", pl)
+        PlaySourceTracker.noteQueue(listOf(song().copy(id = "s7"), song().copy(id = "s8")))
+        assertEquals("我的歌单", PlaySourceTracker.label())
+        assertEquals(pl, PlaySourceTracker.originPlaylist())
+        assertEquals("", PlaySourceTracker.originSection())
+    }
+
+    @Test
+    fun `force without section or with unknown section leaves no section binding`() {
+        val queue = listOf(song())
+        PlaySourceTracker.force("首页-热门歌曲", queue, HomePlaySections.HOT_SONGS)
+        PlaySourceTracker.force("心动模式", queue)
+        assertEquals("", PlaySourceTracker.originSection())
+        PlaySourceTracker.force("首页-热门歌曲", queue, "nope")
+        assertEquals("", PlaySourceTracker.originSection())
+    }
+
+    @Test
+    fun `home section labels follow the user format`() {
+        assertEquals("首页-热门歌曲", HomePlaySections.labelFor(HomePlaySections.HOT_SONGS))
+        assertEquals("首页-新歌速递", HomePlaySections.labelFor(HomePlaySections.NEW_SONGS))
+        assertEquals("今日推荐", HomePlaySections.labelFor(HomePlaySections.TODAY))
+        assertEquals("", HomePlaySections.labelFor(""))
+        assertTrue(HomePlaySections.isKnown(HomePlaySections.HOT_SONGS))
+    }
+
     // ---------- 歌单跳转接线 ----------
 
     @Test
@@ -133,5 +213,13 @@ class TrackSourceEntriesTest {
         val pl = Playlist(id = "pl1", name = "我的歌单")
         TrackNavigation.openPlaylist(pl)
         assertEquals(pl to Tab.PLAYLISTS, captured)
+    }
+
+    @Test
+    fun `openHomeSection routes bound section key`() {
+        var captured: String? = null
+        TrackNavigation.bind(artist = { _, _ -> }, album = { _, _ -> }, currentTab = { Tab.PLAYER }, homeSection = { captured = it })
+        TrackNavigation.openHomeSection(HomePlaySections.NEW_SONGS)
+        assertEquals(HomePlaySections.NEW_SONGS, captured)
     }
 }

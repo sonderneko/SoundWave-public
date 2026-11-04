@@ -1844,7 +1844,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
     }
     // ACCEPT5：album 通道在播放器内打开时置 detailOverPlayer（详情压播放器直达，不退播放器）；
     // artist / playlist 通道在压播放器详情内触发时不再抢切 tab（层级一致性守卫），标记为假时逐字不变。
-    TrackNavigation.bind(artist = { sg, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; homeArtistOrigin[0] = origin; homeArtistSrc[0] = sg.source; openHomeArtistCb(sg.singer, sg.cover, sg.singerId) }, album = { card, origin -> detailOverPlayer = tab == Tab.PLAYER; openDiscoverCardCb(card, origin) }, currentTab = { if (tab == Tab.PLAYER) prevTab else tab }, playlist = { pl, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; detailOriginTab = origin; openDetail(pl, pl.songs); plDetailLoading = false })
+    TrackNavigation.bind(artist = { sg, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; homeArtistOrigin[0] = origin; homeArtistSrc[0] = sg.source; openHomeArtistCb(sg.singer, sg.cover, sg.singerId) }, album = { card, origin -> detailOverPlayer = tab == Tab.PLAYER; openDiscoverCardCb(card, origin) }, currentTab = { if (tab == Tab.PLAYER) prevTab else tab }, playlist = { pl, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; detailOriginTab = origin; openDetail(pl, pl.songs); plDetailLoading = false }, homeSection = { sectionKey -> homePagerSelection.onSectionSettled("hot"); HomeSectionScrollRequest.request(sectionKey); returnToTopLevelTab(Tab.HOME) })
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable

@@ -151,6 +151,20 @@ internal fun selectHomeHotBoard(platform: String, boards: List<RankBoard>): Rank
     }
 }
 
+/**
+ * ACCEPT6-HOMEORIGIN：首页 "hot" 分区在首页 LazyColumn 中的 item 落点（出处行回首页滚动定位用，纯函数）。
+ * item 序与 HomePage "hot" 分支的 LazyColumn 逐项对齐：0 今日推荐 hero、1 甄选歌单头、2 甄选歌单内容、
+ * 3 热门歌曲头、（可选：热门状态提示行）、热门歌曲内容、特色轮播、（新歌速递头+列表，存在时）。
+ * 分区不存在（新歌速递为空）或未知分区返回 -1（调用方只切回首页、不滚动）。
+ */
+internal fun homeFeedSectionItemIndex(section: String, hotHintVisible: Boolean, newSongsVisible: Boolean): Int =
+    when (section) {
+        HomePlaySections.TODAY -> 0
+        HomePlaySections.HOT_SONGS -> 3
+        HomePlaySections.NEW_SONGS -> if (newSongsVisible) 6 + (if (hotHintVisible) 1 else 0) else -1
+        else -> -1
+    }
+
 /** 平台弹层顶部小号说明（DM Mono 10sp、弱化色），保持弹层紧凑。 */
 @Composable
 private fun HomePopoverCaption(title: String) {
@@ -671,6 +685,24 @@ internal fun HomePage(
                         if (loaded != hotArtists) hotArtists = loaded
                     }
                 }
+                // ACCEPT6-HOMEORIGIN：出处行「回首页分区」的滚动请求消费（状态式单次消费，见 HomeSectionScrollRequest）。
+                // 落点按 LazyColumn 实际 item 序由纯函数 homeFeedSectionItemIndex 计算；分区数据未到时等数据键变化重跑，
+                // 数据定版后分区仍不存在（如该平台无新歌速递）则只切回首页不滚、消费请求。
+                val pendingHomeSection = HomeSectionScrollRequest.pending
+                LaunchedEffect(pendingHomeSection, newSongs, hotChartLoading, feedLoading) {
+                    val target = pendingHomeSection ?: return@LaunchedEffect
+                    val index = homeFeedSectionItemIndex(
+                        target,
+                        hotHintVisible = !hotChartLoading && list.isNotEmpty() && hotStatusHint.isNotBlank(),
+                        newSongsVisible = newSongs.isNotEmpty()
+                    )
+                    if (index >= 0) {
+                        runCatching { hotListState.animateScrollToItem(index) }
+                        HomeSectionScrollRequest.consume(target)
+                    } else if (!hotChartLoading && !feedLoading) {
+                        HomeSectionScrollRequest.consume(target)
+                    }
+                }
                 val hotRefreshState = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
                 val hotRefreshing = isGestureRefreshing && feedLoading
                 androidx.compose.material3.pulltorefresh.PullToRefreshBox(
@@ -703,7 +735,8 @@ internal fun HomePage(
                             // r658b #10：按钮直接从第一首播放今日推荐，并以播放页转场打开播放器。
                             onPlayAll = {
                                 heroList.firstOrNull()?.let { first ->
-                                    PlaySourceTracker.force("今日推荐", heroList)
+                                    // ACCEPT6-HOMEORIGIN：标签维持「今日推荐」（与详情页 scope 同名），另绑分区落点供出处行回首页。
+                                    PlaySourceTracker.force(HomePlaySections.labelFor(HomePlaySections.TODAY), heroList, HomePlaySections.TODAY)
                                     onPlay(first, heroList)
                                     onOpenPlayer()
                                 }
@@ -809,7 +842,11 @@ internal fun HomePage(
                             nowPlayingKey = nowPlayingKey,
                             isPlayingNow = isPlayingNow,
                             onTogglePlayback = onTogglePlayback,
-                            onPlay = onPlay
+                            // ACCEPT6-HOMEORIGIN：热门歌曲是松散分区——点播前按实际来源绑「首页-热门歌曲」出处（force 先例同今日推荐 hero）。
+                            onPlay = { song, songs ->
+                                PlaySourceTracker.force(HomePlaySections.labelFor(HomePlaySections.HOT_SONGS), songs, HomePlaySections.HOT_SONGS)
+                                onPlay(song, songs)
+                            }
                         ) }
                     }
                     item(key = "featured_channels") {
@@ -844,7 +881,11 @@ internal fun HomePage(
                             HomeNewSongList {
                                 // 设计稿 .new-song-row：58dp 封面 + 16sp 歌名，序号在最右，行间 1dp 分隔线。
                                 newSongs.take(10).forEachIndexed { idx, s ->
-                                    HomeNewSongRow(s, index = idx + 1, platformLabel = platformName(s.source.ifBlank { platform }), nowPlaying = s.key() == nowPlayingKey) { onPlay(s, newSongs) }
+                                    HomeNewSongRow(s, index = idx + 1, platformLabel = platformName(s.source.ifBlank { platform }), nowPlaying = s.key() == nowPlayingKey) {
+                                        // ACCEPT6-HOMEORIGIN：新歌速递同为松散分区——绑「首页-新歌速递」出处。
+                                        PlaySourceTracker.force(HomePlaySections.labelFor(HomePlaySections.NEW_SONGS), newSongs, HomePlaySections.NEW_SONGS)
+                                        onPlay(s, newSongs)
+                                    }
                                 }
                             }
                         }
