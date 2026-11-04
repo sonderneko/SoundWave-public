@@ -1051,102 +1051,16 @@
             column="1"/>
     </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_like` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_notif_like.png"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_like_v11` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;24dp&quot; android:height=&quot;24dp&quot; android:viewportWidth=&quot;24&quot; android:viewportHeight=&quot;24&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_notif_like_v11.xml"
-            line="2"
-            column="1"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_next` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_notif_next.png"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_next_v11` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;24dp&quot; android:height=&quot;24dp&quot; android:viewportWidth=&quot;24&quot; android:viewportHeight=&quot;24&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_notif_next_v11.xml"
-            line="2"
-            column="1"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_pause` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_notif_pause.png"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_pause_v11` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;24dp&quot; android:height=&quot;24dp&quot; android:viewportWidth=&quot;24&quot; android:viewportHeight=&quot;24&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_notif_pause_v11.xml"
-            line="2"
-            column="1"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_play` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_notif_play.png"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_play_v11` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;24dp&quot; android:height=&quot;24dp&quot; android:viewportWidth=&quot;24&quot; android:viewportHeight=&quot;24&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_notif_play_v11.xml"
-            line="2"
-            column="1"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_prev` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_notif_prev.png"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_notif_prev_v11` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;24dp&quot; android:height=&quot;24dp&quot; android:viewportWidth=&quot;24&quot; android:viewportHeight=&quot;24&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_notif_prev_v11.xml"
-            line="2"
-            column="1"/>
-    </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_stat_music` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_stat_music.png"/>
-    </issue>
 
     <issue
         id="UnusedResources"
@@ -1187,47 +1101,11 @@
             file="src/main/res/drawable/ic_launcher_fg_bitmap.png"/>
     </issue>
 
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_notif_like.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_notif_like.png"/>
-    </issue>
 
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_notif_next.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_notif_next.png"/>
-    </issue>
 
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_notif_pause.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_notif_pause.png"/>
-    </issue>
 
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_notif_play.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_notif_play.png"/>
-    </issue>
 
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_notif_prev.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_notif_prev.png"/>
-    </issue>
 
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_stat_music.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_stat_music.png"/>
-    </issue>
 
     <issue
         id="IconLocation"
@@ -1283,14 +1161,6 @@
             file="src/main/res/mipmap-xxxhdpi/ic_launcher.png"/>
     </issue>
 
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_stat_music.png, ic_white_note.png">
-        <location
-            file="src/main/res/drawable/ic_white_note.png"/>
-        <location
-            file="src/main/res/drawable/ic_stat_music.png"/>
-    </issue>
 
     <issue
         id="ClickableViewAccessibility"

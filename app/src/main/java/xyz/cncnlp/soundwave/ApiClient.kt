@@ -608,7 +608,8 @@ object ApiClient {
     }
 
     /**
-     * 歌手详情（批26）：服务端 /music/singer 聚合五平台官方歌手歌曲接口（不依赖登录态），
+     * 歌手详情（批26）：五平台官方歌手接口客户端直连优先（fetchArtistDetailDirect 覆盖
+     * wy/tx/kg/kw/mg，不依赖登录态），直连失败/空结果回落服务端 /music/singer 聚合腿，
      * 返回 {name, cover, brief, list}。客户端详情页复用 plDetail/LibraryPage 渲染；id 用
      * "singer_{src}_{artistId}" 前缀避免与歌单/榜单 id 冲突。singerName 为搜索结果的歌手名
      * 提示（酷我/咪咕等平台仅靠 id 无法反查名字，需 name 兜底匹配）。
@@ -617,7 +618,7 @@ object ApiClient {
         if (artistId.isBlank()) return null
         val src = source.ifBlank { "wy" }
         fetchArtistDetailDirect(src, artistId, singerName)?.let { return it }
-        // Explicit retained legacy fallback: KW/MG and unavailable anonymous detail routes.
+        // 五平台直连（fetchArtistDetailDirect 覆盖 wy/tx/kg/kw/mg）失败/空结果时的服务端回落，五平台同口径，非 KW/MG 专属。
         return try {
             val q = java.net.URLEncoder.encode(artistId, "UTF-8")
             val nm = java.net.URLEncoder.encode(singerName, "UTF-8")
@@ -1086,16 +1087,6 @@ object ApiClient {
             if (found.isEmpty()) return null
             CatGroups(found)
         } catch (_: Exception) { null }
-    }
-
-    /** 扁平分类（旧接口兼容；新 UI 优先用 plCatGroups 两级结构）。 */
-    fun plCats(source: String = "wy"): List<String> {
-        return try {
-            val raw = get("/music/plcats?source=${java.net.URLEncoder.encode(source, "UTF-8")}")
-            if (raw.isEmpty()) return emptyList()
-            val arr = JSONObject(raw).optJSONArray("list") ?: return emptyList()
-            buildList { for (i in 0 until arr.length()) { val c = arr.optString(i).trim(); if (c.isNotEmpty()) add(c) } }.distinct()
-        } catch (_: Exception) { emptyList() }
     }
 
     fun playableUrl(raw: String): String {
