@@ -49,8 +49,9 @@ internal fun settingsToneForMark(mark: Color): SettingsTileTone = when (mark) {
 
 /**
  * r658b 16（用户 10-19：「选项背景改回之前，图标不要背景」）：30dp 宽图标区 + 线性图标，无色块底。
- * ACCEPT5（用户 2026-11-04 V3 裁定）：图标颜色改逐行配色——调用方按行（SettingGlyphSpec）传 [tint]，
- * 不传时回退墨色；tone 参数保留以兼容调用方，但不影响颜色。
+ * ACCEPT6 iconcolor（用户 2026-11-04 23:25 裁定，取代 ACCEPT5 V3 逐行配色）：图标颜色按组统一——
+ * 调用方按行（SettingGlyphSpec）传该组 kicker 色 [tint]，不传时回退墨色；
+ * tone 参数保留以兼容调用方，但不影响颜色。
  */
 @Composable
 internal fun SettingsIconTile(icon: ImageVector, @Suppress("UNUSED_PARAMETER") tone: SettingsTileTone, tint: Color? = null) {

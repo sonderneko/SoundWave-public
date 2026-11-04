@@ -83,12 +83,14 @@ internal fun LocalProfileBackupImportAction(onImported: (ProfileId) -> Unit) {
     Column(Modifier.fillMaxWidth()) {
         BackupActionRow(
             title = "导入本机资料备份", icon = xyz.cncnlp.soundwave.ui.settings.SettingsPageGlyphs.Import, subtitle = "预览新格式备份，确认后创建隔离副本",
+            iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data,
             enabled = !busy && prepared == null, onClick = {
                 try { picker.launch(arrayOf("application/json")) }
                 catch (_: Exception) { status = "无法打开系统文件选择器；本机资料未改变。" }
             })
         BackupActionRow(
             title = "复制旧本机资料", icon = xyz.cncnlp.soundwave.ui.settings.SettingsPageGlyphs.Convert, subtitle = "收藏、歌单和历史，先预览再确认创建副本",
+            iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data,
             enabled = !busy && prepared == null, onClick = { showLegacyCopyOptions = true })
         if (showLegacyCopyOptions) {
             // 对话框清扫：AlertDialog 白框改 DesignSheet 弹层；说明文案/可选域/预览链路逐字不变。

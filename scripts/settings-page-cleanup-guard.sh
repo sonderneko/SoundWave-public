@@ -162,5 +162,5 @@ require(version == "1.0.675" and 'versionName "1.0.675"' in build and
         "VERSION, Gradle versionName, and versionCode must match 1.0.675 / 675")
 require("scripts/settings-page-cleanup-guard.sh" in workflow,
         "the settings cleanup guard must run in portable quality gates")
-print("[settings-page-cleanup-guard] PASS: ACCEPT5 six-group settings, per-row colored line glyphs, pressScale-only row feedback, retained routes, flattened settings, About update retention/contact cleanup, aligned header, source background, and synchronized 1.0.675")
+print("[settings-page-cleanup-guard] PASS: ACCEPT5 six-group settings, group-unified colored line glyphs, pressScale-only row feedback, retained routes, flattened settings, About update retention/contact cleanup, aligned header, source background, and synchronized 1.0.675")
 PY

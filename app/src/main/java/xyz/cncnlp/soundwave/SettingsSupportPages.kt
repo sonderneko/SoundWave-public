@@ -129,7 +129,7 @@ fun DataFlowPage() {
                 ) {
                     Row(Modifier.fillMaxWidth().padding(vertical = 14.dp), verticalAlignment = Alignment.Top) {
                         Box(Modifier.width(30.dp).padding(top = 1.dp), contentAlignment = Alignment.CenterStart) {
-                            Icon(dataFlowIcon(title), null, tint = onBg, modifier = Modifier.size(21.dp))
+                            Icon(dataFlowIcon(title), null, tint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data, modifier = Modifier.size(21.dp))
                         }
                         Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
@@ -282,7 +282,7 @@ private fun AboutProtoRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(13.dp)
     ) {
-        xyz.cncnlp.soundwave.ui.settings.SettingsIconTile(icon, xyz.cncnlp.soundwave.ui.settings.SettingsTileTone.Neutral)
+        xyz.cncnlp.soundwave.ui.settings.SettingsIconTile(icon, xyz.cncnlp.soundwave.ui.settings.SettingsTileTone.Neutral, tint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Support)
         Column(Modifier.weight(1f)) {
             Text(title, color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, lineHeight = 19.sp, fontWeight = FontWeight.Bold, fontFamily = DesignFonts.Manrope, maxLines = 1)
             Text(subtitle, color = settingsMutedColor(), fontSize = 11.5.sp, lineHeight = 16.sp, fontFamily = DesignFonts.Manrope, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)

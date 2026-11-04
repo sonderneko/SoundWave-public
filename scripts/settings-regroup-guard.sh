@@ -44,11 +44,20 @@ require('NavRow("缓存管理"' in data_group, "cache management must stay in th
 require('NavRow("备份与恢复"' in data_group and data_group.index('NavRow("备份与恢复"') < data_group.index('NavRow("缓存管理"'),
         "backup must head the data group")
 
-# V3：逐行配色表存在且按 spec 取色；旧 role 制单色函数不得回归。
+# iconcolor（用户 2026-11-04 23:25，取代 V3 逐行配色）：颜色按组统一、取该组 kicker 色（SettingsGroupMarks）；
+# settingGlyphColor 签名保留，内部经 settingGlyphGroup 归组取色；旧 role 制单色函数与逐行色板均不得回归。
 require("internal fun settingGlyphColor(spec: SettingGlyphSpec): Color" in me,
-        "the per-spec glyph color table must exist")
+        "the per-spec glyph color entry must exist")
+require("internal fun settingGlyphGroup(spec: SettingGlyphSpec): SettingGlyphGroup" in me,
+        "the spec-to-group mapping must exist")
+require("SettingsGroupMarks.Playback" in me and "SettingsGroupMarks.Sources" in me
+        and "SettingsGroupMarks.Downloads" in me and "SettingsGroupMarks.Appearance" in me
+        and "SettingsGroupMarks.Data" in me and "SettingsGroupMarks.Support" in me,
+        "glyph colors must be keyed to all six group kicker marks")
 require("SettingsGlyphRole" not in me and "settingsGlyphColor(" not in me,
         "the retired monochrome role coloring must not return")
+for retired in ("0xFFD83F3F", "0xFF1C893C", "0xFFA150DB", "0xFFC92ACE"):
+    require(retired not in me, f"the retired per-row glyph palette must not return: {retired}")
 for key in ("frosted_bg", "frosted_tint"):
     require(f'"{key}"' in glyphs, f"new glyph path missing from the line set: {key}")
 require('"script_direct"' not in glyphs, "the retired H3 glyph must not return to the line set")
@@ -61,5 +70,5 @@ require('"%02d".format(index + 1)' not in smart, "the smart-source page must not
 require("internal fun qualityContextLine(key: String): String" in sheets and "qualityContextLine(k)" in sheets,
         "quality options must carry bitrate/size context")
 
-print("[settings-regroup-guard] PASS: six groups in order, R2 fold + R3 graduated (row retired), download group split, V1 serials removed, V3 per-row color table, quality context lines")
+print("[settings-regroup-guard] PASS: six groups in order, R2 fold + R3 graduated (row retired), download group split, V1 serials removed, group-unified kicker-keyed glyph colors, quality context lines")
 PY

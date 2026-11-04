@@ -264,78 +264,91 @@ internal enum class SettingGlyphSpec(val glyphKey: String) {
 }
 
 /**
- * V3 逐行配色（用户 2026-11-04 裁定，取代 r658b 的全站墨色单色）：颜色钉在行（[SettingGlyphSpec]）上，
- * 搬组/调序不改色、子页行同样逐行一色、无底色。色板按色相黄金角铺开、统一相对亮度 ≈0.185，
- * 对浅底 #FAFAFA 与深底 #101210 的对比均 ≥3（图形对比带，由 SettingsNavigationGlyphTest 钉住）。
+ * ACCEPT6 iconcolor（用户 2026-11-04 23:25 裁定，取代 ACCEPT5 V3 逐行配色）：设置图标颜色按组统一——
+ * 每组只用该组英文副标题（kicker）的颜色，即 [SettingsGroupMarks] 组色（与组头眉题同色），一组一色；
+ * 主页行与子页行同规、无底色。归组见 [settingGlyphGroup]：主页 spec 归其行所在组，子页 spec 归其
+ * 入口行所在组；声明未用的 spec 按名义归组（全枚举覆盖由 when 穷尽性保证）。
  */
-internal fun settingGlyphColor(spec: SettingGlyphSpec): Color = when (spec) {
-    SettingGlyphSpec.AutoPlay -> Color(0xFFD83F3F)
-    SettingGlyphSpec.OnlineQuality -> Color(0xFF1C893C)
-    SettingGlyphSpec.StreamDetail -> Color(0xFFA150DB)
-    SettingGlyphSpec.Prefetch -> Color(0xFF85781B)
-    SettingGlyphSpec.PrefetchToggle -> Color(0xFF1F8296)
-    SettingGlyphSpec.PrefetchCount -> Color(0xFFD5348B)
-    SettingGlyphSpec.RequestInterval -> Color(0xFF37881C)
-    SettingGlyphSpec.SleepTimer -> Color(0xFF6D68E0)
-    SettingGlyphSpec.SleepDetail -> Color(0xFFBF5A27)
-    SettingGlyphSpec.LyricsCategory -> Color(0xFF1C875F)
-    SettingGlyphSpec.LyricsTranslation -> Color(0xFFC62CD4)
-    SettingGlyphSpec.LyricsRomanization -> Color(0xFF6A801A)
-    SettingGlyphSpec.LyricBlur -> Color(0xFF2979CA)
-    SettingGlyphSpec.LyricFontSize -> Color(0xFFD73C5C)
-    SettingGlyphSpec.LyricLineSpacing -> Color(0xFF1C8A26)
-    SettingGlyphSpec.LyricOffset -> Color(0xFF8D5CDE)
-    SettingGlyphSpec.WordHighlight -> Color(0xFF99701F)
-    SettingGlyphSpec.CurrentWordLift -> Color(0xFF1B8581)
-    SettingGlyphSpec.FloatingLyrics -> Color(0xFFD32BA9)
-    SettingGlyphSpec.UnlockFloatingLyrics -> Color(0xFF4C851B)
-    SettingGlyphSpec.FloatingLyricLines -> Color(0xFF586EDD)
-    SettingGlyphSpec.FloatingLyricFont -> Color(0xFFD54530)
-    SettingGlyphSpec.FloatingBackgroundOpacity -> Color(0xFF1C894A)
-    SettingGlyphSpec.FloatingTextOpacity -> Color(0xFFAF46D9)
-    SettingGlyphSpec.FloatingWidth -> Color(0xFF7B7B19)
-    SettingGlyphSpec.FloatingTextColor -> Color(0xFF2280A7)
-    SettingGlyphSpec.LyricFontFamily -> Color(0xFFD63879)
-    SettingGlyphSpec.Theme -> Color(0xFF29891C)
-    SettingGlyphSpec.ThemeLight -> Color(0xFF7964DF)
-    SettingGlyphSpec.ThemeNight -> Color(0xFFB06424)
-    SettingGlyphSpec.ThemeAuto -> Color(0xFF1C866C)
-    SettingGlyphSpec.FrostedBackground -> Color(0xFFD73D55)
-    SettingGlyphSpec.FrostedTint -> Color(0xFF1C8A2B)
-    SettingGlyphSpec.GlobalFont -> Color(0xFFCC2AC5)
-    SettingGlyphSpec.ReduceMotion -> Color(0xFF5F821B)
-    SettingGlyphSpec.PlayerLayout -> Color(0xFF3B75D7)
-    SettingGlyphSpec.DetailCover -> Color(0xFFD83E4A)
-    SettingGlyphSpec.BottomNavStyle -> Color(0xFF1C8933)
-    SettingGlyphSpec.MiniPlayerStyle -> Color(0xFF9955DC)
-    SettingGlyphSpec.PlaybackSpeed -> Color(0xFF8C751D)
-    SettingGlyphSpec.Crossfade -> Color(0xFF1D838D)
-    SettingGlyphSpec.SpeedDetail -> Color(0xFFD53196)
-    SettingGlyphSpec.Equalizer -> Color(0xFF3F871C)
-    SettingGlyphSpec.EqDetail -> Color(0xFF666AE0)
-    SettingGlyphSpec.AudioFocus -> Color(0xFFC85229)
-    SettingGlyphSpec.MixDetail -> Color(0xFF1C8857)
-    SettingGlyphSpec.SmartSource -> Color(0xFFBD38D6)
-    SettingGlyphSpec.ScriptCatalog -> Color(0xFF717E1A)
-    SettingGlyphSpec.CrossPlatformSearch -> Color(0xFF267CBB)
-    SettingGlyphSpec.CrossSearchDetail -> Color(0xFFD73B67)
-    SettingGlyphSpec.CredentialProtection -> Color(0xFF1C8A1D)
-    SettingGlyphSpec.DownloadsCategory -> Color(0xFF855FDE)
-    SettingGlyphSpec.DownloadQuality -> Color(0xFFA16C21)
-    SettingGlyphSpec.MultiThreadDownload -> Color(0xFF1B8579)
-    SettingGlyphSpec.SaveCover -> Color(0xFFD12BB4)
-    SettingGlyphSpec.SaveLyrics -> Color(0xFF53841B)
-    SettingGlyphSpec.DownloadFilename -> Color(0xFF4F71DB)
-    SettingGlyphSpec.OpenDownloads -> Color(0xFFD7413A)
-    SettingGlyphSpec.DownloadTasks -> Color(0xFF1C8941)
-    SettingGlyphSpec.Cache -> Color(0xFFA64DDA)
-    SettingGlyphSpec.ListeningStats -> Color(0xFF81791A)
-    SettingGlyphSpec.PlaybackHistory -> Color(0xFF20819C)
-    SettingGlyphSpec.BackupRestore -> Color(0xFFD63584)
-    SettingGlyphSpec.AccountSync -> Color(0xFF32881C)
-    SettingGlyphSpec.DataFlow -> Color(0xFF7266E0)
-    SettingGlyphSpec.CrashDiagnostics -> Color(0xFF1C8764)
-    SettingGlyphSpec.AboutApp -> Color(0xFFC92ACE)
+internal enum class SettingGlyphGroup { Playback, Sources, Downloads, Appearance, Data, Support }
+
+/** spec → 所属设置组（与主页六组同构）。 */
+internal fun settingGlyphGroup(spec: SettingGlyphSpec): SettingGlyphGroup = when (spec) {
+    SettingGlyphSpec.AutoPlay,
+    SettingGlyphSpec.OnlineQuality,
+    SettingGlyphSpec.PlaybackSpeed,
+    SettingGlyphSpec.Equalizer,
+    SettingGlyphSpec.AudioFocus,
+    SettingGlyphSpec.Crossfade,
+    SettingGlyphSpec.Prefetch,
+    SettingGlyphSpec.SleepTimer,
+    SettingGlyphSpec.PrefetchToggle,
+    SettingGlyphSpec.PrefetchCount,
+    SettingGlyphSpec.RequestInterval,
+    SettingGlyphSpec.StreamDetail,
+    SettingGlyphSpec.SpeedDetail,
+    SettingGlyphSpec.EqDetail,
+    SettingGlyphSpec.MixDetail,
+    SettingGlyphSpec.SleepDetail -> SettingGlyphGroup.Playback
+    SettingGlyphSpec.SmartSource,
+    SettingGlyphSpec.ScriptCatalog,
+    SettingGlyphSpec.CrossPlatformSearch,
+    SettingGlyphSpec.CrossSearchDetail,
+    SettingGlyphSpec.CredentialProtection -> SettingGlyphGroup.Sources
+    SettingGlyphSpec.DownloadsCategory,
+    SettingGlyphSpec.OpenDownloads,
+    SettingGlyphSpec.DownloadQuality,
+    SettingGlyphSpec.MultiThreadDownload,
+    SettingGlyphSpec.SaveCover,
+    SettingGlyphSpec.SaveLyrics,
+    SettingGlyphSpec.DownloadFilename,
+    SettingGlyphSpec.DownloadTasks -> SettingGlyphGroup.Downloads
+    SettingGlyphSpec.Theme,
+    SettingGlyphSpec.PlayerLayout,
+    SettingGlyphSpec.DetailCover,
+    SettingGlyphSpec.BottomNavStyle,
+    SettingGlyphSpec.LyricsCategory,
+    SettingGlyphSpec.ThemeLight,
+    SettingGlyphSpec.ThemeNight,
+    SettingGlyphSpec.ThemeAuto,
+    SettingGlyphSpec.FrostedBackground,
+    SettingGlyphSpec.FrostedTint,
+    SettingGlyphSpec.GlobalFont,
+    SettingGlyphSpec.ReduceMotion,
+    SettingGlyphSpec.LyricsTranslation,
+    SettingGlyphSpec.LyricsRomanization,
+    SettingGlyphSpec.LyricFontSize,
+    SettingGlyphSpec.LyricLineSpacing,
+    SettingGlyphSpec.LyricBlur,
+    SettingGlyphSpec.LyricOffset,
+    SettingGlyphSpec.WordHighlight,
+    SettingGlyphSpec.CurrentWordLift,
+    SettingGlyphSpec.LyricFontFamily,
+    SettingGlyphSpec.FloatingLyrics,
+    SettingGlyphSpec.UnlockFloatingLyrics,
+    SettingGlyphSpec.FloatingLyricLines,
+    SettingGlyphSpec.FloatingLyricFont,
+    SettingGlyphSpec.FloatingBackgroundOpacity,
+    SettingGlyphSpec.FloatingTextOpacity,
+    SettingGlyphSpec.FloatingWidth,
+    SettingGlyphSpec.FloatingTextColor,
+    SettingGlyphSpec.MiniPlayerStyle -> SettingGlyphGroup.Appearance
+    SettingGlyphSpec.BackupRestore,
+    SettingGlyphSpec.Cache,
+    SettingGlyphSpec.ListeningStats,
+    SettingGlyphSpec.PlaybackHistory,
+    SettingGlyphSpec.DataFlow,
+    SettingGlyphSpec.AccountSync -> SettingGlyphGroup.Data
+    SettingGlyphSpec.CrashDiagnostics,
+    SettingGlyphSpec.AboutApp -> SettingGlyphGroup.Support
+}
+
+internal fun settingGlyphColor(spec: SettingGlyphSpec): Color = when (settingGlyphGroup(spec)) {
+    SettingGlyphGroup.Playback -> SettingsGroupMarks.Playback
+    SettingGlyphGroup.Sources -> SettingsGroupMarks.Sources
+    SettingGlyphGroup.Downloads -> SettingsGroupMarks.Downloads
+    SettingGlyphGroup.Appearance -> SettingsGroupMarks.Appearance
+    SettingGlyphGroup.Data -> SettingsGroupMarks.Data
+    SettingGlyphGroup.Support -> SettingsGroupMarks.Support
 }
 
 /** accept5-listencard：独立听歌卡的后台快照（三件套一次 IO 读齐的结果）。 */

@@ -567,12 +567,14 @@ fun BackupRestorePage(
                     title = "导出备份",
                     subtitle = "生成 JSON 备份文件并通过系统分享保存",
                     icon = SettingsPageGlyphs.Export,
+                    iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data,
                     onClick = { export() }
                 )
                 BackupActionRow(
                     title = "导入备份",
                     subtitle = "先预览备份内容，确认后才替换本机数据",
                     icon = SettingsPageGlyphs.Import,
+                    iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data,
                     onClick = { pick.launch("application/json") }
                 )
                 PendingInactiveRollbacks()
@@ -594,6 +596,7 @@ fun BackupRestorePage(
                     title = "WebDAV 登录同步",
                     subtitle = "本机资料独立 v2 文件；自动同步需单独开启，仅本次应用会话有效；重启后需重新开启",
                     icon = SettingsPageGlyphs.Server,
+                    iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data,
                     onClick = { showWebDavSheet = true }
                 )
                 SettingsDetailRow(
@@ -604,6 +607,7 @@ fun BackupRestorePage(
                         else -> "自动同步授权仅本次应用会话有效，重启后需重新开启；仅前台恢复或本机变化时触发，没有定时后台同步。"
                     },
                     icon = SettingsPageGlyphs.Server,
+                    iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data,
                     enabled = autoEnabled || autoCanEnable,
                     trailing = {
                         SettingsSwitch(
@@ -745,6 +749,8 @@ internal fun BackupActionRow(
     subtitle: String? = null,
     showDivider: Boolean = true,
     enabled: Boolean = true,
+    // ACCEPT6 iconcolor（用户 2026-11-04 23:25）：设置深层页行首图标按组统一色；Unspecified = 原墨色回退。
+    iconTint: Color = Color.Unspecified,
     onClick: () -> Unit
 ) {
     // r656：备份页操作行与设置详情行同语言——左侧线性图标、13sp 粗标题、9.5sp 说明、右 chevron、底部 1dp 线；整行可点（≥48dp）。
@@ -769,7 +775,7 @@ internal fun BackupActionRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(Modifier.width(30.dp), contentAlignment = Alignment.CenterStart) {
-                Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(21.dp))
+                Icon(icon, contentDescription = null, tint = if (iconTint == Color.Unspecified) ink else iconTint, modifier = Modifier.size(21.dp))
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {

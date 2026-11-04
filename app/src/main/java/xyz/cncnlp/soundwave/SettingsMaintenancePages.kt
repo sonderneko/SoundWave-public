@@ -189,12 +189,12 @@ fun CacheManagePage(
         item { SettingsPageSection("缓存策略") }
         item { SettingsHairline() }
         item {
-            SettingsDetailRow("缓存上限", "超过上限后清理较早内容；正在播放的文件不会被淘汰", icon = SettingsPageGlyphs.Limit, onClick = { showLimitPicker = true }) {
+            SettingsDetailRow("缓存上限", "超过上限后清理较早内容；正在播放的文件不会被淘汰", icon = SettingsPageGlyphs.Limit, iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data, onClick = { showLimitPicker = true }) {
                 SettingsValueChip(cacheLimitLabel(CACHE_LIMIT_OPTIONS_MB[cacheLimitIndex(max)])) { showLimitPicker = true }
             }
         }
         item {
-            SettingsDetailRow("清空播放缓存", "清空歌曲、歌词与临时缓存；保留封面与头像，正在播放的不中断", icon = SettingsPageGlyphs.Clean, onClick = { showClearConfirm = true }) {
+            SettingsDetailRow("清空播放缓存", "清空歌曲、歌词与临时缓存；保留封面与头像，正在播放的不中断", icon = SettingsPageGlyphs.Clean, iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data, onClick = { showClearConfirm = true }) {
                 // accept6-uipolish2（用户 2026-11-04 22:21）：行尾「清空」去掉浅粉底——裸文字按钮（危险红字，
                 // 与全站裸文字动作口径一致）；padding 只作点按热区，不再有底色/圆角裁剪。
                 // 普查同类：设置各页行尾浅底小钮仅此一处（区头 trailing 本就是裸字、弹层主钮为实心，均非同类）。
@@ -204,7 +204,7 @@ fun CacheManagePage(
         }
         item {
             val stats = remember(tick) { CacheManager.cacheStats(ctx) }
-            SettingsDetailRow("缓存命中", stats, icon = SettingsPageGlyphs.Pulse, showDivider = true)
+            SettingsDetailRow("缓存命中", stats, icon = SettingsPageGlyphs.Pulse, iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Data, showDivider = true)
         }
         // r657 第三轮（用户 10-18）：删除「最近缓存」歌曲列表整块（列表只有「01 master / 网易云」这类无意义条目）。
         item { SettingsPageSection("播放取链报告", trailing = "复制诊断", titleColor = SoundwaveDesignPalette.Accent, onTrailing = { // 用户 10-18：区块标题珊瑚红
@@ -393,7 +393,7 @@ fun StartupCrashPage() {
             }
         }
         item {
-            SettingsDetailRow("报告内容", "报告包含时间、版本、机型/API、线程和异常堆栈；网址参数、令牌/Cookie、歌曲 key、邮箱、设备标识和本机路径会先打码。报告只保存在本机，不会上传；最近记录可在这里查看。", icon = SettingsPageGlyphs.License)
+            SettingsDetailRow("报告内容", "报告包含时间、版本、机型/API、线程和异常堆栈；网址参数、令牌/Cookie、歌曲 key、邮箱、设备标识和本机路径会先打码。报告只保存在本机，不会上传；最近记录可在这里查看。", icon = SettingsPageGlyphs.License, iconTint = xyz.cncnlp.soundwave.ui.settings.SettingsGroupMarks.Support)
         }
         item { SettingsPageSection("最近启动崩溃", trailing = if (last.isBlank()) "正常" else "已记录") }
         item {
