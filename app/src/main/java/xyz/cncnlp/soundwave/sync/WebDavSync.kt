@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSink
 import org.json.JSONObject
 import xyz.cncnlp.soundwave.LocalStore
+import xyz.cncnlp.soundwave.ResolveBlockingStage
 import xyz.cncnlp.soundwave.ProfileId
 import xyz.cncnlp.soundwave.SecretStore
 import xyz.cncnlp.soundwave.Song
@@ -234,7 +235,9 @@ internal class OkHttpWebDavTransport(
             else -> throw IllegalArgumentException("Unsupported WebDAV method")
         }
         val call = callFactory.newCall(okhttpRequest)
-        val unregister = lease.onCancel { call.cancel() }
+        // ACCEPT6-MGCLOSE：lease 的 onCancel 回调在 lease 被取消的线程同步执行
+        // （可为主线程侧的身份切换/取消动作），关连接投递 IO scope，不内联关。
+        val unregister = lease.onCancel { ResolveBlockingStage.cancelCallAsync(call) }
         try {
             lease.ensureActive()
             return call.execute().use { response ->

@@ -65,7 +65,9 @@ object DownloadHelper {
     // decryptStream 使用 64 KiB 流式缓冲；200 MiB 是受支持加密媒体的业务解密上限。
     private const val DOWNLOAD_TIMEOUT_SECONDS = 45L
     private const val RESUME_META_SUFFIX = ".resume"
-    private val activeCalls = DownloadRequestRegistry<Call> { it.cancel() }
+    // ACCEPT6-MGCLOSE：注册表的取消回调由任务取消的发起线程执行（可为主线程侧的
+    // 调度/界面动作），关连接一律投递 ResolveBlockingStage 的 IO scope，不内联关。
+    private val activeCalls = DownloadRequestRegistry<Call> { ResolveBlockingStage.cancelCallAsync(it) }
 
     private data class RemoteObject(
         val total: Long,
@@ -670,7 +672,7 @@ object DownloadHelper {
                         }
                         val buf = ByteArray(64 * 1024)
                         while (true) {
-                            if (shouldCancel()) { call.cancel(); throw java.util.concurrent.CancellationException("下载已取消") }
+                            if (shouldCancel()) { ResolveBlockingStage.cancelCallAsync(call); throw java.util.concurrent.CancellationException("下载已取消") }
                             val n = readNetwork(call, input, buf)
                             if (n < 0) break
                             if (n == 0) continue
@@ -730,7 +732,7 @@ object DownloadHelper {
                             withCurrentTask(ctx, expectedGeneration, taskId, expectedTaskEpoch) { raf.seek(start) }
                             val buf = ByteArray(64 * 1024)
                             while (true) {
-                                if (shouldCancel()) { activeCall.cancel(); throw java.util.concurrent.CancellationException("下载已取消") }
+                                if (shouldCancel()) { ResolveBlockingStage.cancelCallAsync(activeCall); throw java.util.concurrent.CancellationException("下载已取消") }
                                 val n = readNetwork(activeCall, input, buf)
                                 if (n <= 0) break
                                 segmentRead += n

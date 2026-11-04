@@ -111,5 +111,45 @@ require('installCancellation(call) { call.cancel() }' not in transport,
 require('installCancellation(call) { cancelFetchCallAsync(call) }' in transport,
         'the script fetch transport must install the dispatched cancel action')
 
+# --- Crash addendum 2 (device evidence 2026-11-05 02:24, vivo V2453A / API 36):
+# the same NetworkOnMainThreadException family, reached through the mg direct path.
+# OfficialCallScope registers each operation's calls and its
+# invokeOnCompletion(onCancelling = true) handler runs synchronously on the thread
+# that cancels the job tree — for search that is the main thread (query edit, tab
+# switch, page exit). Its inline teardown cancelled the calls right there, a shape
+# none of the pins above covered. All transport teardown across the diff surface
+# (OfficialCallScope, the download call registry/loops, the WebDAV lease handler)
+# now dispatches to ResolveBlockingStage.cancelCallAsync (the stage IO scope);
+# the inline forms must not return, and explicit response close()/disconnect()
+# must not spread beyond the one wrapped legacy site in ApiClient.
+official_scope = (base / 'OfficialCallScope.kt').read_text()
+download_helper = (base / 'DownloadHelper.kt').read_text()
+webdav_sync = (base / 'sync/WebDavSync.kt').read_text()
+require('it.cancel()' not in official_scope and 'call.cancel()' not in official_scope,
+        'OfficialCallScope must never cancel a call inline on the cancelling thread')
+require(official_scope.count('ResolveBlockingStage.cancelCallAsync') >= 2,
+        'OfficialCallScope teardown (completion handler + execute pre-flight) must dispatch to the stage IO scope')
+require('DownloadRequestRegistry<Call> { ResolveBlockingStage.cancelCallAsync(it) }' in download_helper,
+        'the download call registry must dispatch cancels to the stage IO scope')
+require('call.cancel();' not in download_helper and 'activeCall.cancel();' not in download_helper,
+        'download loops must not cancel calls inline')
+require('lease.onCancel { call.cancel() }' not in webdav_sync,
+        'WebDAV lease handlers must not cancel calls inline')
+require('lease.onCancel { ResolveBlockingStage.cancelCallAsync(call) }' in webdav_sync,
+        'WebDAV request teardown must dispatch to the stage IO scope')
+
+disconnect_files = []
+response_close_files = []
+for kt in base.rglob('*.kt'):
+    text = kt.read_text(errors='ignore')
+    if '.disconnect()' in text:
+        disconnect_files.append(kt.name)
+    if 'response.close()' in text or '.body?.close()' in text:
+        response_close_files.append(kt.name)
+require(disconnect_files == ['ApiClient.kt'],
+        'HttpURLConnection disconnect() must stay confined to the wrapped legacy site in ApiClient')
+require(not response_close_files,
+        'responses must be consumed/closed via use{} on the executing thread, never explicit close()')
+
 print('[playback-main-thread-freeze-guard] OK')
 PY

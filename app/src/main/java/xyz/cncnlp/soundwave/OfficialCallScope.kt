@@ -22,10 +22,20 @@ internal class OfficialCallScope(private val job: Job) : AutoCloseable {
         if (cause != null) cancel()
     }
 
-    private fun cancel() = synchronized(lock) {
-        closed = true
-        calls.forEach { it.cancel() }
-        calls.clear()
+    private fun cancel() {
+        val outstanding = synchronized(lock) {
+            closed = true
+            val snapshot = calls.toList()
+            calls.clear()
+            snapshot
+        }
+        // ACCEPT6-MGCLOSE（崩溃取证 2026-11-05 02:24，mg 直连路径）：上方的
+        // invokeOnCompletion(onCancelling) handler 由取消发起线程同步执行，而 job 树的
+        // 取消发起方常在主线程（搜索切词/切页、解析顶替）——在此内联关连接会让
+        // OkHttp 在主线程同步关闭 SSLSocket（TLS 收尾写），即
+        // NetworkOnMainThreadException（ACCEPT6-FREEZE 同族，当时只覆盖播放路径）。
+        // 关连接一律投递 ResolveBlockingStage 的 IO scope，本 handler 只做簿记。
+        outstanding.forEach { ResolveBlockingStage.cancelCallAsync(it) }
     }
 
     fun ensureActive() = synchronized(lock) {
@@ -35,7 +45,8 @@ internal class OfficialCallScope(private val job: Job) : AutoCloseable {
     fun <T> execute(call: Call, consume: (Response) -> T): T {
         synchronized(lock) {
             if (closed || !job.isActive) {
-                call.cancel()
+                // 未执行过的 call 也走同一异步关停口径：本类永不内联关连接（见 cancel() 注）。
+                ResolveBlockingStage.cancelCallAsync(call)
                 throw jobCancellation()
             }
             calls.add(call)
