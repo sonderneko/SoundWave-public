@@ -39,8 +39,7 @@ require_string "$NAV" 'designScheme.onSurfaceVariant'
 require_string "$NAV" '.dockGlass(pillShape, designScheme.surface, dark, outline)'
 require_string "$NAV" '.dockGlass(CircleShape, designScheme.surface, dark, outline)'
 require_string "$NAV" '.dockGlass(androidx.compose.ui.graphics.RectangleShape, designScheme.surface, dark, Color.Transparent)'
-require_string "$NAV" '.dockGlass(CircleShape, navScheme.surface, dark, navScheme.outlineVariant)'
-require_string "$NAV" 'internal fun dockSurface(): Color = xyz.cncnlp.soundwave.ui.common.dockChromeFill(MaterialTheme.colorScheme.surface'
+# 2026-11-05 删除合同重钉（public-cleanup）：原锚定 DockedMiniChrome/SearchDockBar 的两条断言（navScheme 版 dockGlass、dockSurface 定义）随这两个零调用死代码面及其二阶死助手一并退役；活体底栏的 dockGlass 主题断言（pillShape/CircleShape/RectangleShape 三条）逐字不变。
 GLASS=app/src/main/java/xyz/cncnlp/soundwave/ui/common/Glass.kt
 require_string "$GLASS" '!dockFrosted -> false to 1f'
 require_string "$GLASS" 'const val GLASS_FALLBACK_ALPHA = 0.94f'

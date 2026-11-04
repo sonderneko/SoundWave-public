@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import xyz.cncnlp.soundwave.ui.motion.MotionTokens
 import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
@@ -57,25 +56,15 @@ import xyz.cncnlp.soundwave.ui.common.DockMetrics
 import xyz.cncnlp.soundwave.ui.common.cssShadow
 import xyz.cncnlp.soundwave.ui.common.dockGlass
 
-/** 迷你条 / 底栏 / 搜索栏统一外距与高度（三者同宽同高同边距）。 */
-// 用户要求三种底部形态整体向内收 5dp；内部 gap/圆钮尺寸不变。
-internal val DockOuterPad = 10.dp
-internal val DockMiniOuterPad = DockOuterPad
+/** 迷你条 / 底栏统一高度。 */
 internal val DockItemH = 56.dp
 internal val DockCompactMiniH = 52.dp
-internal val DockBarH = DockItemH
-internal val DockSearchBaseH = DockItemH
-internal val DockCircle = 52.dp
-internal val DockGap = 10.dp
 
 @Composable
 private fun navTint(selected: Boolean): Color {
     val colors = MaterialTheme.colorScheme
     return if (selected) colors.primary else colors.onSurfaceVariant
 }
-
-@Composable
-internal fun dockSurface(): Color = xyz.cncnlp.soundwave.ui.common.dockChromeFill(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.background.luminance() < 0.5f)
 
 /** 设计稿 v2 线性图标（i-home / i-library / i-search / i-settings，stroke 1.8）。 */
 @Composable
