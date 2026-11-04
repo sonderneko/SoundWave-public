@@ -1,12 +1,21 @@
 package xyz.cncnlp.soundwave.source.direct
 
+import java.security.MessageDigest
+import java.util.Base64
 import org.json.JSONObject
 import xyz.cncnlp.soundwave.Song
 import xyz.cncnlp.soundwave.decodeProviderText
 import xyz.cncnlp.soundwave.normalizeCoverUrl
 
-/** QQ modern anonymous search gateway; the old client_search_cp endpoint currently returns HTTP 500. */
-private const val TX_MUSICU_SEARCH_URL = "https://u.y.qq.com/cgi-bin/musicu.fcg"
+/**
+ * QQ anonymous search gateway. The SearchCgiService module now requires a zzc-signed
+ * request posted to musics.fcg: unsigned posts to the old musicu.fcg are silently
+ * emptied upstream (module code 2001, or code 0 with meta.sum 0) — live-probed
+ * 2026-11-04, see WAVE-ACCEPT6-TXSEARCH. The old client_search_cp endpoint likewise
+ * returns HTTP 200 with totalnum 0. Other musicu modules (singer list etc.) are not
+ * behind the sign gate; only this search module is.
+ */
+private const val TX_MUSICU_SEARCH_URL = "https://u.y.qq.com/cgi-bin/musics.fcg"
 private const val TX_COVER_PREFIX = "https://y.qq.com/music/photo_new/T002R800x800M000"
 private const val TX_REFERER = "https://y.qq.com/"
 private const val TX_SEARCH_TIMEOUT_MS = 8000L
@@ -50,14 +59,37 @@ internal suspend fun searchTxTypedResult(keyword: String, type: String, page: In
                 .put("method", "DoSearchForQQMusicDesktop")
                 .put("param", param),
         )
-        val raw = platformHttpPostJson(TX_MUSICU_SEARCH_URL, request.toString(), TX_REFERER, TX_SEARCH_TIMEOUT_MS)
+        val body = request.toString()
+        val raw = platformHttpPostJson("$TX_MUSICU_SEARCH_URL?sign=${txZzcSign(body)}", body, TX_REFERER, TX_SEARCH_TIMEOUT_MS)
         parseTxMusicuSearchStatus(raw, query, type, limit)
     } catch (_: Exception) {
         TxTypedSearchResult(emptyList(), available = false)
     }
 }
 
-/** Pure parser for the live musicu.fcg envelope; non-zero per-module codes are errors, not results. */
+private val TX_ZZC_PART1_INDEXES = intArrayOf(23, 14, 6, 36, 16, 40, 7, 19)
+private val TX_ZZC_PART2_INDEXES = intArrayOf(16, 1, 32, 12, 19, 27, 8, 5)
+private val TX_ZZC_SCRAMBLE = intArrayOf(89, 39, 179, 150, 218, 82, 58, 252, 177, 52, 186, 123, 120, 64, 242, 133, 143, 161, 121, 179)
+
+/**
+ * zzc request signature for the QQ search gateway, ported from the public LX Music
+ * implementation (tx/utils/crypto.js): SHA-1 of the exact request body string, hex
+ * chars picked by fixed indexes (an out-of-range index contributes nothing, matching
+ * the JS original where index 40 reads past the 40-char hex), the 20 digest bytes
+ * XORed with a fixed scramble table and base64-encoded with `/+=` stripped.
+ * Pure and deterministic so unit tests can pin vectors.
+ */
+internal fun txZzcSign(body: String): String {
+    val digest = MessageDigest.getInstance("SHA-1").digest(body.toByteArray(Charsets.UTF_8))
+    val hex = digest.joinToString("") { "%02x".format(it) }
+    val part1 = buildString { for (i in TX_ZZC_PART1_INDEXES) hex.getOrNull(i)?.let { append(it) } }
+    val part2 = buildString { for (i in TX_ZZC_PART2_INDEXES) hex.getOrNull(i)?.let { append(it) } }
+    val scrambled = ByteArray(20) { i -> (TX_ZZC_SCRAMBLE[i] xor (digest[i].toInt() and 0xFF)).toByte() }
+    val b64 = Base64.getEncoder().encodeToString(scrambled).replace("/", "").replace("+", "").replace("=", "")
+    return "zzc$part1$b64$part2".lowercase()
+}
+
+/** Pure parser for the live musics.fcg envelope; non-zero per-module codes are errors, not results. */
 internal fun parseTxMusicuSearch(raw: String, keyword: String, type: String, limit: Int = 30): List<Song> =
     parseTxMusicuSearchStatus(raw, keyword, type, limit).songs
 

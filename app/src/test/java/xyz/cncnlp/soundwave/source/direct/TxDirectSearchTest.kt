@@ -13,6 +13,18 @@ import xyz.cncnlp.soundwave.source.PlatformSourceAdapter
 class TxDirectSearchTest {
 
     @Test
+    fun `zzc sign matches reference vectors`() {
+        // Vectors cross-checked against the reference (LX) algorithm implementation.
+        assertEquals("zzc656dbd9mmno0ruwk4fjzu9d8zrdsjjpeub1469c9b", txZzcSign("soundwave"))
+        assertEquals("zzcf0e03e5gx4qeiq5cfgdyqwu7sdqfsb5fro3aa45053", txZzcSign(""))
+        assertEquals("zzc7746109xq501htmv4ipz7c8owlxfpihjm1fd695c7", txZzcSign("{\"a\":1}"))
+        // Deterministic and body-sensitive: the gateway rejects unsigned/mismatched bodies.
+        assertEquals(txZzcSign("周杰伦"), txZzcSign("周杰伦"))
+        assertTrue(txZzcSign("周杰伦") != txZzcSign("周杰伦 "))
+        assertTrue(txZzcSign("周杰伦").startsWith("zzc"))
+    }
+
+    @Test
     fun `parses client_search list with songmid and album cover build`() {
         val raw = """
         {"data":{"song":{"list":[
