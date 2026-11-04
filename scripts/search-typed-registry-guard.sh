@@ -1257,7 +1257,14 @@ adapter_baseline = git_show(adapter_path)
 # Public-repo port (2026-11-05): matrix content at the old pin bea4a4d2 is
 # byte-for-byte identical to the snapshot tree's matrix, so per the
 # guard-final pin convention the pin advances to the snapshot commit.
-matrix_baseline = git_show_ref('e0b2d0bf282113069df42b6c3a7ddedad6c6a356', matrix_path)
+# guard-final (public cleanup C-decisions): the matrix's two Source-section
+# paragraphs no longer reference source/DESIGN.md (archived locally, then
+# deleted per user ruling); the progressive-migration constraints and the
+# historical-snapshot note are restated as current text, facts unchanged.
+# Re-register the pin to the matrix-rewording commit, whose matrix blob is
+# byte-identical to the current file. Strictness unchanged: the check stays
+# byte-for-byte against a fixed commit.
+matrix_baseline = git_show_ref('ca36b8f544612bc02a3423a955f2992a4e000fbf', matrix_path)
 matrix_552 = git_show_ref(baseline_552, matrix_path)
 matrix_551 = git_show_ref(baseline_551, matrix_path)
 home_matrix_prefixes = (
