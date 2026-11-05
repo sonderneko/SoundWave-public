@@ -322,7 +322,7 @@ fun SearchPage(
                         keyboardController?.hide()
                         doSearch()
                     }, contentAlignment = Alignment.Center) {
-                        Icon(DesignLineGlyphs.Search, contentDescription = "开始搜索", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(17.dp))
+                        Icon(DesignLineGlyphs.Search, contentDescription = "开始搜索", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))
                     }
                     Spacer(Modifier.width(6.dp))
                 }
@@ -584,7 +584,7 @@ fun SearchPage(
                                     .clickable(enabled = !recommendationLoading) { onRefreshRecommendations() },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Outlined.Refresh, contentDescription = "换一组推荐歌曲", tint = onBg, modifier = Modifier.size(17.dp))
+                                Icon(Icons.Outlined.Refresh, contentDescription = "换一组推荐歌曲", tint = onBg, modifier = Modifier.size(18.dp))
                             }
                         }
                         if (suggestedSongs.isNotEmpty()) {

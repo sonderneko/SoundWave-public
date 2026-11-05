@@ -59,7 +59,6 @@ object DesignLineGlyphs {
     val Phone: ImageVector by lazy { line("sw_i-phone", "M8.0 2.0h8.0a2.0 2.0 0 0 1 2.0 2.0v16.0a2.0 2.0 0 0 1 -2.0 2.0h-8.0a2.0 2.0 0 0 1 -2.0 -2.0v-16.0a2.0 2.0 0 0 1 2.0 -2.0z", "M10 18h4") }
     val Down: ImageVector by lazy { line("sw_i-down", "m6 9 6 6 6-6") }
     val Lyrics: ImageVector by lazy { line("sw_i-lyrics", "M6 5h12M6 9h9M6 13h12M6 17h7") }
-    val Airplay: ImageVector by lazy { line("sw_i-airplay", "M5.0 4.0h14.0a2.0 2.0 0 0 1 2.0 2.0v8.0a2.0 2.0 0 0 1 -2.0 2.0h-14.0a2.0 2.0 0 0 1 -2.0 -2.0v-8.0a2.0 2.0 0 0 1 2.0 -2.0z", "m8 21 4-4 4 4") }
     val Comment: ImageVector by lazy { line("sw_i-comment", "M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z", "M8.5 9.2h2.4v2.2c0 1.6-.7 2.5-2.1 3M14 9.2h2.4v2.2c0 1.6-.7 2.5-2.1 3") }
     val DeviceBuds: ImageVector by lazy { line("sw_i-device-buds", "M7.5 4.5c-2.3 0-4 1.7-4 4 0 2.1 1.4 3.6 3.3 3.9v6.1a1.5 1.5 0 0 0 3 0v-9c0-2.8-.8-5-2.3-5zM16.5 4.5c2.3 0 4 1.7 4 4 0 2.1-1.4 3.6-3.3 3.9v6.1a1.5 1.5 0 0 1-3 0v-9c0-2.8.8-5 2.3-5z", "M5.4 7.5c.8.8 1.6 1.1 2.6 1.2M18.6 7.5c-.8.8-1.6 1.1-2.6 1.2") }
     val QueueMusic: ImageVector by lazy { line("sw_i-queue-music", "M4 6h10M4 11h10M4 16h7", "M17 8v8.2a2.3 2.3 0 1 1-1.7-2.2L21 13V6z") }

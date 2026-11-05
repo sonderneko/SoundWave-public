@@ -1068,7 +1068,7 @@ private fun HistoryWeekCard(history: List<Song>, nowMillis: Long, modifier: Modi
                 .semantics { contentDescription = "播放本周历史" },
             contentAlignment = Alignment.Center
         ) {
-            Icon(xyz.cncnlp.soundwave.ui.common.DesignGlyphs.PlayTriangle, null, tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs.PlaySolid, null, tint = Color.White, modifier = Modifier.size(20.dp))
         }
     }
 }

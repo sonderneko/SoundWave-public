@@ -75,14 +75,14 @@ internal object DefaultPlayerGlyphs {
     val AirPlay by lazy {
         ImageVector.Builder("dp_airplay", 24.dp, 24.dp, 24f, 24f).apply {
             listOf("M5.6 16.4A8.2 8.2 0 1 1 18.4 16.4", "M8.6 13.9A4.4 4.4 0 1 1 15.4 13.9").forEach { d ->
-                addPath(pathData = addPathNodes(d), fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = 1.9f,
+                addPath(pathData = addPathNodes(d), fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = 1.8f,
                     strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round)
             }
             addPath(pathData = addPathNodes(circle(12f, 10.6f, 1.7f)), fill = SolidColor(Color.Black))
             addPath(pathData = addPathNodes("M11.1 14.3a1.1 1.1 0 0 1 1.8 0l3.9 5.6a.9.9 0 0 1-.74 1.4H7.94a.9.9 0 0 1-.74-1.4z"), fill = SolidColor(Color.Black))
         }.build()
     }
-    val ChevronRight by lazy { stroke("dp_chev_right", "m9.5 6 6 6-6 6", width = 2f) }
+    val ChevronRight by lazy { stroke("dp_chev_right", "m9.5 6 6 6-6 6", width = 1.8f) }
     val Lyrics by lazy { stroke("dp_lyrics", "M4 6h11M4 10.5h16M4 15h9", "M17 15.5v4M15 17.5h4") }
     val Quote by lazy { stroke("dp_quote", "M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z", "M8.5 9.5v2.5M12 9.5v2.5M15.5 9.5v2.5") }
     val Queue by lazy { stroke("dp_queue", "M4 6h12M4 11h12M4 16h7", "M17 13v7", "M17 20a2 2 0 1 1-2-2h2") }
@@ -112,6 +112,59 @@ internal object DefaultPlayerGlyphs {
     val Plus by lazy { stroke("dp_plus", "M12 6v12M6 12h12") }
 
     private const val HEART = "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.3l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0 0-7.8z"
+
+    // ── PB-B5（第 2 波）：原 512×512 PNG 线稿 ic_player_action_* 沿原稿几何重绘的矢量版 ──
+    /**
+     * 沉浸歌词：对话气泡轮廓（左下尾巴）+ 两个实心引号逗点。沿原 PNG 几何：
+     * 气泡体 x 1.7–22.3 / y 2.2–17、尾巴尖 (7.2,22.5)；逗点头圆心 (8.3,8.9)/(14.45,8.9) r2.55 + 下扫尾。
+     */
+    val ImmersiveLyrics by lazy {
+        ImageVector.Builder("dp_immersive_lyrics", 24.dp, 24.dp, 24f, 24f).apply {
+            addPath(
+                pathData = addPathNodes("M5 2.2h14a3.3 3.3 0 0 1 3.3 3.3v8.2a3.3 3.3 0 0 1-3.3 3.3H9.9L7.2 22.5a.5.5 0 0 1-.9-.4V17H5a3.3 3.3 0 0 1-3.3-3.3V5.5A3.3 3.3 0 0 1 5 2.2z"),
+                fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round
+            )
+            listOf(
+                "M5.75 8.9a2.55 2.55 0 1 0 5.1 0a2.55 2.55 0 1 0-5.1 0z",
+                "M6.3 10.4Q6.15 12.8 7.7 13Q9.2 13.1 9.3 10.8Q8.4 11.2 7.4 10.95Q6.5 10.75 6.3 10.4Z",
+                "M11.9 8.9a2.55 2.55 0 1 0 5.1 0a2.55 2.55 0 1 0-5.1 0z",
+                "M12.45 10.4Q12.3 12.8 13.85 13Q15.35 13.1 15.45 10.8Q14.55 11.2 13.55 10.95Q12.65 10.75 12.45 10.4Z"
+            ).forEach { d -> addPath(pathData = addPathNodes(d), fill = SolidColor(Color.Black)) }
+        }.build()
+    }
+    /**
+     * 播放队列：三条横线 + 右侧音符（实心圆环符头 + 竖茎）。沿原 PNG 几何：
+     * 横线 y 4.7 / 12 / 19.3（首线至 x16.2、后两线至 x12.2）；符头圆心 (17.6,15.05) 外 r3.45 / 孔 r1.85；茎 x 19.7–22.1、顶 y3.75。
+     */
+    val PlayQueue by lazy {
+        ImageVector.Builder("dp_play_queue", 24.dp, 24.dp, 24f, 24f).apply {
+            addPath(
+                pathData = addPathNodes("M2.8 4.7h12.5M2.8 12h8.5M2.8 19.3h8.5"),
+                fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round
+            )
+            addPath(pathData = addPathNodes("M19.7 16V4.7a.95.95 0 0 1 .95-.95h1.45V16z"), fill = SolidColor(Color.Black))
+            addPath(
+                pathData = addPathNodes("M14.15 15.05a3.45 3.45 0 1 0 6.9 0a3.45 3.45 0 1 0-6.9 0zM15.75 15.05a1.85 1.85 0 1 0 3.7 0a1.85 1.85 0 1 0-3.7 0z"),
+                fill = SolidColor(Color.Black), pathFillType = androidx.compose.ui.graphics.PathFillType.EvenOdd
+            )
+        }.build()
+    }
+    /**
+     * 播放设备：一对无线耳机（左右镜像的芽形头 + 茎 + 两枚传感槽）。沿原 PNG 几何：
+     * 左芽 x 0.7–10.8 / y 2.9–13.5、茎 x 6.6–10.05 斜顶至 y21.2，右芽镜像；传感槽以 1.8 圆头短线描原黑槽走向。
+     */
+    val PlaybackDevice by lazy {
+        stroke(
+            "dp_playback_device",
+            "M6 2.9c2.7-.2 4.7 1.9 4.8 4.5.1 3.1-2 5.8-4.7 6.1C3.4 12.9 1.2 11.3.7 9.2.2 6.9 2.9 3.2 6 2.9z",
+            "M18 2.9c-2.7-.2-4.7 1.9-4.8 4.5-.1 3.1 2 5.8 4.7 6.1C20.6 12.9 22.8 11.3 23.3 9.2 23.8 6.9 21.1 3.2 18 2.9z",
+            "M6.6 13.4l3.45-1.9v8.3a1.4 1.4 0 0 1-1.4 1.4H8a1.4 1.4 0 0 1-1.4-1.4z",
+            "M17.4 13.4L13.95 11.5v8.3a1.4 1.4 0 0 0 1.4 1.4H16a1.4 1.4 0 0 0 1.4-1.4z",
+            "M7.05 8.05l.9-1.2M2.35 11.15l.9-1.2M16.05 6.85l.9 1.2M20.75 9.95l.9 1.2"
+        )
+    }
 
     fun playMode(mode: PlayMode): ImageVector = when (mode) {
         PlayMode.SEQUENCE -> Repeat

@@ -300,7 +300,7 @@ internal fun LibraryFavoritesSleeveCard(
                 ) {
                     AnimatedContent(pillOn, transitionSpec = { fadeIn(tween(160)) togetherWith fadeOut(tween(160)) }, label = "sleevePlay") { on ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(if (on) FavPillGlyphs.Pause else FavPillGlyphs.Play, null, tint = Color.White, modifier = Modifier.size(13.dp))
+                            Icon(if (on) FavPillGlyphs.Pause else FavPillGlyphs.Play, null, tint = Color.White, modifier = Modifier.size(12.dp))
                             Spacer(Modifier.width(5.dp))
                             Text(if (on) "暂停" else "播放", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope, maxLines = 1, softWrap = false)
                         }
@@ -316,7 +316,7 @@ internal fun LibraryFavoritesSleeveCard(
                         .clickable(enabled = enabled, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onShuffle)
                         .semantics { contentDescription = "随机播放$title"; role = Role.Button },
                     contentAlignment = Alignment.Center
-                ) { Icon(xyz.cncnlp.soundwave.ui.player.DefaultPlayerGlyphs.Shuffle, null, tint = colors.onSurface, modifier = Modifier.size(17.dp)) }
+                ) { Icon(xyz.cncnlp.soundwave.ui.player.DefaultPlayerGlyphs.Shuffle, null, tint = colors.onSurface, modifier = Modifier.size(18.dp)) }
             }
         }
     }
@@ -436,7 +436,7 @@ internal fun ScanningGlyph(tint: Color, reduceMotion: Boolean, modifier: Modifie
     }
 }
 
-/** 原型扫描图标（icons.js `scan`，24 栅格、1.75 描边、圆端点）：四个圆角取景框角 + 中横线。r657 第三轮按原型路径重做。 */
+/** 原型扫描图标（icons.js `scan`，24 栅格、1.8 描边、圆端点）：四个圆角取景框角 + 中横线。r657 第三轮按原型路径重做。 */
 internal val ScanFrameVector: androidx.compose.ui.graphics.vector.ImageVector by lazy {
     androidx.compose.ui.graphics.vector.ImageVector.Builder("sw_scan", 24.dp, 24.dp, 24f, 24f).apply {
         listOf(
@@ -445,7 +445,7 @@ internal val ScanFrameVector: androidx.compose.ui.graphics.vector.ImageVector by
         ).forEach { d ->
             addPath(
                 pathData = androidx.compose.ui.graphics.vector.addPathNodes(d), fill = null,
-                stroke = androidx.compose.ui.graphics.SolidColor(Color.Black), strokeLineWidth = 1.75f,
+                stroke = androidx.compose.ui.graphics.SolidColor(Color.Black), strokeLineWidth = 1.8f,
                 strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round, strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round
             )
         }

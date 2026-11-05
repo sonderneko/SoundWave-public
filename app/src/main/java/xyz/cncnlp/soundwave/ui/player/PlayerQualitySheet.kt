@@ -124,7 +124,7 @@ private fun PlayerQualityOption(label: String, tag: String, selected: Boolean, m
         Text(tag, color = colors.onSurfaceVariant, fontSize = 10.sp, lineHeight = 13.sp, fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, letterSpacing = 0.1.em, maxLines = 1, modifier = Modifier.weight(1f))
         if (selected) {
             androidx.compose.foundation.layout.Box(Modifier.size(18.dp).clip(androidx.compose.foundation.shape.CircleShape).background(accent), contentAlignment = Alignment.Center) {
-                Icon(DesignLineGlyphs.Check, null, tint = Color.White, modifier = Modifier.size(11.dp))
+                Icon(DesignLineGlyphs.Check, null, tint = Color.White, modifier = Modifier.size(12.dp))
             }
         } else {
             androidx.compose.foundation.layout.Box(Modifier.size(18.dp).border(1.5.dp, designLineColor(), androidx.compose.foundation.shape.CircleShape))

@@ -83,7 +83,7 @@ class Batch8PlayerControlsTest {
  @Test fun reducedMotionBottomActionDoesNotScale(){
   MotionPolicy.setAppReduceMotion(rule.activity,true)
   rule.setContent{SoundwaveDesignTheme(isDark=true){Box(Modifier.fillMaxSize().background(Color.Black).padding(60.dp)){
-   AppleMusicBottomAction(xyz.cncnlp.soundwave.R.drawable.ic_player_action_play_queue,"队列",selected=true,onClick={})
+   AppleMusicBottomAction(xyz.cncnlp.soundwave.ui.player.DefaultPlayerGlyphs.PlayQueue,"队列",selected=true,onClick={})
   }}}
   rule.mainClock.autoAdvance=false
   val before=bitmap();save(before,"reduce-before-press")

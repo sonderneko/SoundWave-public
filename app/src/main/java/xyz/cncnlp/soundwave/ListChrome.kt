@@ -159,7 +159,7 @@ internal fun SpaceCompressedStateCard(
             ) {
                 androidx.compose.material3.Icon(
                     Icons.Outlined.MusicNote, null,
-                    tint = SoundwaveDesignPalette.Accent, modifier = Modifier.size(26.dp)
+                    tint = SoundwaveDesignPalette.Accent, modifier = Modifier.size(24.dp)
                 )
             }
             SpaceCompressedState.Empty -> Box(

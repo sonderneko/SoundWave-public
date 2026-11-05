@@ -144,7 +144,7 @@ fun SettingsOptionTile(option: SettingsSheetOption, selected: Boolean, modifier:
         }
         if (selected) Icon(
             DesignLineGlyphs.Check, null, tint = accent,
-            modifier = Modifier.padding(start = 4.dp).size(17.dp)
+            modifier = Modifier.padding(start = 4.dp).size(18.dp)
                 .particleBurst(burst, accent, accent.copy(alpha = 0.55f), count = 8, radius = 22.dp, particleSize = 2.dp, behind = false)
                 .graphicsLayer { scaleX = checkScale.value; scaleY = checkScale.value }
         )

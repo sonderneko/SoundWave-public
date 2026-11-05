@@ -20,11 +20,11 @@ def require(condition: bool, message: str) -> None:
 # PB-B1 icon spec (DesignScale.kt IconSpec): the only baseline stroke for
 # self-drawn glyphs is 1.8 (Round cap/join). Two solid-button variants are
 # filed as documented exceptions in the spec text; the remaining off-baseline
-# values are pre-existing stock that PB-B3 (wave 2) will normalise to 1.8 --
-# they are held in a ratchet list keyed by (file, value) with a max count, so
-# the current tree passes but no new off-baseline stroke may appear and no
-# ratcheted value may multiply. Removing a ratcheted value is always fine;
-# when PB-B3 lands a fix, delete its ratchet entry in the same change.
+# values were pre-existing stock that PB-B3 (wave 2) normalised to 1.8; the
+# ratchet list is empty now, so any off-baseline stroke outside the two
+# documented exceptions fails. (Ratchet mechanics are kept for future stock:
+# entries are keyed by (file, value) with a max count; removing one is always
+# fine, and a fix must delete its ratchet entry in the same change.)
 BASELINE = 1.8
 
 # Documented exceptions (spec-filed, location-bound).
@@ -35,16 +35,11 @@ EXCEPTIONS = {
     ('app/src/main/java/xyz/cncnlp/soundwave/ui/common/DesignChromeGlyphs.kt', 1.0): 1,
 }
 
-# Ratchet: pre-existing stock pending PB-B3 normalisation (not exceptions).
-RATCHET = {
-    ('app/src/main/java/xyz/cncnlp/soundwave/ui/common/DesignGlyphs.kt', 1.6): 1,        # PlayTriangleSoft
-    ('app/src/main/java/xyz/cncnlp/soundwave/LibrarySleeveCards.kt', 1.75): 1,           # sw_scan
-    ('app/src/main/java/xyz/cncnlp/soundwave/ui/home/HomeChartDesign.kt', 1.75): 1,      # sw_pswap
-    ('app/src/main/java/xyz/cncnlp/soundwave/ui/player/DefaultPlayerGlyphs.kt', 1.9): 1,  # AirPlay
-    ('app/src/main/java/xyz/cncnlp/soundwave/ui/player/DefaultPlayerGlyphs.kt', 2.0): 1,  # ChevronRight
-    ('app/src/main/res/drawable/ic_stat_wave.xml', 2.02): 1,
-    ('app/src/main/res/drawable/ic_stat_wave.xml', 1.28): 1,
-}
+# Ratchet: pre-existing stock pending normalisation (not exceptions).
+# PB-B3 (wave 2) normalised every ratcheted value to 1.8 and the entries were
+# deleted in the same change; the list is empty by design now -- any new
+# off-baseline stroke fails.
+RATCHET = {}
 
 ALLOWLIST = dict(EXCEPTIONS)
 ALLOWLIST.update(RATCHET)

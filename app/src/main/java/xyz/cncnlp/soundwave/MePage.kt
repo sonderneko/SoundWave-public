@@ -789,7 +789,7 @@ fun MePage(
 
     @Composable
     fun ThemeCheck(on: Boolean) {
-        if (on) Icon(DesignLineGlyphs.Check, "当前主题", tint = SoundwaveDesignPalette.Accent, modifier = Modifier.size(19.dp))
+        if (on) Icon(DesignLineGlyphs.Check, "当前主题", tint = SoundwaveDesignPalette.Accent, modifier = Modifier.size(20.dp))
         else Spacer(Modifier.size(19.dp))
     }
 
@@ -927,7 +927,7 @@ fun MePage(
                         Box(
                             Modifier.size(36.dp).clip(CircleShape).background(cardInk.copy(alpha = 0.10f)).border(1.dp, cardInk.copy(alpha = 0.24f), CircleShape),
                             contentAlignment = Alignment.Center
-                        ) { Icon(Icons.Filled.KeyboardArrowRight, "资料详情", tint = cardInk, modifier = Modifier.size(17.dp)) }
+                        ) { Icon(Icons.Filled.KeyboardArrowRight, "资料详情", tint = cardInk, modifier = Modifier.size(18.dp)) }
                     } else {
                         Box(
                             Modifier.height(32.dp)

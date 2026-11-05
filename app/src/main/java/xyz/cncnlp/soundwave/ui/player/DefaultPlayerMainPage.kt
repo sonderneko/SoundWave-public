@@ -327,7 +327,7 @@ private fun DefaultPlayerCoverLabel(state: DefaultPlayerState, colors: DefaultPl
             label.startsWith("来自 ") -> label.removePrefix("来自 ")
             else -> label
         }
-        if (heart) Icon(DefaultPlayerGlyphs.Sparkle, null, Modifier.size(13.dp), tint = Color.White)
+        if (heart) Icon(DefaultPlayerGlyphs.Sparkle, null, Modifier.size(12.dp), tint = Color.White)
         else if (label.startsWith("来自 ")) Text("来自", color = Color.White.copy(alpha = 0.72f), fontSize = 9.5.sp, lineHeight = 10.sp,
             letterSpacing = 0.1.em, fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, maxLines = 1)
         Text(body, color = Color.White, fontSize = 11.5.sp, lineHeight = 12.sp, fontWeight = FontWeight.Bold,

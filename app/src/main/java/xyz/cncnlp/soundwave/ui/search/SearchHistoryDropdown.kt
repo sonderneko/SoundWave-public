@@ -121,7 +121,7 @@ internal fun SearchHistoryDropdown(
                             .semantics { contentDescription = "删除搜索记录：$h"; role = Role.Button },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(DesignLineGlyphs.X, null, tint = muted, modifier = Modifier.size(14.dp))
+                        Icon(DesignLineGlyphs.X, null, tint = muted, modifier = Modifier.size(16.dp))
                     }
                 }
               }

@@ -92,7 +92,7 @@ private fun DesignQuickTileItem(tile: DesignQuickTile, modifier: Modifier) {
                 dangerActive -> SoundwaveDanger
                 tile.active -> QuickCoral
                 else -> colors.onSurface
-            }, modifier = Modifier.size(22.dp))
+            }, modifier = Modifier.size(21.dp))
         }
         Spacer(Modifier.height(8.dp))
         Text(

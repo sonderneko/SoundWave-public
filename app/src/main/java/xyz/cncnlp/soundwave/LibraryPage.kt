@@ -277,7 +277,7 @@ private fun DetailCoverActions(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs.PlaySolid, "播放全部", tint = buttonForeground, modifier = Modifier.size(17.dp))
+            Icon(xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs.PlaySolid, "播放全部", tint = buttonForeground, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
             Text("播放全部", color = buttonForeground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
@@ -287,7 +287,7 @@ private fun DetailCoverActions(
                 if (favorited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                 if (favorited) "取消收藏歌单" else "收藏歌单",
                 tint = secondaryForeground,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(21.dp)
             )
         }
     }
@@ -783,7 +783,7 @@ fun LibraryPage(
                             }
                         }
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = toolTint, modifier = Modifier.size(22.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = toolTint, modifier = Modifier.size(21.dp))
                     }
                     if (showPlSearch) {
                         Row(
@@ -1277,7 +1277,7 @@ fun LibraryPage(
                                             horizontalArrangement = Arrangement.Center,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Icon(Icons.Filled.Shuffle, "随机播放", tint = sequenceColor, modifier = Modifier.size(19.dp))
+                                            Icon(Icons.Filled.Shuffle, "随机播放", tint = sequenceColor, modifier = Modifier.size(20.dp))
                                             Spacer(Modifier.width(4.dp))
                                             Text("随机播放", color = sequenceColor, fontSize = if (editorialDetailStyle) 12.sp else 14.sp, fontWeight = FontWeight.SemiBold)
                                         }

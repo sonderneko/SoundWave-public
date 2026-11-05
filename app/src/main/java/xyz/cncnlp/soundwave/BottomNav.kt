@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.lerp
 import xyz.cncnlp.soundwave.ui.motion.MotionTokens
-import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
+import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
 import xyz.cncnlp.soundwave.ui.common.DockMetrics
 import xyz.cncnlp.soundwave.ui.common.cssShadow
@@ -69,10 +69,10 @@ internal fun NavGlyph(
     exposeDescription: Boolean = true
 ) {
     val glyph = when (tab) {
-        Tab.HOME -> DesignChromeGlyphs.Home
-        Tab.PLAYLISTS -> DesignChromeGlyphs.Library
-        Tab.SEARCH -> DesignChromeGlyphs.Search
-        else -> DesignChromeGlyphs.Settings
+        Tab.HOME -> DesignLineGlyphs.Home
+        Tab.PLAYLISTS -> DesignLineGlyphs.Library
+        Tab.SEARCH -> DesignLineGlyphs.Search
+        else -> DesignLineGlyphs.Settings
     }
     val desc = when (tab) {
         Tab.HOME -> "首页"

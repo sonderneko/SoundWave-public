@@ -21,7 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
+import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
 
 /**
@@ -39,7 +39,7 @@ internal fun CoverPlayCountPill(playCount: Long, modifier: Modifier = Modifier) 
             .semantics { contentDescription = "播放量 $plays" },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(DesignChromeGlyphs.Headphones, null, tint = Color.White, modifier = Modifier.size(12.dp))
+        Icon(DesignLineGlyphs.Headphones, null, tint = Color.White, modifier = Modifier.size(12.dp))
         Spacer(Modifier.width(3.dp))
         Text(plays, color = Color.White, fontSize = 10.sp, lineHeight = 12.sp, fontFamily = DesignFonts.DmMono, fontWeight = FontWeight.Medium, maxLines = 1)
     }

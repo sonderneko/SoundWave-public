@@ -228,7 +228,7 @@ internal fun ChartHeroCard(
             }
         }
         Row(Modifier.align(Alignment.BottomStart).padding(start = 20.dp, bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (onPlayAll != null) ChartHeroPill("播放全部", xyz.cncnlp.soundwave.ui.common.DesignGlyphs.PlayTriangle, glass = false, accent = accent, onClick = onPlayAll)
+            if (onPlayAll != null) ChartHeroPill("播放全部", xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs.PlaySolid, glass = false, accent = accent, onClick = onPlayAll)
             if (onShuffle != null) ChartHeroPill("随机播放", xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs.Shuffle, glass = true, accent = accent, onClick = onShuffle)
         }
         Box(Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 10.dp)) {
@@ -272,13 +272,13 @@ internal val ChartHeroCoverTop = 20.dp // r657 第三轮：原型 right/top 20px
 internal fun chartHeroUpdateLine(updateLabel: String, count: Int): String =
     listOf(updateLabel.trim(), if (count > 0) "共 $count 首" else "").filter { it.isNotBlank() }.joinToString(" · ")
 
-/** 切换榜单：原型 icons.js `pswap`（两条带圆角弯折的反向箭头，1.75 描边）。 */
+/** 切换榜单：原型 icons.js `pswap`（两条带圆角弯折的反向箭头，1.8 描边）。 */
 private val ChartSwitchGlyph: androidx.compose.ui.graphics.vector.ImageVector by lazy {
     androidx.compose.ui.graphics.vector.ImageVector.Builder("sw_pswap", 24.dp, 24.dp, 24f, 24f).apply {
         listOf("M16.5 3.8 20 7.3l-3.5 3.5", "M20 7.3H8.5A4.5 4.5 0 0 0 4 11.8", "M7.5 20.2 4 16.7l3.5-3.5", "M4 16.7h11.5a4.5 4.5 0 0 0 4.5-4.5").forEach { d ->
             addPath(
                 pathData = androidx.compose.ui.graphics.vector.addPathNodes(d), fill = null,
-                stroke = androidx.compose.ui.graphics.SolidColor(Color.Black), strokeLineWidth = 1.75f,
+                stroke = androidx.compose.ui.graphics.SolidColor(Color.Black), strokeLineWidth = 1.8f,
                 strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round, strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round
             )
         }
@@ -293,8 +293,8 @@ private fun ChartHeroIcon(icon: androidx.compose.ui.graphics.vector.ImageVector,
         contentAlignment = Alignment.Center
     ) {
         // 原型 .cswap svg drop-shadow(0 2px 6px rgba(0,0,0,.35))：先画一层偏移的半透明黑图标近似投影。
-        Icon(icon, null, tint = Color.Black.copy(alpha = 0.22f), modifier = Modifier.size(30.dp).offset(y = 2.dp).blur(3.dp))
-        Icon(icon, null, tint = Color.White, modifier = Modifier.size(30.dp))
+        Icon(icon, null, tint = Color.Black.copy(alpha = 0.22f), modifier = Modifier.size(28.dp).offset(y = 2.dp).blur(3.dp))
+        Icon(icon, null, tint = Color.White, modifier = Modifier.size(28.dp))
     } // 原型 .cswap 46dp / 30dp 图标
 }
 
@@ -417,7 +417,7 @@ internal fun ChartRankRow(
         } else if (onMore != null) {
             IconButton(onClick = onMore, modifier = Modifier.size(48.dp)) {
                 Icon(Icons.Outlined.MoreHoriz, "更多：${song.name}", tint = colors.onSurfaceVariant,
-                    modifier = Modifier.size(22.dp))
+                    modifier = Modifier.size(21.dp))
             }
         }
     }

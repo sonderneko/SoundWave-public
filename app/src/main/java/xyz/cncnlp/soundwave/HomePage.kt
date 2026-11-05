@@ -520,7 +520,7 @@ internal fun HomePage(
             // 歌单广场与排行榜页顶部只显示标题，不显示左侧返回箭头（返回走系统返回/预测性返回手势，见下方 BackHandler）。
             leading = if (currentSection == "hot" || currentSection == "rank" || currentSection == "pl") null else ({
                 Box(Modifier.size(38.dp).clip(CircleShape).clickable { onSection("hot") }, contentAlignment = Alignment.CenterStart) {
-                    Icon(Icons.Outlined.KeyboardArrowLeft, "返回首页", tint = onBg, modifier = Modifier.size(22.dp))
+                    Icon(Icons.Outlined.KeyboardArrowLeft, "返回首页", tint = onBg, modifier = Modifier.size(21.dp))
                 }
             }),
             trailing = {

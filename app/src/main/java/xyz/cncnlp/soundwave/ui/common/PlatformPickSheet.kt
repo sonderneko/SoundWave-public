@@ -223,7 +223,7 @@ private fun PlatformPickRow(opt: PlatformPickOption, selected: Boolean, showDivi
             )
             // 勾选槽位恒在（稿子 .v7l-ck opacity 0 占位），避免选中切换时说明文字跳位。
             Icon(
-                DesignChromeGlyphs.Check, "当前", tint = accent,
+                DesignLineGlyphs.Check, "当前", tint = accent,
                 modifier = Modifier.padding(start = 8.dp).size(20.dp)
                     .graphicsLayer { alpha = check.coerceIn(0f, 1f); scaleX = 0.6f + 0.4f * check; scaleY = 0.6f + 0.4f * check }
             )
@@ -260,7 +260,7 @@ private fun PlatformPickCard(opt: PlatformPickOption, selected: Boolean, centere
         }
         // 原型 .ock：右 10dp、垂直居中，18dp 珊瑚 ✓（选中时从 0.4 弹到 1）。
         if (check > 0.01f) Icon(
-            DesignChromeGlyphs.Check, "当前", tint = accent,
+            DesignLineGlyphs.Check, "当前", tint = accent,
             modifier = Modifier.align(Alignment.CenterEnd)
                 .offset(x = if (centered) 0.dp else 20.dp)
                 .size(18.dp)

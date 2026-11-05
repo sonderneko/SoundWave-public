@@ -84,6 +84,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
+import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
 import xyz.cncnlp.soundwave.ui.common.DesignGlyphs
 import xyz.cncnlp.soundwave.ui.common.PressMotion
 import xyz.cncnlp.soundwave.ui.common.pressScale
@@ -221,7 +222,7 @@ internal fun DesignPlayPill(
             .padding(start = startPad, end = endPad),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(DesignGlyphs.PlayTriangle, null, tint = Color.White, modifier = Modifier.size(iconSize))
+        Icon(DesignChromeGlyphs.PlaySolid, null, tint = Color.White, modifier = Modifier.size(iconSize))
         Spacer(Modifier.width(gap))
         Text(label, color = Color.White, fontSize = labelSize, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope, maxLines = 1, softWrap = false)
     }
@@ -1108,7 +1109,7 @@ internal fun DetailCompactSearchField(
             .padding(start = 14.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Outlined.Search, null, tint = accent, modifier = Modifier.size(17.dp))
+        Icon(Icons.Outlined.Search, null, tint = accent, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(9.dp))
         androidx.compose.foundation.text.BasicTextField(
             value = value, onValueChange = onValueChange, singleLine = true,

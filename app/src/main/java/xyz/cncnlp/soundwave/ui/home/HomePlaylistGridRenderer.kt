@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.em
 import xyz.cncnlp.soundwave.SoundwaveDesignPalette
-import xyz.cncnlp.soundwave.ui.common.DesignGlyphs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -378,7 +377,7 @@ internal fun PlaylistPlazaHero(playlists: List<Playlist>, label: String, onOpen:
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(Modifier.size(30.dp).clip(CircleShape).background(accent), contentAlignment = Alignment.Center) {
-                            Icon(DesignGlyphs.PlayTriangle, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                            Icon(DesignChromeGlyphs.PlaySolid, null, tint = Color.White, modifier = Modifier.size(16.dp))
                         }
                         Spacer(Modifier.width(8.dp))
                         Text("Play now", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1) // r657（v3 #7）

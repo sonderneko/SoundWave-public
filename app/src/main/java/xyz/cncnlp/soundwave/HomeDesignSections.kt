@@ -365,7 +365,7 @@ internal fun HomeDailyHero(
                         .padding(start = 16.dp, end = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(DesignGlyphs.PlayTriangle, null, tint = Color.White, modifier = Modifier.size(15.dp))
+                    Icon(DesignChromeGlyphs.PlaySolid, null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(7.dp))
                     Text("今日推荐", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope, maxLines = 1)
                 }
@@ -534,7 +534,7 @@ internal fun HomeHotSongsPager(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                if (isCurrentPlaying) Icons.Filled.Pause else DesignGlyphs.PlayTriangle,
+                                if (isCurrentPlaying) Icons.Filled.Pause else DesignChromeGlyphs.PlaySolid,
                                 if (isCurrentPlaying) "暂停：${song.name}" else "播放：${song.name}",
                                 tint = colors.onBackground, modifier = Modifier.size(20.dp)
                             )
@@ -847,7 +847,7 @@ internal fun HomeDigitalAlbumCard(card: DiscoverCard, tone: Color?, songCount: I
             )
         }
         Box(Modifier.align(Alignment.CenterEnd).padding(end = 6.dp).size(44.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-            Icon(DesignGlyphs.PlayTriangle, "播放：${card.name}", tint = Color.White, modifier = Modifier.size(28.dp))
+            Icon(DesignChromeGlyphs.PlaySolid, "播放：${card.name}", tint = Color.White, modifier = Modifier.size(28.dp))
         }
     }
 }
@@ -990,9 +990,9 @@ private fun HomeHeartCoverStage(cover: String, heartOn: Boolean, enabled: Boolea
                 // drop-shadow：模糊的黑色副本（API 31+ 真模糊；低版本降低不透明度避免硬边）。
                 Icon(
                     glyph, null, tint = Color.Black.copy(alpha = if (android.os.Build.VERSION.SDK_INT >= 31) 0.55f else 0.22f),
-                    modifier = Modifier.size(23.dp).offset(x = if (heartOn) 0.dp else 1.dp, y = 2.dp).blur(3.5.dp, BlurredEdgeTreatment.Unbounded)
+                    modifier = Modifier.size(24.dp).offset(x = if (heartOn) 0.dp else 1.dp, y = 2.dp).blur(3.5.dp, BlurredEdgeTreatment.Unbounded)
                 )
-                Icon(glyph, null, tint = Color.White, modifier = Modifier.size(23.dp).offset(x = if (heartOn) 0.dp else 1.dp))
+                Icon(glyph, null, tint = Color.White, modifier = Modifier.size(24.dp).offset(x = if (heartOn) 0.dp else 1.dp))
             }
         }
         AsyncImage(

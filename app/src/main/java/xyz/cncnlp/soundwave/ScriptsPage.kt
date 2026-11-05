@@ -607,7 +607,7 @@ private fun ScriptHeroPill(
             .semantics { if (contentDescription != null) this.contentDescription = contentDescription }
             .padding(horizontal = 4.dp, vertical = 2.dp)
     ) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.92f else 0.4f), modifier = Modifier.size(15.dp))
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.92f else 0.4f), modifier = Modifier.size(16.dp))
         Text(title, color = MaterialTheme.colorScheme.onSurface, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, modifier = Modifier.padding(top = 6.dp))
         Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 9.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
     }
@@ -625,7 +625,7 @@ private fun ScriptActionChip(icon: androidx.compose.ui.graphics.vector.ImageVect
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null, tint = tint.copy(alpha = if (enabled) 1f else 0.4f), modifier = Modifier.size(14.dp))
+        Icon(icon, null, tint = tint.copy(alpha = if (enabled) 1f else 0.4f), modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(5.dp))
         Text(label, color = tint.copy(alpha = if (enabled) 1f else 0.4f), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
     }
