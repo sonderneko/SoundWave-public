@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- accept6-icon2：adaptive icon——用户选定「声纹环-浅色」：暖白渐变底 + 瓷盘声纹环前景。
+     BATCH2 反馈 F1（2026-11-05）：monochrome 层已移除——真机上主题图标管线以黑色剪影层
+     顶替选定彩稿（桌面图标发黑），用户只选了浅色一稿，图标任何路径都只呈现该稿。
+     ICON-SPLASH-REDO（2026-11-05）：资源全家换名 ic_launcher* → ic_launcher_wave*——
+     F1 后用户装新包桌面仍呈旧黑渲染（交付 release 包经 aapt2 终核：包内即选定浅色稿、
+     monochrome 计数 0、无任何致黑层，黑图系 vivo 启动器图标缓存沿用旧资源名键的陈旧
+     渲染，与锁屏紫角标同机制）。换名使缓存键失效、装包即刷新；图形与色值逐值不变。 -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_wave_background" />
+    <foreground android:drawable="@drawable/ic_launcher_wave_foreground" />
+</adaptive-icon>

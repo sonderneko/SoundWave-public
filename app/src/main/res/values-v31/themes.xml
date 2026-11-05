@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ICON-SPLASH-REDO（2026-11-05）：API 31+ 启动页在基础稿上加底部字标
+         （windowSplashScreenBrandingImage 为 API 31 框架属性）。样式资源不跨配置合并，
+         故本覆盖须把基础三项逐值重声明（与 values/themes.xml 同值，守卫双钉），
+         只多 branding 一项；浅/夜同稿口径不变（values-night 仍不得覆盖本样式）。 -->
+    <style name="Theme.SoundWave.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#F2EADA</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
+        <item name="postSplashScreenTheme">@style/Theme.SoundWave</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/ic_splash_wordmark</item>
+    </style>
+</resources>

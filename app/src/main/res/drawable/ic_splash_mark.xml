@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  accept6-icon2 · 启动页标记：与启动器图标同一标记（用户选定「声纹环-浅色」的
-  plate+ring+glass+wave），按启动页既有口径放大构图（盘半径 44/108 画布），
-  透出启动页纸底（浅 #F4F4F0 / 夜 #101210，主题与退出逻辑为 splash 棒既有，
-  本文件只换标记资产）。色值与源分层 SVG 逐值一致，声波绿色为选定稿原色。
+  ICON-SPLASH-REDO（2026-11-05）· 启动页标记场景：用户反馈 F1 后的纸面稿被嫌「太白、
+  不好看」，本稿在选定标记外加层次——192 画布：两圈居中环纹水印（珊瑚 α10% r=86
+  线宽 1.5 / 墨 α6% r=68 线宽 1.0，圆心 (96,88)）+ 中央标记组。标记本体 = 原
+  ic_splash_disc 全部 14 路径逐值原样（用户选定「声纹环-浅色」plate+ring+glass+wave，
+  色值与源分层 SVG 一致），仅经 group 变换居中：scale 1.03 + translate(40.38,32.38)，
+  标记中心落 (96,88)、盘半径约 45.3。底色与字标见 themes.xml / ic_splash_wordmark。
+  原 ic_splash_disc.xml 随本稿退役删除。
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
 
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#1AE8452F"
+        android:strokeWidth="1.5"
+        android:pathData="M10,88 a86,86 0 1,0 172,0 a86,86 0 1,0 -172,0 Z" />
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#0F2C2C2F"
+        android:strokeWidth="1"
+        android:pathData="M28,88 a68,68 0 1,0 136,0 a68,68 0 1,0 -136,0 Z" />
+
+    <group
+        android:translateX="40.38"
+        android:translateY="32.38"
+        android:scaleX="1.03"
+        android:scaleY="1.03">
     <path
         android:pathData="M6.02,58.97 a47.98,45.49 0 1,0 95.95,0 a47.98,45.49 0 1,0 -95.95,0 Z">
         <gradient android:type="radial" android:centerX="54" android:centerY="58.97" android:gradientRadius="47.98">
@@ -116,4 +136,5 @@
             <item android:offset="1" android:color="#FF436E5E" />
         </gradient>
     </path>
+    </group>
 </vector>
