@@ -619,6 +619,8 @@ internal class WebDavSyncClient(
         if (username.isBlank() || password.isBlank()) {
             return WebDavSyncResult.Failure("请填写 WebDAV 用户名和密码")
         }
+        // 失败步跟踪：泛捕诊断只报步名 + 异常类（绝不带异常消息/地址/账号/密码），供真机反馈定位。
+        var syncStep = "检查服务器与目录"
         try {
             val connection = execute(propfind(collectionUrl(base), username, password))
             if (connection.code !in setOf(200, 207)) {
@@ -637,6 +639,7 @@ internal class WebDavSyncClient(
             if (profileAuthorization != null && !profileAuthorization()) return WebDavSyncResult.Failure("资料授权已变化")
             ensureCollection(base, appDir, username, password)?.let { return WebDavSyncResult.Failure(it) }
             if (profileAuthorization != null && !profileAuthorization()) return WebDavSyncResult.Failure("资料授权已变化")
+            syncStep = "读取远端同步文件"
             val initialRemote = readRemoteForWrite(fileUrl, username, password, documentId, accountDataKey)
             if (initialRemote is RemoteRead.Failure) return WebDavSyncResult.Failure(initialRemote.message)
             var legacyRemote: LocalStore.UserBundle? = null
@@ -657,6 +660,7 @@ internal class WebDavSyncClient(
             // 取消则在任何写入前中止。判定在首次远端读取后、任何 PUT 之前完成。
             var conflictWinnerLocal: Boolean? = null
             val gate = conflictGate
+            syncStep = "等待冲突确认"
             if (accountDataKey != null && gate != null && initialRemote is RemoteRead.Present) {
                 val remoteUpdatedAt = initialRemote.documentUpdatedAt
                 val lastSync = gate.lastSyncAt()
@@ -668,12 +672,14 @@ internal class WebDavSyncClient(
                     conflictWinnerLocal = localChanged >= remoteUpdatedAt
                 }
             }
+            syncStep = "读取本机扩展数据"
             var remoteExtras = (initialRemote as? RemoteRead.Present)?.profileExtras
             var mergedExtras: JSONObject? = if (accountDataKey != null) {
                 profileExtrasSync?.let { WebDavProfileExtras.merge(it.capture(), remoteExtras) }
             } else null
 
             if (accountDataKey != null && !isAccountDataCurrent()) return accountDataFailure()
+            syncStep = "合并本地与远端数据"
             var localSnapshot = snapshotWithCurrentLocalHistory(local, profileHistory, accountDataKey)
             val remote = (initialRemote as? RemoteRead.Present)?.bundle?.let { accountOwnedBundle(it, accountDataKey) } ?: legacyRemote
             var merged = when (conflictWinnerLocal) {
@@ -695,6 +701,7 @@ internal class WebDavSyncClient(
             }
             if (profileAuthorization != null && !profileAuthorization()) return WebDavSyncResult.Failure("资料授权已变化")
             if (accountDataKey != null && !isAccountDataCurrent()) return accountDataFailure()
+            syncStep = "上传同步文件"
             var response = writeRemote(fileUrl, username, password, merged, condition, documentId, mergedAvatars, remoteAvatars, accountDataKey, mergedExtras)
             if (response.code == 409 || response.code == 412) {
                 // 412：其他设备在我们 GET 之后写入（或 If-None-Match 时文件已被创建）；
@@ -704,8 +711,10 @@ internal class WebDavSyncClient(
                 }
                 if (profileAuthorization != null && !profileAuthorization()) return WebDavSyncResult.Failure("资料授权已变化")
                 if (accountDataKey != null && !isAccountDataCurrent()) return accountDataFailure()
+                syncStep = "冲突后重读远端文件"
                 val latest = readRemoteForWrite(fileUrl, username, password, documentId, accountDataKey)
                 if (accountDataKey != null && !isAccountDataCurrent()) return accountDataFailure()
+                syncStep = "冲突后重新合并"
                 localSnapshot = snapshotWithCurrentLocalHistory(local, profileHistory, accountDataKey)
                 when (latest) {
                     is RemoteRead.Present -> {
@@ -739,12 +748,14 @@ internal class WebDavSyncClient(
                 }
                 if (profileAuthorization != null && !profileAuthorization()) return WebDavSyncResult.Failure("资料授权已变化")
                 if (accountDataKey != null && !isAccountDataCurrent()) return accountDataFailure()
+                syncStep = "冲突后重新上传"
                 response = writeRemote(fileUrl, username, password, merged, condition, documentId, mergedAvatars, remoteAvatars, accountDataKey, mergedExtras)
             }
             if (response.code !in setOf(200, 201, 204)) {
                 return WebDavSyncResult.Failure(connectionFailure(response.code, syncing = true, phase = "PUT"))
             }
             if (accountDataKey != null && !isAccountDataCurrent()) return accountDataFailure()
+            syncStep = "整理同步结果"
             val avatarResult = if (avatarSessionCurrent()) selectedAvatar(remoteAvatars) else ""
             return WebDavSyncResult.Success(
                 merged.copy(avatarB64 = "").let { if (accountDataKey != null) accountOwnedBundle(it, accountDataKey) else it },
@@ -760,6 +771,12 @@ internal class WebDavSyncClient(
             return accountDataFailure()
         } catch (_: WebDavPutAuthorizationException) {
             return WebDavSyncResult.Failure("无法安全保存自动同步授权状态；未继续上传，请检查本机存储。")
+        } catch (_: WebDavPayloadTooLargeException) {
+            // 在 PUT 发出之前拦截：远端未变更，重试不会重复合并或回滚；需先缩小本机数据。
+            return WebDavSyncResult.Failure("同步数据体积超过单文件上限（5MB），本次未上传，远端未变更；请减少单个歌单规模或清理听歌统计后重试。")
+        } catch (failure: xyz.cncnlp.soundwave.CloudInlineImageTooLargeException) {
+            // 云序列化期拦截（PUT 未发出）：远端未变更；异常自带处置文案（压缩图片/改公开链接），原样透传，不再被泛捕吞成「流程异常」。
+            return WebDavSyncResult.Failure(failure.message ?: "自定义封面图片过大，无法同步。")
         } catch (failure: WebDavTransportFailure) {
             // Never include exception text, request headers, URL, username or password in diagnostics.
             return WebDavSyncResult.Failure(
@@ -767,9 +784,14 @@ internal class WebDavSyncClient(
                 remoteStateUncertain = failure.method == "PUT",
                 retryable = failure.method != "PUT"
             )
-        } catch (_: Exception) {
+        } catch (failure: Exception) {
             // A failure during PUT may happen after the server accepted the request; never imply that retry is certainly safe.
-            return WebDavSyncResult.Failure("WebDAV 同步流程异常；远端结果未确认。请先检查远端同步文件，再决定是否重试。")
+            // 诊断只带失败步名 + 异常类名：异常消息可能嵌数据，地址/账号/密码绝不入诊断。
+            return WebDavSyncResult.Failure(
+                "WebDAV 同步流程异常；远端结果未确认。请先检查远端同步文件，再决定是否重试。" +
+                    "\n诊断：失败步「$syncStep」，异常 ${failure.javaClass.simpleName}；反馈问题时请带上这一行。",
+                remoteStateUncertain = true
+            )
         }
     }
 
@@ -1075,7 +1097,7 @@ internal class WebDavSyncClient(
             .apply { documentId?.let { put("documentId", it) } }
             .toString()
             .toByteArray(StandardCharsets.UTF_8)
-        if (payload.size > MAX_RESPONSE_BYTES) throw IOException("WebDAV document exceeded the safe size limit")
+        if (payload.size > MAX_RESPONSE_BYTES) throw WebDavPayloadTooLargeException()
         return execute(
             WebDavHttpRequest(
                 method = "PUT",
@@ -1088,6 +1110,8 @@ internal class WebDavSyncClient(
             )
         )
     }
+
+    private class WebDavPayloadTooLargeException : IOException("WebDAV document exceeded the safe size limit")
 
     private class WebDavTransportFailure(val method: String, cause: Exception) : IOException(cause)
 
