@@ -66,15 +66,16 @@ if 'Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
 if 'val menuAlpha:' not in theme or 'val menuIconWhite:' not in theme:
     raise SystemExit('UI appearance guard failed: supported menu appearance preferences were removed')
 
-# ACCEPT5（退出动画普查 S1）改钉：SongActionSheet 壳内补进/退场动画后，遮罩 alpha 随
-# enterAnim 在 0→0.45 间同步淡变（静止态仍为固定 Material scrim 0.45）；钉子更新为新字面，
-# 仍钉死 scrim 来源与 0.45 基准 alpha 不变。
-if 'MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f * enterAnim.value)' not in (src / 'SongRow.kt').read_text():
-    raise SystemExit('UI appearance guard failed: fixed Material scrim missing from SongRow.kt')
+# ACCEPT5（退出动画普查 S1）旧钉：SongRow 内旧自绘歌曲菜单的手工 scrim 字面必须在场。
+# MENU-UNIFY 改钉（删除契约，用户 2026-11-05 归一指令）：该旧菜单已整删、歌曲菜单改走
+# DesignSheet 家族外壳（遮罩由家族 SheetMotion 公式统一提供，本守卫他处另有钉）；原钉所
+# 保护的对象不复存在——改钉旧菜单与其手工 scrim 字面不得在 SongRow.kt 复活。
+song_row_text = (src / 'SongRow.kt').read_text()
+if 'SongActionSheet' in song_row_text or 'scrim.copy(alpha = 0.45f' in song_row_text:
+    raise SystemExit('UI appearance guard failed: retired hand-rolled song sheet/scrim must not return to SongRow.kt')
 # dialog-polish 波（用户「整体对话框样式完善」批准口径）：MainActivity 歌单来源弹层（dialog-sweep 有据
 # 保留的手工弹层）遮罩浓度由固定 0.45 改对齐 DesignSheet 家族外壳令牌 Sheet.ScrimAlpha（0.38）。
-# 等严改钉：该弹层必须以令牌形态引用家族浓度（精确字面钉，强度不变）；SongRow 的固定 0.45 经典
-# scrim 非对话框家族、不在本波范围，原钉保留（上方）。
+# 等严改钉：该弹层必须以令牌形态引用家族浓度（精确字面钉，强度不变）。
 # ACCEPT4 改钉（用户 2026-11-04 裁定，严格度不降）：该「播放来源」候选列表弹层已整套删除、不作任何
 # 回退（出处只保留歌曲菜单内一行身份直达）。原钉所保护的对象不复存在，改钉删除契约——弹层状态与
 # 入口不得在 MainActivity 复活；若未来重做来源弹层，必须重新过本守卫的令牌钉。

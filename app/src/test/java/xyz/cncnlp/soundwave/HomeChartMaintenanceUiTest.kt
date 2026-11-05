@@ -117,28 +117,28 @@ class HomeChartMaintenanceUiTest {
         assertTrue(update.top >= title.bottom)
     }
 
-    @Test fun existingSongSheetSemanticsDispatchAllFourActionsWithoutPlaying() {
+    @Test fun unifiedSongSheetSemanticsDispatchAllFourActionsWithoutPlaying() {
         var action = ""
         rule.setContent {
             SoundwaveDesignTheme(isDark = true) {
-                ProvideAppOverlayHost { Box {
-                SongActionSheet(song, liked = false, showDownload = true,
-                    canDelete = false, canRescan = false, onDismiss = {},
-                    onLike = { action = "like" }, onAdd = { action = "playlist" },
-                    onAddNext = { action = "next" }, onDownload = { action = "download" },
-                    onDelete = { error("must not expose delete") }, onRescan = {})
-                AppOverlayHostLayer()
-                } }
+                DesignTrackActionSheetContent(song, liked = false, showDownload = true,
+                    canDelete = false,
+                    onSimilar = {}, onLike = { action = "like" },
+                    onAddNext = { action = "next" }, onAdd = { action = "playlist" },
+                    onDownload = { action = "download" },
+                    onDelete = { error("must not expose delete") }, onDislike = {})
             }
         }
-        // Exercise the real sheet's accessible actions; handset touch acceptance is separate.
-        rule.onNodeWithText("添加喜欢").assertHasClickAction().performSemanticsAction(SemanticsActions.OnClick) { it() }
+        // MENU-UNIFY：排行榜 ⋯ 已归一至全 App 共用歌曲操作抽屉（HomePage → DesignTrackActionSheet
+        // → TrackActionsSheet，其内容即此处演练的 DesignTrackActionSheetContent 委托层）；
+        // Exercise the shared sheet's accessible actions; handset touch acceptance is separate.
+        rule.onNodeWithContentDescription("收藏歌曲").assertHasClickAction().performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.runOnIdle { assertEquals("like", action) }
         rule.onNodeWithText("添加到歌单").performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.runOnIdle { assertEquals("playlist", action) }
-        rule.onNodeWithText("下一首").performSemanticsAction(SemanticsActions.OnClick) { it() }
+        rule.onNodeWithContentDescription("下一首播放").performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.runOnIdle { assertEquals("next", action) }
-        rule.onNodeWithContentDescription("下载歌曲").performSemanticsAction(SemanticsActions.OnClick) { it() }
+        rule.onNodeWithContentDescription("下载").performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.runOnIdle { assertEquals("download", action) }
         rule.onNodeWithText("从歌单删除").assertDoesNotExist()
     }

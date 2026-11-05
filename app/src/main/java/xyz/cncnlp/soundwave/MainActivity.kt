@@ -2392,7 +2392,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                 nowPlayingKey = currentSong?.key().orEmpty(),
                 isPlayingNow = playing,
                 onAddBatch = { b -> if (b.isNotEmpty()) { addSongBatch = b.toList(); addSongTarget = b.first(); showAddToPl = true } },
-                onAddNext = { item -> playback.insertNext(item) }, onSelectionModeChange = { homeSelectionActive = it },
+                onAddNext = { item -> playback.insertNext(item) }, onSelectionModeChange = { homeSelectionActive = it }, onDislikeSong = { s -> DislikeStore.mark(context, s); AppNotice.undo("已标记不感兴趣") { DislikeStore.unmark(context, s) } }, onSimilarSong = { s -> scope.launch { playSimilarSong(s) } },
                 onDownloadBatch = { songs -> download.confirmDownloads(songs, downloadQ.ifBlank { preferQ }.ifBlank { "320k" }) }
             )
             }

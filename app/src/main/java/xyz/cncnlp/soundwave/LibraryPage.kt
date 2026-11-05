@@ -1544,7 +1544,6 @@ fun LibraryPage(
                             onAdd = { onAdd(song) },
                             onDownload = { onDownload(song) },
                             onDelete = if (allowDelete) ({ onDeleteSong(song, false) }) else null,
-                            onRescan = null,
                             onAddNext = { onAddNext(song) },
                             onDislike = { onDislikeSong(song) },
                             onSimilar = { onSimilarSong(song) },

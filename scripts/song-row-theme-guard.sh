@@ -16,8 +16,10 @@ def section(start_marker: str, end_marker: str) -> str:
         raise SystemExit(f"[song-row-theme-guard] FAIL: component boundary missing: {start_marker}")
     return source[start:end]
 
-row = section("fun SongRow(", "internal fun SongActionSheet(")
-sheet = section("internal fun SongActionSheet(", "internal fun ActionIcon(")
+row = section("fun SongRow(", "internal fun ActionIcon(")
+# MENU-UNIFY：旧自绘歌曲菜单已整删、归一至 TrackActionsSheet 家族；下方「菜单跟随主题」
+# 检查的对象随之迁移到统一组件（见 checks 内注）。
+track_sheet = (root / "app/src/main/java/xyz/cncnlp/soundwave/TrackActionsSheet.kt").read_text()
 checks = {
     "ordinary title and secondary labels use semantic text roles": all(
         token in row for token in (
@@ -47,12 +49,11 @@ checks = {
             "Color(0xFF8A8A8A", "Color(0xFF9E9E9E", "Color(0xFF1A1A1A",
         )
     ),
-    "action sheet surface, text, and accent follow the active theme": all(
-        token in sheet for token in (
-            "val menuFg = colors.onSurface",
-            "val menuBg = colors.surface",
-            "val menuSel = colors.primary",
-        )
+    # MENU-UNIFY 改钉：旧 sheet 的 menuFg/menuBg/menuSel 随旧实现整删；检查对象迁移至统一
+    # 组件——TrackActionsSheet 须以 MaterialTheme 角色取色，且 SongRow 不得再自带菜单配色。
+    "action sheet surface, text, and accent follow the active theme": (
+        "val colors = MaterialTheme.colorScheme" in track_sheet
+        and "val menuFg" not in source and "val menuBg" not in source and "val menuSel" not in source
     ),
     "now-playing highlight fades from theme accent instead of a fixed solid fill": all(
         token in row for token in (

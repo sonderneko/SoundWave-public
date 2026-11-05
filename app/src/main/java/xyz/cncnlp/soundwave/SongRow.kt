@@ -18,13 +18,10 @@ import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import xyz.cncnlp.soundwave.ui.player.PlayerSongEqualizer
 import androidx.compose.ui.graphics.graphicsLayer
-import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -45,17 +41,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import xyz.cncnlp.soundwave.ui.common.popOnBecomeTrue
 import xyz.cncnlp.soundwave.ui.common.pressScale
-import xyz.cncnlp.soundwave.ui.common.sheetPanelGlass
 import xyz.cncnlp.soundwave.ui.common.homeCoverShadow
 import xyz.cncnlp.soundwave.ui.common.PressMotion
 
-// ===== 歌曲列表行 + 操作弹层 + 操作图标（自 MainActivity 迁入；SongActionSheet/ActionIcon private→internal） =====
+// ===== 歌曲列表行 + 操作图标（自 MainActivity 迁入；ActionIcon private→internal；歌曲菜单已归一至 TrackActionsSheet） =====
 @Composable
 fun SongRow(
     song: Song,
@@ -76,7 +68,6 @@ fun SongRow(
     onAdd: () -> Unit = {},
     onDownload: () -> Unit = {},
     onDelete: (() -> Unit)? = null,
-    onRescan: (() -> Unit)? = null,
     onAddNext: (() -> Unit)? = null,
     onMore: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
@@ -291,131 +282,22 @@ fun SongRow(
         }
     }
     if (showSheet) {
-        SongActionSheet(
+        // MENU-UNIFY：全 App 歌曲菜单只此一家——与详情/搜索/播放器共用 TrackActionsSheet
+        // （旧自绘菜单已整删）；回调映射保留 like/delete 的粒子消散包装语义。
+        TrackActionsSheet(
             song = song,
             liked = liked,
             showDownload = showDownload,
             canDelete = onDelete != null,
-            canRescan = onRescan != null,
             onDismiss = { showSheet = false },
+            onSimilar = { onSimilar?.invoke() },
             onLike = { if (dissolveOnUnlike && liked) rowDissolve.dissolve(restore = true) { onLike() } else onLike() },
-            onAdd = { onAdd() },
             onAddNext = { onAddNext?.invoke() },
+            onAdd = { onAdd() },
             onDownload = { onDownload() },
             onDelete = { rowDissolve.dissolve(restore = true) { onDelete?.invoke() } },
-            onRescan = { onRescan?.invoke() },
-            onDislike = { onDislike?.invoke() },
-            onSimilar = { onSimilar?.invoke() }
+            onDislike = { onDislike?.invoke() }
         )
-    }
-}
-
-@Composable
-internal fun SongActionSheet(
-    song: Song,
-    liked: Boolean,
-    showDownload: Boolean,
-    canDelete: Boolean,
-    canRescan: Boolean,
-    onDismiss: () -> Unit,
-    onLike: () -> Unit,
-    onAdd: () -> Unit,
-    onAddNext: () -> Unit,
-    onDownload: () -> Unit,
-    onDelete: () -> Unit,
-    onRescan: () -> Unit,
-    /** 不感兴趣（本地屏蔽，影响心动模式与推荐）。 */
-    onDislike: (() -> Unit)? = null,
-    /** 相似歌曲（基于当前曲目启动相似播放）。 */
-    onSimilar: (() -> Unit)? = null
-) {
-    val colors = MaterialTheme.colorScheme
-    val menuFg = colors.onSurface
-    val menuBg = colors.surface
-    val menuSel = colors.primary
-    // r657 第三轮第 19 项：「播放取链链路」→ 播放路径抽屉。
-    var showPath by remember { mutableStateOf(false) }
-    if (showPath) PlaybackPathSheet(song) { showPath = false }
-    // ACCEPT5（退出动画普查 S1）：本壳原为裸 AppOverlayDialog、无任何进/退场，点选靠宿主同步
-    // 清状态瞬时卸载。补与 DesignSheetDialog 同参的进/退场（420 emphasized 入 / 220 出、
-    // 遮罩同步淡变、面板自底滑入/滑出）；动作立即执行、onDismiss 在退场走完才触发，
-    // 宿主回调已同步去清状态。「播放取链链路」为叠开路径层，保持不关本层（原语义）。
-    val reduce = xyz.cncnlp.soundwave.MotionPolicy.rememberReduceMotion()
-    val enterAnim = remember { androidx.compose.animation.core.Animatable(if (reduce) 1f else 0f) }
-    val sheetScope = rememberCoroutineScope()
-    var closing by remember { mutableStateOf(false) }
-    val close: () -> Unit = {
-        if (reduce) onDismiss()
-        else if (!closing) {
-            closing = true
-            sheetScope.launch {
-                enterAnim.animateTo(0f, androidx.compose.animation.core.tween(xyz.cncnlp.soundwave.ui.common.SheetMotion.EXIT_MS, easing = androidx.compose.animation.core.FastOutLinearInEasing))
-                onDismiss()
-            }
-        }
-    }
-    LaunchedEffect(Unit) {
-        if (!reduce) try {
-            enterAnim.animateTo(1f, androidx.compose.animation.core.tween(xyz.cncnlp.soundwave.ui.common.SheetMotion.ENTER_MS, easing = xyz.cncnlp.soundwave.ui.common.SheetMotion.Emphasized))
-        } finally {
-            if (!closing) kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { enterAnim.snapTo(1f) }
-        }
-    }
-    xyz.cncnlp.soundwave.ui.common.AppOverlayDialog(onDismissRequest = close) { // r658h 应用内覆盖层，贴屏幕底边
-        xyz.cncnlp.soundwave.ui.common.DialogEdgeToEdge()
-        xyz.cncnlp.soundwave.ui.common.DesignSheetWindowEffect() // r658d：贴底不露缝 + 背后模糊
-        Box(Modifier.fillMaxSize()) {
-        // ACCEPT6 dialogfrost：与 DesignSheet 家族同等处理——全屏雾化背板 + 面板玻璃（自绘壳归队）。
-        xyz.cncnlp.soundwave.ui.common.SheetFrostBackdrop(enterAnim)
-        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f * enterAnim.value)).clickable { close() }, contentAlignment = Alignment.BottomCenter) {
-            Box(Modifier.fillMaxWidth().graphicsLayer { translationY = (1f - enterAnim.value) * size.height }.sheetPanelGlass(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), menuBg).clickable(enabled = false) {}) {
-                Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp)) {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Box(Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(menuFg.copy(alpha = 0.22f)))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Row(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(52.dp).clip(RoundedCornerShape(10.dp)).background(menuSel.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
-                            if (song.cover.isNotEmpty()) AsyncImage(CacheManager.coverModel(LocalContext.current, song.cover) ?: song.cover, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                            else DefaultLandscapeCover(Modifier.fillMaxSize())
-                        }
-                        Spacer(Modifier.width(11.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(song.name, color = menuFg, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1, modifier = Modifier.fillMaxWidth().loopMarquee())
-                            Text(song.singer.ifBlank { "未知歌手" }, color = menuFg.copy(alpha = 0.62f), fontSize = 12.sp, maxLines = 1)
-                        }
-                        // 最右侧：下载按钮
-                        if (showDownload) {
-                            Box(Modifier.size(44.dp).clip(CircleShape).background(menuSel.copy(alpha = 0.12f)).clickable { onDownload(); close() }, contentAlignment = Alignment.Center) {
-                                Icon(Icons.Outlined.FileDownload, "下载歌曲", tint = menuSel, modifier = Modifier.size(21.dp))
-                            }
-                        }
-                    }
-                    val actions = buildList {
-                        add(Triple(if (liked) "取消喜欢" else "添加喜欢", if (liked) "heart_filled" else "heart") { onLike(); close() })
-                        add(Triple("添加到歌单", "menu_playlist") { onAdd(); close() })
-                        add(Triple("下一首", "menu_next") { onAddNext(); close() })
-
-                        if (onDislike != null) add(Triple("不感兴趣", "menu_hide") { onDislike(); close() })
-                        if (onSimilar != null) add(Triple("相似歌曲", "menu_similar") { onSimilar(); close() })
-                        if (canDelete) add(Triple("从歌单删除", "menu_timer") { onDelete(); close() })
-                        if (canRescan) add(Triple("重新扫描", "menu_refresh") { onRescan(); close() })
-                        add(Triple("播放取链链路", "source", { showPath = true }))
-                    }
-                    actions.chunked(2).forEach { rowActions ->
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                            rowActions.forEach { (title, glyph, action) ->
-                                PlayerMenuActionCard(Modifier.weight(1f), title, glyph, menuFg, menuSel, action)
-                            }
-                            if (rowActions.size == 1) Spacer(Modifier.weight(1f))
-                        }
-                        Spacer(Modifier.height(9.dp))
-                    }
-                    Spacer(Modifier.height(8.dp))
-                }
-            }
-        }
-        }
     }
 }
 

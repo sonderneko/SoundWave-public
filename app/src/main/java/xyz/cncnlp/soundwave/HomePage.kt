@@ -251,6 +251,9 @@ internal fun HomePage(
     /** 排行榜多选：批量加入歌单 / 逐首插入队列 / 批量下载；多选态通知宿主隐藏迷你条与底栏。 */
     onAddBatch: (List<Song>) -> Unit = { it.firstOrNull()?.let(onAdd) },
     onAddNext: (Song) -> Unit = {},
+    /** MENU-UNIFY：统一歌曲菜单的「不喜欢 / 相似歌曲」瓦片接线（排行榜 ⋯ 用；语义与搜索页同口径）。 */
+    onDislikeSong: (Song) -> Unit = {},
+    onSimilarSong: (Song) -> Unit = {},
     onDownloadBatch: (List<Song>) -> Unit = { it.forEach(onDownload) },
     onSelectionModeChange: (Boolean) -> Unit = {}
 ) {
@@ -1178,15 +1181,18 @@ internal fun HomePage(
                     }
                 }
                 if (!rankMulti) rankMenuSong?.let { song ->
-                    SongActionSheet(
+                    // MENU-UNIFY：排行榜 ⋯ 与全 App 共用同一歌曲操作抽屉（旧自绘菜单已整删）。
+                    DesignTrackActionSheet(
                         song = song, liked = isLiked(song), showDownload = true,
-                        canDelete = false, canRescan = false,
+                        canDelete = false,
                         onDismiss = { rankMenuSong = null },
+                        onSimilar = { onSimilarSong(song) },
                         onLike = { onLike(song) },
-                        onAdd = { onAdd(song) },
                         onAddNext = { onAddNext(song) },
+                        onAdd = { onAdd(song) },
                         onDownload = { onDownload(song) },
-                        onDelete = {}, onRescan = {}
+                        onDelete = {},
+                        onDislike = { onDislikeSong(song) }
                     )
                 }
                 if (boardPickerOpen) {

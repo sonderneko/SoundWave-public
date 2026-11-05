@@ -14,7 +14,8 @@ checks = {
     'all rank song covers use 52dp': 'val coverSize = 52.dp' in row and 'if (top) 64.dp' not in row,
     'first three numbers enlarged without changing rank order': 'fontSize = if (top) 16.sp else 12.sp' in row and 'rank = index + 1' in rank,
     'more action is independent and hidden in multiselect': 'else if (onMore != null)' in row and 'IconButton(onClick = onMore' in row,
-    'home wires actual song into reusable sheet': 'onMore = { rankMenuSong = song }' in rank and 'SongActionSheet(' in home,
+    # MENU-UNIFY 改钉：归一后共用 sheet 为 DesignTrackActionSheet（意图不变：榜单 ⋯ 把真实歌曲送入全 App 共用抽屉）。
+    'home wires actual song into reusable sheet': 'onMore = { rankMenuSong = song }' in rank and 'DesignTrackActionSheet(' in home,
     # ACCEPT5（退出动画普查 S1）改钉：宿主回调不再同步清 rankMenuSong（退出动画站规，
     # 显隐由弹层退场后 onDismiss 清）；本 check 意图（动作真调宿主操作）不变，字面等严更新。
     'sheet actions call actual host operations': all(token in home for token in (
