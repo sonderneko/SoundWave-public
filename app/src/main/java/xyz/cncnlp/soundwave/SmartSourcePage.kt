@@ -159,10 +159,11 @@ fun SmartSourcePage(
                             if (index > 0) HorizontalDivider(color = xyz.cncnlp.soundwave.ui.common.frostLine(outline.copy(alpha = 0.45f)))
                             Row(
                                 Modifier.fillMaxWidth().heightIn(min = 60.dp)
-                                    // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
+                                    // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起柔影（共享 dragLift；实底+淡染仍为下方 background 的事）。
                                     .dragLift(draggingStage == id, RoundedCornerShape(12.dp))
                                     .clip(RoundedCornerShape(12.dp))
-                                    // 仅拖动态保留珊瑚淡染作反馈（行本身无底，路径线由节点底盘遮盖）。
+                                    // 拖动态先铺不透明页底再叠珊瑚淡染：只有淡染时 dragLift 阴影透过行身溢成粉板（与音乐库行同病，2026-11-05）。
+                                    .background(if (draggingStage == id) MaterialTheme.colorScheme.background else Color.Transparent)
                                     .background(if (draggingStage == id) SoundwaveDesignPalette.Accent.copy(alpha = 0.08f) else Color.Transparent)
                                     .then(
                                         if (enabled) Modifier.pointerInput(id) {

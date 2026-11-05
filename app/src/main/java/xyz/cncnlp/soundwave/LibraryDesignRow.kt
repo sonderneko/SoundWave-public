@@ -91,9 +91,12 @@ internal fun LibraryDesignRow(
             Modifier
                 .fillMaxWidth()
                 .height(72.dp)
-                // ACCEPT6-motiondraft（稿 .lift）：拖动中整行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
+                // ACCEPT6-motiondraft（稿 .lift）：拖动中整行浮起柔影（共享 dragLift；实底+淡染仍为下方 background 的事）。
                 .dragLift(dragging, RoundedCornerShape(14.dp))
                 .onSizeChanged { rowHeightPx = it.height }
+                // 拖动态先铺不透明页底：行底只有 6% 淡染时，dragLift 的阴影会透过行身把整行
+                // 压成溢出行界的粉板（用户 2026-11-05 真机反馈）；实底后阴影只在行外成晕。
+                .then(if (dragging) Modifier.background(MaterialTheme.colorScheme.background, RoundedCornerShape(14.dp)) else Modifier)
                 // 不裁剪整行：封面透明投影向下延伸 ~17dp，裁剪会切出一条生硬的灰边。
                 .background(
                     when {

@@ -98,13 +98,14 @@ fun Modifier.popOnBecomeTrue(trigger: Boolean, peak: Float = 1.25f): Modifier = 
 }
 
 /**
- * 稿面拖拽 lift：被拖行浮起一层大柔影（稿 .lift：0 18px 36px rgba(19,25,21,.22)），
- * Compose 侧以 18dp 阴影高度近似，150ms 补间升降 + zIndex 抬升；行自身的拖动态淡染
- * 由各调用面保留（单一来源：本件只管影，不动底色）。
+ * 稿面拖拽 lift：被拖行浮起一层克制柔影（6dp 阴影高度，150ms 补间升降 + zIndex 抬升）；
+ * 行自身的拖动态实底 + 淡染由各调用面保留（单一来源：本件只管影，不动底色）。
+ * 初版以 18dp 近似稿 .lift 的 CSS 影，配半透淡染时阴影透过行身、向外溢成一整块
+ * 粉板（用户 2026-11-05 真机反馈），故改小阴影且调用面必须先铺不透明页底再叠淡染。
  */
 fun Modifier.dragLift(active: Boolean, shape: Shape): Modifier = composed {
     val elevation by animateDpAsState(
-        if (active) 18.dp else 0.dp,
+        if (active) 6.dp else 0.dp,
         tween(durationMillis = MotionTokens.Duration.Short, easing = MotionTokens.Easing.Emphasized),
         label = "dragLift"
     )
