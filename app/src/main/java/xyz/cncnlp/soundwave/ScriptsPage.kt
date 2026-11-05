@@ -436,9 +436,11 @@ fun ScriptsPage(
                 // 验收 B 波：去掉整行卡片壳（底色/描边），仅拖动中保留 6% 强调淡染作状态提示；手势块原样不动。
                 swAnimateItem(listReduceMotion)
                     .fillMaxWidth()
-                    // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起大柔影（共享 dragLift；淡染仍为下方 background 的事）。
+                    // ACCEPT6-motiondraft（稿 .lift）：拖动中行浮起柔影（共享 dragLift；实底+淡染仍为下方 background 的事）。
                     .dragLift(selected, RoundedCornerShape(14.dp))
                     .clip(RoundedCornerShape(14.dp))
+                    // 拖动态先铺不透明页底再叠淡染：只有淡染时 dragLift 阴影透过行身溢成粉板（与音乐库行同病，2026-11-05）。
+                    .background(if (selected) MaterialTheme.colorScheme.background else Color.Transparent)
                     .background(if (selected) accent.copy(alpha = 0.06f) else Color.Transparent)
                     .pointerInput(sc.id) {
                         detectDragGesturesAfterLongPress(
