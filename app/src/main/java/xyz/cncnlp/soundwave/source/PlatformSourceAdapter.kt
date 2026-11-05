@@ -1,6 +1,7 @@
 package xyz.cncnlp.soundwave.source
 
 import xyz.cncnlp.soundwave.DiscoverCard
+import xyz.cncnlp.soundwave.PlaybackDiagnostics
 import xyz.cncnlp.soundwave.Playlist
 import xyz.cncnlp.soundwave.Platforms
 import xyz.cncnlp.soundwave.RankBoard
@@ -35,6 +36,10 @@ internal class PlatformSourceAdapter(
     private val directDiscoverCards: (suspend (Int) -> List<DiscoverCard>)? = null,
 ) : MusicSource {
 
+    /** PB-F3：腿级失败/真空只记阶段标签进诊断计数，不改变回落顺序与返回值。 */
+    private fun noteStage(scope: String, stage: FailureStage) =
+        PlaybackDiagnostics.noteFailureStage(scope, platform, stage)
+
     override val id: String = platform
 
     override val name: String = Platforms.label(platform)
@@ -60,6 +65,10 @@ internal class PlatformSourceAdapter(
                 val withCover = direct.count { it.cover.isNotBlank() }
                 if (withCover * 2 >= direct.size) return direct
             }
+            // PB-F3：直连腿进回落前先记形态——抛错折叠为 null = 网络，真空 = EMPTY；
+            // 有结果但封面不足的回落不是失败，不记。
+            if (direct == null) noteStage("search", FailureStage.NETWORK)
+            else if (direct.isEmpty()) noteStage("search", FailureStage.EMPTY)
         }
         currentCoroutineContext().ensureActive()
         return api.searchCancellable(keyword, source = platform, type = "song")
@@ -76,12 +85,15 @@ internal class PlatformSourceAdapter(
         directTypedSearchResult?.invoke(keyword, type)?.let {
             currentCoroutineContext().ensureActive()
             if (it.available) return it.songs
+            // PB-F3：typed 直连不可用时带其阶段标签进诊断（缺省按拒绝计）。
+            noteStage("search-typed", it.stage ?: FailureStage.REJECTED)
         }
         if (type.isBlank() || type == "song") return search(keyword, 1, 30)
         currentCoroutineContext().ensureActive()
         searchOfficialEntitiesDirect(platform, keyword, type).let {
             currentCoroutineContext().ensureActive()
             if (it.available) return it.songs
+            noteStage("search-typed", it.stage ?: FailureStage.REJECTED)
         }
         return api.searchCancellable(keyword, source = platform, type = type)
     }
@@ -146,9 +158,12 @@ internal class PlatformSourceAdapter(
         when (direct) {
             is PlaylistSearchOutcome.Success -> {
                 if (direct.playlists.isNotEmpty()) return direct
+                // PB-F3：直连目录腿真空与失败分开记账（回落行为不变）。
+                noteStage("catalog-playlists", FailureStage.EMPTY)
                 directEmpty = direct
             }
-            PlaylistSearchOutcome.Failure, null -> Unit
+            PlaylistSearchOutcome.Failure -> noteStage("catalog-playlists", FailureStage.NETWORK)
+            null -> Unit
         }
 
         currentCoroutineContext().ensureActive()
@@ -165,6 +180,9 @@ internal class PlatformSourceAdapter(
                 PlaylistSearchOutcome.Failure -> PlaylistSearchOutcome.Failure
             }
         }
+        // PB-F3：服务端目录腿失败同样带标签（其分型在 PlaylistCatalogApi 侧已有
+        // PlatformTransportErrorKind，此处按折叠口径记 NETWORK）。
+        if (serverResult is PlaylistSearchOutcome.Failure) noteStage("catalog-playlists", FailureStage.NETWORK)
         return chooseCategoryPlaylistSearchResult(directEmpty, serverResult)
     }
 
@@ -216,6 +234,8 @@ internal class PlatformSourceAdapter(
             catch (_: Exception) { null }
             currentCoroutineContext().ensureActive()
             direct?.takeIf { it.isNotEmpty() }?.let { return it }
+            if (direct == null) noteStage("catalog-hotsongs", FailureStage.NETWORK)
+            else noteStage("catalog-hotsongs", FailureStage.EMPTY)
         }
         currentCoroutineContext().ensureActive()
         return api.hotServer(source = platform)
@@ -232,6 +252,9 @@ internal class PlatformSourceAdapter(
             catch (_: Exception) { null }
             currentCoroutineContext().ensureActive()
             direct?.takeIf { it.isNotEmpty() }?.let { return FeedListOutcome.Success(it) }
+            // PB-F3：目录腿直连抛错 = 网络、成功真空 = EMPTY，进回落前记标签。
+            if (direct == null) noteStage("catalog-discover", FailureStage.NETWORK)
+            else noteStage("catalog-discover", FailureStage.EMPTY)
         }
         currentCoroutineContext().ensureActive()
         return api.discoverServerOutcome(source = platform, limit = limit)
@@ -248,6 +271,8 @@ internal class PlatformSourceAdapter(
             catch (_: Exception) { null }
             currentCoroutineContext().ensureActive()
             direct?.takeIf { it.isNotEmpty() }?.let { return FeedListOutcome.Success(it) }
+            if (direct == null) noteStage("catalog-hotwords", FailureStage.NETWORK)
+            else noteStage("catalog-hotwords", FailureStage.EMPTY)
         }
         currentCoroutineContext().ensureActive()
         return api.hotKeywordsServerOutcome(source = platform, limit = limit)

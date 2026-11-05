@@ -20,7 +20,17 @@ private const val TX_COVER_PREFIX = "https://y.qq.com/music/photo_new/T002R800x8
 private const val TX_REFERER = "https://y.qq.com/"
 private const val TX_SEARCH_TIMEOUT_MS = 8000L
 
-internal data class TxTypedSearchResult(val songs: List<Song>, val available: Boolean)
+/**
+ * PB-F3：tx 的「空 ≠ 失败」分型成为全仓口径——[stage] 是
+ * [xyz.cncnlp.soundwave.source.FailureStage] 标签：available=false 时说明
+ * 失败形态（拒绝/解析/网络），available=true 且结果为空时为真空（EMPTY），
+ * 有结果时为 null。available 的既有语义与回落行为不变，只加标签。
+ */
+internal data class TxTypedSearchResult(
+    val songs: List<Song>,
+    val available: Boolean,
+    val stage: xyz.cncnlp.soundwave.source.FailureStage? = null,
+)
 
 internal suspend fun searchTx(keyword: String, page: Int, limit: Int): List<Song> {
     val songs = searchTxTyped(keyword, "song", page, limit)
@@ -38,7 +48,7 @@ internal suspend fun searchTxTyped(keyword: String, type: String, page: Int = 1,
 
 internal suspend fun searchTxTypedResult(keyword: String, type: String, page: Int = 1, limit: Int = 30): TxTypedSearchResult {
     val query = keyword.trim()
-    if (query.isEmpty()) return TxTypedSearchResult(emptyList(), available = true)
+    if (query.isEmpty()) return TxTypedSearchResult(emptyList(), available = true, stage = xyz.cncnlp.soundwave.source.FailureStage.EMPTY)
     val bodyKey = "music.search.SearchCgiService"
     val searchType = when (type.lowercase()) {
         "artist", "singer" -> 1
@@ -63,7 +73,8 @@ internal suspend fun searchTxTypedResult(keyword: String, type: String, page: In
         val raw = platformHttpPostJson("$TX_MUSICU_SEARCH_URL?sign=${txZzcSign(body)}", body, TX_REFERER, TX_SEARCH_TIMEOUT_MS)
         parseTxMusicuSearchStatus(raw, query, type, limit)
     } catch (_: Exception) {
-        TxTypedSearchResult(emptyList(), available = false)
+        // PB-F3：请求构造/签名阶段抛错按网络形态记（传输口径折叠点）。
+        TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.NETWORK)
     }
 }
 
@@ -94,21 +105,23 @@ internal fun parseTxMusicuSearch(raw: String, keyword: String, type: String, lim
     parseTxMusicuSearchStatus(raw, keyword, type, limit).songs
 
 internal fun parseTxMusicuSearchStatus(raw: String, keyword: String, type: String, limit: Int = 30): TxTypedSearchResult {
-    if (raw.isBlank()) return TxTypedSearchResult(emptyList(), available = false)
-    if (limit <= 0) return TxTypedSearchResult(emptyList(), available = true)
+    // PB-F3 阶段标签：空白应答 = 传输折叠（网络）；模块/数据错误码非 0 = 上游
+    // 拒绝；信封结构缺失 = 解析；成功且列表为空 = 真空（available 仍为 true）。
+    if (raw.isBlank()) return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.NETWORK)
+    if (limit <= 0) return TxTypedSearchResult(emptyList(), available = true, stage = xyz.cncnlp.soundwave.source.FailureStage.EMPTY)
     return try {
         val key = "music.search.SearchCgiService"
-        val block = JSONObject(raw).optJSONObject(key) ?: return TxTypedSearchResult(emptyList(), available = false)
-        if (block.optInt("code", -1) != 0) return TxTypedSearchResult(emptyList(), available = false)
-        val data = block.optJSONObject("data") ?: return TxTypedSearchResult(emptyList(), available = false)
-        if (data.has("code") && data.optInt("code", -1) != 0) return TxTypedSearchResult(emptyList(), available = false)
-        val responseBody = data.optJSONObject("body") ?: return TxTypedSearchResult(emptyList(), available = false)
+        val block = JSONObject(raw).optJSONObject(key) ?: return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.PARSE)
+        if (block.optInt("code", -1) != 0) return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.REJECTED)
+        val data = block.optJSONObject("data") ?: return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.PARSE)
+        if (data.has("code") && data.optInt("code", -1) != 0) return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.REJECTED)
+        val responseBody = data.optJSONObject("body") ?: return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.PARSE)
         val kind = when (type.lowercase()) {
             "artist", "singer" -> "singer"
             "album" -> "album"
             else -> "song"
         }
-        val list = responseBody.optJSONObject(kind)?.optJSONArray("list") ?: return TxTypedSearchResult(emptyList(), available = false)
+        val list = responseBody.optJSONObject(kind)?.optJSONArray("list") ?: return TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.PARSE)
         val out = ArrayList<Song>(minOf(limit, list.length()))
         for (index in 0 until minOf(limit, list.length())) {
             val item = list.optJSONObject(index) ?: continue
@@ -120,9 +133,10 @@ internal fun parseTxMusicuSearchStatus(raw: String, keyword: String, type: Strin
             if (mapped != null) out += mapped
         }
         val songs = if (kind == "song") out.sortedByDescending { scoreSong(keyword, it.name, it.singer) } else out
-        TxTypedSearchResult(songs, available = true)
+        // 成功应答但无可映射条目 = 真空，不是失败（available 保持 true）。
+        TxTypedSearchResult(songs, available = true, stage = if (songs.isEmpty()) xyz.cncnlp.soundwave.source.FailureStage.EMPTY else null)
     } catch (_: Exception) {
-        TxTypedSearchResult(emptyList(), available = false)
+        TxTypedSearchResult(emptyList(), available = false, stage = xyz.cncnlp.soundwave.source.FailureStage.PARSE)
     }
 }
 

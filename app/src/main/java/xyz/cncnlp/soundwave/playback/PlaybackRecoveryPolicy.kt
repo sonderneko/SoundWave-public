@@ -39,7 +39,62 @@ data class RecoveryDecision(
     val attempt: Int,
     /** 曲尾附近断流：等同播完，静默切下一首。 */
     val nearEnd: Boolean = false,
+    /** PB-F2：本次 STOP 由连播失败率熔断触发（UI 据此给熔断专属提示）。 */
+    val circuitTripped: Boolean = false,
 )
+
+/**
+ * PB-F2 连播失败熔断（Ceru Music 同型止损，E-2）：既有连续跳过上限只数
+ * 「跳过」一种动作，重取链/换源重试不吃跳过预算，混合失败链仍可能长时间
+ * 自动推进。本熔断在自动推进的失败事实上独立计账：
+ * - 窗口 = 自上次成功起播以来最近 [WINDOW_SIZE] 次自动尝试（滑动窗口）；
+ * - 样本数达到 [MIN_SAMPLES] 且失败率 ≥ [FAILURE_RATE_THRESHOLD]（30%）即
+ *   熔断，停自动推进；熔断后持续记录也不自愈，只能由成功起播/用户意图重置；
+ * - 成功起播即重置计数（[recordSuccess] 清窗 + 解熔断）——与
+ *   [PlaybackRecoveryPolicy.onHealthyPlayback] / onUserIntent 的既有重置点同点。
+ * 纯内存、无 IO，可独立单测。
+ */
+class AutoAdvanceCircuitBreaker {
+    private val attemptsWindow = ArrayDeque<Boolean>() // true = 失败
+    private var tripped: Boolean = false
+
+    /** 记一次自动推进失败；返回是否已熔断（含此前已熔断）。 */
+    @Synchronized
+    fun recordFailure(): Boolean {
+        attemptsWindow.addLast(true)
+        while (attemptsWindow.size > WINDOW_SIZE) attemptsWindow.removeFirst()
+        if (!tripped && attemptsWindow.size >= MIN_SAMPLES && failureRate() >= FAILURE_RATE_THRESHOLD) {
+            tripped = true
+        }
+        return tripped
+    }
+
+    /** 成功起播：清窗并解熔断（计数重置）。 */
+    @Synchronized
+    fun recordSuccess() {
+        attemptsWindow.clear()
+        tripped = false
+    }
+
+    @Synchronized
+    fun isTripped(): Boolean = tripped
+
+    @Synchronized
+    fun failureRate(): Double =
+        if (attemptsWindow.isEmpty()) 0.0 else attemptsWindow.count { it }.toDouble() / attemptsWindow.size
+
+    @Synchronized
+    fun sampleCount(): Int = attemptsWindow.size
+
+    companion object {
+        /** 失败率阈值：自动尝试失败占比达到 30% 即止损。 */
+        const val FAILURE_RATE_THRESHOLD = 0.30
+        /** 滑动窗口：只看最近 10 次自动尝试。 */
+        const val WINDOW_SIZE = 10
+        /** 最小样本：不足 4 次不熔断，避免单首歌的偶发抖动误停整单。 */
+        const val MIN_SAMPLES = 4
+    }
+}
 
 class PlaybackRecoveryPolicy(
     private val maxConsecutiveSkips: Int = DEFAULT_MAX_CONSECUTIVE_SKIPS,
@@ -50,6 +105,9 @@ class PlaybackRecoveryPolicy(
     private var lastAction: RecoveryAction? = null
     private var lastFailureAt: Long = 0L
     private var consecutiveSkips: Int = 0
+
+    /** PB-F2：自动推进失败率熔断，与连续跳过计数并行计账。 */
+    val autoAdvanceBreaker = AutoAdvanceCircuitBreaker()
 
     /** ExoPlayer 报错时调用。positionMs/durationMs 取自出错的那个播放器。 */
     @Synchronized
@@ -75,6 +133,12 @@ class PlaybackRecoveryPolicy(
             attempts == 2 && lastAction == RecoveryAction.REFRESH_SAME_SOURCE -> RecoveryAction.SWITCH_SOURCE
             else -> skipOrStop()
         }
+        // PB-F2：真正要自动跳走的失败才进熔断窗口（重取/换源是同曲重试，不算连播尝试）；
+        // 熔断时把本次 SKIP_NEXT 就地升级为 STOP，不再多跳一首。
+        if (action == RecoveryAction.SKIP_NEXT && autoAdvanceBreaker.recordFailure()) {
+            lastAction = RecoveryAction.STOP
+            return RecoveryDecision(RecoveryAction.STOP, 0L, attempts, circuitTripped = true)
+        }
         lastAction = action
         return RecoveryDecision(action, if (action == RecoveryAction.SKIP_NEXT || action == RecoveryAction.STOP) 0L else resumeAt, attempts)
     }
@@ -83,6 +147,11 @@ class PlaybackRecoveryPolicy(
     @Synchronized
     fun onResolveFailure(songKey: String): RecoveryDecision {
         this.songKey = songKey
+        // PB-F2：取链失败是自动连播的一次失败尝试，先过熔断账，熔断即停。
+        if (autoAdvanceBreaker.recordFailure()) {
+            lastAction = RecoveryAction.STOP
+            return RecoveryDecision(RecoveryAction.STOP, 0L, 0, circuitTripped = true)
+        }
         lastAction = skipOrStop()
         return RecoveryDecision(lastAction!!, 0L, 0)
     }
@@ -90,6 +159,8 @@ class PlaybackRecoveryPolicy(
     /** 某首歌已稳定播放（≥ [HEALTHY_PLAYED_MS]）：清空连续跳过计数。 */
     @Synchronized
     fun onHealthyPlayback(songKey: String) {
+        // PB-F2：成功起播（稳定播放）即重置熔断计数。
+        autoAdvanceBreaker.recordSuccess()
         consecutiveSkips = 0
         if (songKey != this.songKey) {
             this.songKey = songKey
@@ -101,6 +172,7 @@ class PlaybackRecoveryPolicy(
     /** 用户明确点歌/切歌：之前的失败链与当前意图无关。 */
     @Synchronized
     fun onUserIntent() {
+        autoAdvanceBreaker.recordSuccess()
         consecutiveSkips = 0
         attempts = 0
         lastAction = null

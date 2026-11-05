@@ -573,7 +573,7 @@ class PlaybackController(
                 }
             }
             RecoveryAction.SKIP_NEXT -> skipAfterFailure(failed, quiet = decision.nearEnd)
-            RecoveryAction.STOP -> stopAfterRepeatedFailures(failureIntent)
+            RecoveryAction.STOP -> stopAfterRepeatedFailures(failureIntent, circuitTripped = decision.circuitTripped)
         }
     }
 
@@ -598,12 +598,14 @@ class PlaybackController(
         scope.launch { if (skipIsCurrent()) safePlayDelta(+1) }
     }
 
-    private fun stopAfterRepeatedFailures(failureIntent: Int) {
+    private fun stopAfterRepeatedFailures(failureIntent: Int, circuitTripped: Boolean = false) {
         status = ""
         resolving = false
         // F3：此前 STOP 只改 UI，Service 侧过渡唤醒锁要等 45s 超时；现在按捕获的意图暂停 + 释放（过期则不动）。
         PlayerService.finishFailedTransition(failureIntent)
-        try { AppNotice.inbox(AppNotice.Category.PLAYBACK, "连续多首无法播放，已暂停", body = "请检查网络或音源设置", alsoBanner = true) } catch (_: Exception) {}
+        // PB-F2：熔断触发的停止给专属提示，与既有连续失败提示区分（同走 AppNotice 体系）。
+        val title = if (circuitTripped) "连播失败率过高，已停止自动播放" else "连续多首无法播放，已暂停"
+        try { AppNotice.inbox(AppNotice.Category.PLAYBACK, title, body = "请检查网络或音源设置", alsoBanner = true) } catch (_: Exception) {}
     }
 
     fun savePlaybackState() {
@@ -878,7 +880,7 @@ class PlaybackController(
                             scope.launch { if (requestIsCurrent()) safePlayDelta(+1) }
                         } else {
                             AppNotice.inbox(AppNotice.Category.PLAYBACK, "《${song.name}》无法播放", body = message, alsoBanner = true)
-                            stopAfterRepeatedFailures(serviceIntent)
+                            stopAfterRepeatedFailures(serviceIntent, circuitTripped = decision.circuitTripped)
                         }
                         return@resolve
                     }
@@ -984,7 +986,7 @@ class PlaybackController(
                         try {
                             AppNotice.inbox(AppNotice.Category.PLAYBACK, "播放异常", alsoBanner = true)
                         } catch (_: Exception) {}
-                        stopAfterRepeatedFailures(serviceIntent)
+                        stopAfterRepeatedFailures(serviceIntent, circuitTripped = decision.circuitTripped)
                     }
                 } else {
                     try {
