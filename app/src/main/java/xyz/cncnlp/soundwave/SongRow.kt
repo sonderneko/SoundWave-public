@@ -387,7 +387,7 @@ internal fun SongActionSheet(
                         // 最右侧：下载按钮
                         if (showDownload) {
                             Box(Modifier.size(44.dp).clip(CircleShape).background(menuSel.copy(alpha = 0.12f)).clickable { onDownload(); close() }, contentAlignment = Alignment.Center) {
-                                Icon(Icons.Outlined.FileDownload, "下载歌曲", tint = menuSel, modifier = Modifier.size(22.dp))
+                                Icon(Icons.Outlined.FileDownload, "下载歌曲", tint = menuSel, modifier = Modifier.size(21.dp))
                             }
                         }
                     }

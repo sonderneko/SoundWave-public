@@ -142,7 +142,7 @@ fun DataFlowPage() {
                             )
                         }
                         Spacer(Modifier.width(10.dp))
-                        Icon(DesignLineGlyphs.Chevron, null, tint = muted, modifier = Modifier.padding(top = 2.dp).size(15.dp).rotate(if (open) 270f else 90f))
+                        Icon(DesignLineGlyphs.Chevron, null, tint = muted, modifier = Modifier.padding(top = 2.dp).size(16.dp).rotate(if (open) 270f else 90f))
                     }
                     SettingsHairline()
                 }

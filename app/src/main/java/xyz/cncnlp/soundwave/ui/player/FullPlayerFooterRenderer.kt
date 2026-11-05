@@ -71,7 +71,7 @@ internal fun FullPlayerFooterRenderer(
                     Icons.Filled.MoreHoriz,
                     "更多：${song.name}",
                     tint = if (menuIconWhite) Color.White else white,
-                    modifier = Modifier.size(29.dp).clickable { onMore() }.padding(2.dp)
+                    modifier = Modifier.size(28.dp).clickable { onMore() }.padding(2.dp)
                 )
             }
 

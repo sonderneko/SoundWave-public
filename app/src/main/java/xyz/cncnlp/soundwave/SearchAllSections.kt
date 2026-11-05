@@ -202,7 +202,7 @@ private fun SearchBestMatchCard(song: Song, query: String, onClick: () -> Unit, 
                 .clickable(onClick = onPlay),
             contentAlignment = Alignment.Center
         ) {
-            Icon(xyz.cncnlp.soundwave.ui.common.DesignGlyphs.PlayTriangle, "播放：${song.name}", tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs.PlaySolid, "播放：${song.name}", tint = Color.White, modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -242,7 +242,7 @@ private fun ResultSectionHeader(title: String, count: Int, hideCount: Boolean = 
             letterSpacing = (-0.03).em, maxLines = 1, modifier = Modifier.weight(1f))
         Text(if (hideCount) "查看全部" else "${count.toString().padStart(2, '0')} · 查看全部", color = colors.onSurfaceVariant, fontSize = 11.sp, fontFamily = xyz.cncnlp.soundwave.ui.common.DesignFonts.DmMono,
             fontWeight = FontWeight.Medium, letterSpacing = 0.04.em, maxLines = 1)
-        Icon(xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs.Chevron, null, tint = colors.onSurfaceVariant, modifier = Modifier.padding(start = 2.dp).size(14.dp))
+        Icon(xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs.Chevron, null, tint = colors.onSurfaceVariant, modifier = Modifier.padding(start = 2.dp).size(16.dp))
     }
 }
 

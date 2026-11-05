@@ -15,15 +15,8 @@ object DesignGlyphs {
     /** 全局统一的圆角播放三角（三个角均为圆角，非尖角）。 */
     const val PLAY_TRIANGLE_PATH = "M9.81 5.96L17.39 10.64Q19.6 12 17.39 13.36L9.81 18.04Q7.6 19.4 7.6 16.8L7.6 7.2Q7.6 4.6 9.81 5.96Z"
 
-    /** Rounded play triangle; the path is centroid-centred so it reads optically centred in a circle. */
-    val PlayTriangle: ImageVector by lazy {
-        ImageVector.Builder("sw_play_triangle", 24.dp, 24.dp, 24f, 24f).apply {
-            addPath(
-                pathData = addPathNodes(PLAY_TRIANGLE_PATH),
-                fill = SolidColor(Color.Black)
-            )
-        }.build()
-    }
+    // PB-B2：第 2 波同义去重——原 PlayTriangle（本路径的纯填充版）已删，全仓唯一存本为
+    // DesignChromeGlyphs.PlaySolid（同路径 + 1.0 描边补角，IconSpec 立档例外），引用点已改指。
 
     /** 无底色的柔和圆角三角（三个角均带较大弧度，用于封面右下角悬浮播放）。 */
     const val PLAY_TRIANGLE_SOFT_PATH = "M9.4 5.3Q7.2 4 7.2 6.6L7.2 17.4Q7.2 20 9.4 18.7L18.1 13.5Q20.4 12 18.1 10.5Z"
@@ -33,7 +26,7 @@ object DesignGlyphs {
             addPath(
                 pathData = addPathNodes(PLAY_TRIANGLE_SOFT_PATH),
                 fill = SolidColor(Color.Black), stroke = SolidColor(Color.Black),
-                strokeLineWidth = 1.6f, strokeLineJoin = StrokeJoin.Round
+                strokeLineWidth = 1.8f, strokeLineJoin = StrokeJoin.Round
             )
         }.build()
     }

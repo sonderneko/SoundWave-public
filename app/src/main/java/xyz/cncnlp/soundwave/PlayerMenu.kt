@@ -272,7 +272,7 @@ internal fun PlayerMenuSheetRow(
                 .padding(start = 4.dp, end = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(xyz.cncnlp.soundwave.ui.player.DefaultPlayerGlyphs.forMenuKey(glyph), null, Modifier.size(22.dp), tint = tint)
+            Icon(xyz.cncnlp.soundwave.ui.player.DefaultPlayerGlyphs.forMenuKey(glyph), null, Modifier.size(21.dp), tint = tint)
             Spacer(Modifier.width(16.dp))
             Text(
                 title, color = if (danger) tint else fg, fontSize = 16.sp, fontWeight = FontWeight.Bold,

@@ -1,6 +1,7 @@
 package xyz.cncnlp.soundwave.ui.player
 
 import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
+import xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -95,7 +96,7 @@ internal fun PlayerLyricsPageHeader(
                 Spacer(Modifier.width(6.dp))
                 PlayerRoundedIconButton(
                     onClick = onNext,
-                    imageVector = DesignChromeGlyphs.Next,
+                    imageVector = DesignLineGlyphs.Next,
                     contentDescription = "下一首",
                     tint = primaryColor,
                     buttonSize = 40.dp,
@@ -114,7 +115,7 @@ internal fun PlayerLyricsPageHeader(
                     xyz.cncnlp.soundwave.ui.common.DesignGlyphs.MoreDots,
                     "更多：$songTitle",
                     tint = moreIconTint,
-                    modifier = Modifier.size(29.dp).clickable(onClick = onMore).padding(2.dp)
+                    modifier = Modifier.size(28.dp).clickable(onClick = onMore).padding(2.dp)
                 )
             }
         }

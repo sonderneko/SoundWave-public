@@ -28,10 +28,10 @@ object DesignSheetGlyphs {
 
     /** 相似歌曲：主星 + 小星（发现相近风格）。 */
     val Similar: ImageVector by lazy { glyph("sws_similar", "M10 4.5 11.6 9 16 10.5 11.6 12 10 16.5 8.4 12 4 10.5 8.4 9z", "M17.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z") }
-    /** 收藏（空心心形）。 */
-    val Heart: ImageVector by lazy { glyph("sws_heart", "M12 19.6 4.9 12.8A4.4 4.4 0 0 1 11.1 6.6L12 7.5l.9-.9a4.4 4.4 0 0 1 6.2 6.2z") }
+    /** 收藏（空心心形）。PB-B3：原几何等比放大居中（×1.1063，关于 (12,12.58)），路径横向跨度归 IconSpec 标准 18（x 3.0–21.0），形状不变。 */
+    val Heart: ImageVector by lazy { glyph("sws_heart", "M12 20.35 4.15 12.82A4.87 4.87 0 0 1 11 5.96L12 6.96l1 -1a4.87 4.87 0 0 1 6.86 6.86z") }
     /** 已收藏（实心心形）。 */
-    val HeartFilled: ImageVector by lazy { glyph("sws_heart_filled", "M12 19.6 4.9 12.8A4.4 4.4 0 0 1 11.1 6.6L12 7.5l.9-.9a4.4 4.4 0 0 1 6.2 6.2z", filled = true) }
+    val HeartFilled: ImageVector by lazy { glyph("sws_heart_filled", "M12 20.35 4.15 12.82A4.87 4.87 0 0 1 11 5.96L12 6.96l1 -1a4.87 4.87 0 0 1 6.86 6.86z", filled = true) }
     /** 下一首播放：三行列表 + 右下播放角标。 */
     val PlayNext: ImageVector by lazy { glyph("sws_play_next", "M4 6.5h11M4 11.5h11M4 16.5h6", "M15 14.2v5.6l4.6-2.8z") }
     /** 添加到歌单：三行列表 + 右下加号。 */

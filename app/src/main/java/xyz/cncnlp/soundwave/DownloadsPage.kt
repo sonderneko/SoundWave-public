@@ -382,7 +382,7 @@ private fun DownloadOverviewAction(icon: ImageVector, label: String, enabled: Bo
             .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null, tint = colors.onSurface.copy(alpha = alpha), modifier = Modifier.size(15.dp))
+        Icon(icon, null, tint = colors.onSurface.copy(alpha = alpha), modifier = Modifier.size(16.dp))
         Text(label, color = colors.onSurface.copy(alpha = alpha), fontSize = TypeScale.Micro.fontSize, fontWeight = FontWeight.Bold, maxLines = 1, modifier = Modifier.padding(start = 5.dp))
     }
 }
@@ -416,7 +416,7 @@ private fun DownloadBatchBar(
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
                 ) {
                     val tint = (if (danger) Color(0xFFFF8A7A) else colors.surface).copy(alpha = if (count > 0) 1f else 0.4f)
-                    Icon(icon, null, tint = tint, modifier = Modifier.size(17.dp))
+                    Icon(icon, null, tint = tint, modifier = Modifier.size(18.dp))
                     Text(label, color = tint, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
                 }
             }
@@ -431,7 +431,7 @@ private fun DownloadPill(label: String, icon: ImageVector, onClick: () -> Unit) 
             .clickable(onClick = onClick).semantics { contentDescription = label; role = Role.Button }.padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(13.dp))
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(12.dp))
         Spacer(Modifier.width(4.dp))
         Text(label, color = MaterialTheme.colorScheme.onSurface, fontSize = 10.sp, fontWeight = FontWeight.Bold)
     }
@@ -443,7 +443,7 @@ private fun DownloadCircleButton(icon: ImageVector, description: String, tint: C
         Modifier.size(36.dp).clip(CircleShape).clickable(enabled = enabled, onClick = onClick)
             .semantics { contentDescription = description; role = Role.Button },
         contentAlignment = Alignment.Center
-    ) { Icon(icon, null, tint = tint.copy(alpha = if (enabled) 1f else 0.3f), modifier = Modifier.size(15.dp)) }
+    ) { Icon(icon, null, tint = tint.copy(alpha = if (enabled) 1f else 0.3f), modifier = Modifier.size(16.dp)) }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -542,7 +542,7 @@ private fun DownloadQueueArrow(description: String, enabled: Boolean, flip: Bool
             .semantics { contentDescription = description; role = Role.Button }
             .graphicsLayer { if (flip) rotationZ = 180f },
         contentAlignment = Alignment.Center
-    ) { Icon(DesignLineGlyphs.Up, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.8f else 0.25f), modifier = Modifier.size(13.dp)) }
+    ) { Icon(DesignLineGlyphs.Up, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.8f else 0.25f), modifier = Modifier.size(12.dp)) }
 
 }
 

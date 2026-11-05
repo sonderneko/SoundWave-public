@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import xyz.cncnlp.soundwave.ui.common.DesignFonts
+import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
 import xyz.cncnlp.soundwave.ui.common.DesignGlyphs
 import java.time.LocalDate
 import java.time.format.TextStyle as JTextStyle
@@ -179,7 +180,7 @@ internal fun TodayRecommendationHero(
                         .padding(start = 20.dp, end = 30.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(DesignGlyphs.PlayTriangle, null, tint = Color.White, modifier = Modifier.size(22.dp))
+                    Icon(DesignChromeGlyphs.PlaySolid, null, tint = Color.White, modifier = Modifier.size(21.dp))
                     Spacer(Modifier.width(10.dp))
                     Text("播放全部", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, fontFamily = DesignFonts.Manrope)
                 }
@@ -307,7 +308,7 @@ private fun TodayTool(icon: androidx.compose.ui.graphics.vector.ImageVector, des
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, description, tint = colors.onSurface.copy(alpha = if (enabled) 1f else 0.4f), modifier = Modifier.size(17.dp))
+        Icon(icon, description, tint = colors.onSurface.copy(alpha = if (enabled) 1f else 0.4f), modifier = Modifier.size(18.dp))
     }
 }
 

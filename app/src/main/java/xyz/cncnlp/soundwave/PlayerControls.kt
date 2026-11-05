@@ -5,7 +5,6 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import xyz.cncnlp.soundwave.ThemeTokens.PlayerControls as ControlTokens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -27,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,10 +36,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -51,7 +49,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.vector.ImageVector
 import xyz.cncnlp.soundwave.ui.common.pressScale
+import xyz.cncnlp.soundwave.ui.player.DefaultPlayerGlyphs
 import xyz.cncnlp.soundwave.ui.common.PressMotion
 
 @Composable
@@ -256,20 +256,20 @@ internal fun AppleMusicControls(
                     WhiteGlyph(playModeGlyph(playMode), ControlTokens.BottomAction.Icon, milk)
                 }
             } else {
-                AppleMusicBottomAction(R.drawable.ic_player_action_immersive_lyrics, "沉浸歌词", selected = immersiveSelected, iconSize = ControlTokens.BottomAction.Icon, tint = foreground, onClick = onLyrics)
+                AppleMusicBottomAction(DefaultPlayerGlyphs.ImmersiveLyrics, "沉浸歌词", selected = immersiveSelected, iconSize = ControlTokens.BottomAction.Icon, tint = foreground, onClick = onLyrics)
             }
             if (showDeviceAndQueueActions) {
-                AppleMusicBottomAction(R.drawable.ic_player_action_playback_device, "播放设备", selected = deviceOn, iconSize = ControlTokens.BottomAction.Icon, tint = foreground, onClick = onDevice)
+                AppleMusicBottomAction(DefaultPlayerGlyphs.PlaybackDevice, "播放设备", selected = deviceOn, iconSize = ControlTokens.BottomAction.Icon, tint = foreground, onClick = onDevice)
             } else Spacer(Modifier.size(ControlTokens.BottomAction.Target))
             if (showDeviceAndQueueActions) {
-                AppleMusicBottomAction(R.drawable.ic_player_action_play_queue, "播放队列", selected = queueOn, iconSize = ControlTokens.BottomAction.Icon, tint = foreground, onClick = onQueue)
+                AppleMusicBottomAction(DefaultPlayerGlyphs.PlayQueue, "播放队列", selected = queueOn, iconSize = ControlTokens.BottomAction.Icon, tint = foreground, onClick = onQueue)
             } else Spacer(Modifier.size(ControlTokens.BottomAction.Target))
         }
     }
 }
 
 @Composable
-internal fun AppleMusicBottomAction(iconRes: Int, label: String, selected: Boolean = false, stateful: Boolean = true, iconSize: Dp = ControlTokens.BottomAction.Icon, tint: Color = ControlTokens.Ink, onClick: () -> Unit) {
+internal fun AppleMusicBottomAction(icon: ImageVector, label: String, selected: Boolean = false, stateful: Boolean = true, iconSize: Dp = ControlTokens.BottomAction.Icon, tint: Color = ControlTokens.Ink, onClick: () -> Unit) {
     // 播放器底部按钮只保留图案本身：无底、无描边；按压只做轻微缩放，不改变布局。
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -285,11 +285,11 @@ internal fun AppleMusicBottomAction(iconRes: Int, label: String, selected: Boole
             },
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = iconRes),
+        Icon(
+            imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(iconSize),
-            colorFilter = ColorFilter.tint(tint)
+            tint = tint
         )
     }
 }

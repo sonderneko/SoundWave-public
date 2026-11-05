@@ -245,7 +245,7 @@ internal fun ImmersiveDetailFloatingBar(
                 )
             } else Spacer(Modifier.weight(1f))
             if (onSearch != null) {
-                xyz.cncnlp.soundwave.ui.common.DesignHeaderCircleButton(xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs.Search, "搜索曲目", overMedia = true, glass = glass, onClick = onSearch)
+                xyz.cncnlp.soundwave.ui.common.DesignHeaderCircleButton(xyz.cncnlp.soundwave.ui.common.DesignLineGlyphs.Search, "搜索曲目", overMedia = true, glass = glass, onClick = onSearch)
                 if (onMore != null) Spacer(Modifier.width(10.dp))
             }
             if (onMore != null) xyz.cncnlp.soundwave.ui.common.DesignHeaderCircleButton(androidx.compose.material.icons.Icons.Filled.MoreHoriz, "更多操作", overMedia = true, glass = glass, onClick = onMore)

@@ -437,7 +437,7 @@ internal fun PlaybackPathSheet(song: Song, onDismiss: () -> Unit) {
                 Box(
                     Modifier.size(40.dp).clip(CircleShape).clickable(onClick = dismissPath).semantics { contentDescription = "关闭"; role = Role.Button },
                     contentAlignment = Alignment.Center
-                ) { Icon(Icons.Filled.Close, null, tint = colors.onSurface, modifier = Modifier.size(22.dp)) }
+                ) { Icon(Icons.Filled.Close, null, tint = colors.onSurface, modifier = Modifier.size(21.dp)) }
                 if (entry != null) {
                     val st = playbackPathStatus(entry)
                     val c = when (st) { PathStatus.Success -> PathOk; PathStatus.Failed -> PathFail; PathStatus.Resolving -> accent }

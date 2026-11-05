@@ -17,7 +17,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xyz.cncnlp.soundwave.ui.common.DesignGlyphs
+import xyz.cncnlp.soundwave.ui.common.DesignChromeGlyphs
 
 @Composable
 internal fun DetailResumeBar(
@@ -38,7 +38,7 @@ internal fun DetailResumeBar(
                 .clickable(role = Role.Button, onClickLabel = "继续上次播放", onClick = onResume),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(DesignGlyphs.PlayTriangle, null, tint = foreground, modifier = Modifier.size(18.dp))
+            Icon(DesignChromeGlyphs.PlaySolid, null, tint = foreground, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(10.dp))
             Text("继续播放：", color = foreground, fontSize = 14.sp, maxLines = 1)
             Text(

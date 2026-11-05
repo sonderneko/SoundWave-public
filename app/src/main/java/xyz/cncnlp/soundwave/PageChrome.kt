@@ -148,7 +148,7 @@ internal fun PlatformSwitchButton(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(Icons.Outlined.MusicNote, contentDescription, tint = primary, modifier = Modifier.size(23.dp))
+        Icon(Icons.Outlined.MusicNote, contentDescription, tint = primary, modifier = Modifier.size(24.dp))
     }
 }
 

@@ -123,11 +123,11 @@ object IconSize {
  * - DesignChromeGlyphs.PlaySolid stroke 1.0：实心三角变体——填充三角外加 1.0 描边
  *   只为圆角连接补形，描边本身不承担线宽语义。
  *
- * 存量待改（不属例外档：第 2 波 PB-B3 逐项归 1.8 后从守卫棘轮名单删除）：
- * DesignGlyphs.PlayTriangleSoft 1.6、sw_scan / sw_pswap 1.75、
- * DefaultPlayerGlyphs.AirPlay 1.9、DefaultPlayerGlyphs.ChevronRight 2.0、
- * ic_stat_wave 2.02 / 1.28（单图标双宽）。
- * 本波只立规范，不改任何现有 glyph 参数。
+ * 存量归一（第 2 波 PB-B3 已落地，守卫棘轮名单已清空）：DesignGlyphs.PlayTriangleSoft
+ * 1.6→1.8、sw_scan / sw_pswap 1.75→1.8、DefaultPlayerGlyphs.AirPlay 1.9→1.8、
+ * DefaultPlayerGlyphs.ChevronRight 2.0→1.8、ic_stat_wave 2.02 / 1.28 双宽统一 1.8；
+ * DesignSheetGlyphs.Heart/HeartFilled 按原几何等比放大，路径横向跨度归本规范标准 18。
+ * 例外档只保留上述 PauseBold 3.4 / PlaySolid 1.0 两项。
  */
 object IconSpec {
     /** viewport 基线（dp / viewport 单位同值）。 */
