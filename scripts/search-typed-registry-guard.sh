@@ -309,12 +309,15 @@ STEP8_REVIEWED_HUNKS = {
                 '        directTypedSearchResult?.invoke(keyword, type)?.let {\n'
                 '            currentCoroutineContext().ensureActive()\n'
                 '            if (it.available) return it.songs\n'
+                '            // PB-F3：typed 直连不可用时带其阶段标签进诊断（缺省按拒绝计）。\n'
+                '            noteStage("search-typed", it.stage ?: FailureStage.REJECTED)\n'
                 '        }\n'
                 '        if (type.isBlank() || type == "song") return search(keyword, 1, 30)\n'
                 '        currentCoroutineContext().ensureActive()\n'
                 '        searchOfficialEntitiesDirect(platform, keyword, type).let {\n'
                 '            currentCoroutineContext().ensureActive()\n'
                 '            if (it.available) return it.songs\n'
+                '            noteStage("search-typed", it.stage ?: FailureStage.REJECTED)\n'
                 '        }\n'
                 '        return api.searchCancellable(keyword, source = platform, type = type)\n'
                 '    }\n'
@@ -373,7 +376,7 @@ def reviewed_step8_projection(text, label):
 # Pin reviewed implementation bytes as well as executable contract statements:
 # a token in a comment or a dead branch is not an accepted replacement. Update
 # these pins only after reviewing provider/status/parser changes. No live claim.
-STEP8_DIRECT_SHA256 = {'PlaylistRecommendDirect.kt': '05ad2c9e970fc01d6a1684d346312a8e40bd9fe3f8969aaeacd393f5c7d057f0', 'PlaylistCategoriesDirect.kt': '463a9331c896675d5f44db6f1a9340dda1788c65a2efa2c82755f7d01a83fd05', 'TypedEntitiesDirect.kt': 'f50103ef77520ff40335f619abec1a72cdd67234b1ce16ee0438aeeb150a5ba2'}
+STEP8_DIRECT_SHA256 = {'PlaylistRecommendDirect.kt': '05ad2c9e970fc01d6a1684d346312a8e40bd9fe3f8969aaeacd393f5c7d057f0', 'PlaylistCategoriesDirect.kt': '463a9331c896675d5f44db6f1a9340dda1788c65a2efa2c82755f7d01a83fd05', 'TypedEntitiesDirect.kt': 'a1fe78ca694b404faa9bdf2d89b57aba83dde27c6cbd4be1a20c4456b47ea20e'}
 for filename, expected in STEP8_DIRECT_SHA256.items():
     import hashlib
     if hashlib.sha256((base / 'source/direct' / filename).read_bytes()).hexdigest() != expected:

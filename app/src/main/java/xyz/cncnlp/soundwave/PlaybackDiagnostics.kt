@@ -60,6 +60,30 @@ object PlaybackDiagnostics {
     @Volatile private var pending = mutableMapOf<String, Pending>()
 
     /**
+     * PB-F3：搜索/目录腿的失败分型计数（内存态，不落盘、不含查询词/URL）。
+     * 键 = "scope|platform|stageLabel"，与 [Entry.failureLayer] 同属诊断口径：
+     * failureLayer 回答单曲播放为什么失败，stage 计数回答某条搜索/目录腿
+     * 整体在以哪种形态失败（拒绝/解析/网络/真空），「空 ≠ 失败」在此分开计账。
+     */
+    private val failureStageTallies = java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger>()
+
+    /** 记一次带阶段标签的腿级结果（只记标签与计数，行为零影响）。 */
+    fun noteFailureStage(scope: String, platform: String, stage: xyz.cncnlp.soundwave.source.FailureStage) {
+        val key = "$scope|${canonicalPlatform(platform).ifBlank { platform.trim().lowercase() }}|${stage.label}"
+        failureStageTallies.getOrPut(key) { java.util.concurrent.atomic.AtomicInteger(0) }.incrementAndGet()
+    }
+
+    /** 某 (scope, platform, stage) 的累计次数（测试与诊断汇总用）。 */
+    fun failureStageCount(scope: String, platform: String, stage: xyz.cncnlp.soundwave.source.FailureStage): Int {
+        val key = "$scope|${canonicalPlatform(platform).ifBlank { platform.trim().lowercase() }}|${stage.label}"
+        return failureStageTallies[key]?.get() ?: 0
+    }
+
+    /** 全部阶段计数快照（键同 [noteFailureStage]）。 */
+    fun failureStageTallySnapshot(): Map<String, Int> =
+        failureStageTallies.mapValues { it.value.get() }
+
+    /**
      * 平台码规范化：只有既定平台码（wy/kg/kw/tx/mg）与 local 才是可落盘、可展示的平台身份。
      * 解析链回退的 song.source 是未校验的自由字符串（可能是自定义来源键、甚至哈希），
      * 一律视为未知，禁止原样写进诊断记录冒充平台。
@@ -431,5 +455,6 @@ object PlaybackDiagnostics {
             pending = mutableMapOf()
             prepareStartByKey = mutableMapOf()
         }
+        failureStageTallies.clear()
     }
 }
