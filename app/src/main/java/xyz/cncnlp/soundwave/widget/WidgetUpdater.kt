@@ -54,7 +54,7 @@ internal object WidgetRemoteViewsFactory {
         if (cover != null) {
             views.setImageViewBitmap(R.id.widget_cover, cover)
         } else {
-            views.setImageViewResource(R.id.widget_cover, R.mipmap.ic_launcher)
+            views.setImageViewResource(R.id.widget_cover, R.mipmap.ic_launcher_wave)
         }
         // Body tap opens the app exactly like the notification content intent does
         // (plain MainActivity launch; there is no full-player deep link in the app).

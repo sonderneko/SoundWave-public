@@ -10,14 +10,18 @@
         <item name="android:colorPrimary">#E8452F</item>
     </style>
 
-    <!-- ACCEPT6 启动页（core-splashscreen）：暖纸底 + 黑胶母题图标，退场后切回 Theme.SoundWave。
-         保持时长由 MainActivity 的 SplashGate 就绪驱动 + 1.5s 硬顶保险丝控制，本主题不设任何延时。 -->
+    <!-- 启动页（core-splashscreen）：退场后切回 Theme.SoundWave。保持时长由 MainActivity
+         的 SplashGate 就绪驱动 + 1.5s 硬顶保险丝控制，本主题不设任何延时。
+         ICON-SPLASH-REDO（2026-11-05）：品牌稿参数——底色暖奶油 #F2EADA（F1 的纯纸面
+         #F4F4F0 被用户嫌「太白、不好看」；新底与图标暖白渐变 #F8F7F4→#E1DDD6 同族、
+         深一阶，退场 200ms 淡出衔接 App 纸面不跳色）；标记 = ic_splash_mark 场景
+         （环纹水印 + 选定声纹环标记）；字标 SoundWave（Newsreader SemiBold 渲染图）
+         经 values-v31 的 branding image 在 API 31+ 底部呈现，低版本只呈标记。
+         BATCH2 反馈 F1：启动页全系统一稿（浅/夜同稿），不再随系统夜间变黑
+         （values-night 不再覆盖本样式，理由见 values-night/themes.xml）。 -->
     <style name="Theme.SoundWave.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#F4F4F0</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_disc</item>
+        <item name="windowSplashScreenBackground">#F2EADA</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
         <item name="postSplashScreenTheme">@style/Theme.SoundWave</item>
     </style>
-
-    <!-- BATCH2 反馈 F1：启动页全系统一稿——品牌纸面 #F4F4F0 + 用户选定的浅色标记，
-         不再随系统夜间变黑（values-night 不再覆盖本样式，理由见 values-night/themes.xml）。 -->
 </resources>

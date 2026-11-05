@@ -111,7 +111,7 @@ internal class NotificationPresenter(private val context: Context) {
         } catch (_: Exception) {
             try {
                 BitmapFactory.decodeResource(context.resources, R.drawable.ic_app_icon)
-                    ?: BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_fg_bitmap)
+                    ?: BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_wave_fg_bitmap)
             } catch (_: Exception) { null }
         }
     }
