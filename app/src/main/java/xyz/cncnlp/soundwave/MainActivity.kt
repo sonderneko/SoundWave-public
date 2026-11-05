@@ -1585,8 +1585,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             persist = { persistBundle() })
         if (pid != null && beforeSongs != null) emitRemoveSongsUndo(pid, beforeSongs, { userBundle }, { userBundle = it }, { plDetail }, { plDetail = it }, { plDetailSongs = it }, { persistBundle(notify = true) }, context) { likedTick++ }
     }
-    // 歌手详情回调：点搜索结果里的歌手条目 → 打开歌手歌曲详情页（复用 plDetail/LibraryPage）。
-    // 服务端 /music/singer 五平台均已就绪；此处先落歌手名/头像占位，歌曲后台补齐。
+    // 歌手详情回调：打开歌手歌曲详情页（复用 plDetail/LibraryPage），先落歌手名/头像占位，歌曲后台补齐。
     // 歌手详情来源页：默认搜索；首页热门歌手入口临时置为 HOME，返回时回到首页。
     val singerOriginRef = arrayOf(Tab.SEARCH)
     val openSingerCb: (Song) -> Unit = { s ->
@@ -1614,9 +1613,9 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                 // 批27：服务端无歌手头像的平台（kg/tx/mg）返回空 cover → 回退搜索结果里的歌手头像，
                 // 不再显示首曲专辑封面冒充歌手头像（非歌曲封面）。
                 plDetail = pl.copy(cover = pl.cover.ifBlank { s.cover })
-                plDetailSongs = pl.songs
+                plDetailSongs = pl.songs; if (plDetailLoadFailedId == singerId) plDetailLoadFailedId = null
             } else {
-                AppNotice.toast("暂无歌手歌曲")
+                plDetailLoadFailedId = singerId; AppNotice.toast("暂无歌手歌曲")
             }
         }
     }
@@ -1648,8 +1647,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
         }
     }
 
-    // 首页专辑 / 新碟卡片与歌手页「专辑」横排共用：先进详情显示封面标题，曲目异步补齐；origin 决定返回落点。
-    // accept6-favempty：收藏条目（fav_<平台>_<remoteId>）从音乐库打开时的远程水合。
+    // 首页专辑 / 新碟卡片与歌手页「专辑」横排共用（先进详情、曲目异步补齐）；accept6-favempty：收藏条目从音乐库打开时的远程水合。
     // 收藏只落元数据 + 点击瞬间的曲目快照（卡片收藏快照恒空、详情收藏与异步全量加载赛跑），
     // 音乐库打开原本只渲染快照、从不回拉，快照为空即假空单。这里与首页/专辑打开同口径：
     // 详情缓存优先、过期回源（歌单走 playlistDetailSnapshot、专辑按 albumMarks 分流 albumDetail），
@@ -1853,12 +1851,12 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
             if (songs.isNotEmpty() && !usedFreshCache) {
                 try { HomeFeedCache.saveDetail(context, card.id, src, songs) } catch (_: Exception) {}
             }
-            if (songs.isEmpty()) AppNotice.toast("专辑暂无曲目")
+            if (songs.isEmpty()) { plDetailLoadFailedId = card.id; AppNotice.toast("专辑暂无曲目") }
         }
     }
     // ACCEPT5：album 通道在播放器内打开时置 detailOverPlayer（详情压播放器直达，不退播放器）；
     // artist / playlist 通道在压播放器详情内触发时不再抢切 tab（层级一致性守卫），标记为假时逐字不变。
-    TrackNavigation.bind(artist = { sg, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; homeArtistOrigin[0] = origin; homeArtistSrc[0] = sg.source; openHomeArtistCb(sg.singer, sg.cover, sg.singerId) }, album = { card, origin -> detailOverPlayer = tab == Tab.PLAYER; openDiscoverCardCb(card, origin) }, currentTab = { if (tab == Tab.PLAYER) prevTab else tab }, playlist = { pl, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; detailOriginTab = origin; openDetail(pl, pl.songs); plDetailLoading = false }, homeSection = { sectionKey -> homePagerSelection.onSectionSettled("hot"); HomeSectionScrollRequest.request(sectionKey); returnToTopLevelTab(Tab.HOME) })
+    TrackNavigation.bind(artist = { sg, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; homeArtistOrigin[0] = origin; homeArtistSrc[0] = sg.source; openHomeArtistCb(sg.singer, sg.cover, sg.singerId) }, album = { card, origin -> detailOverPlayer = tab == Tab.PLAYER; openDiscoverCardCb(card, origin) }, currentTab = { if (tab == Tab.PLAYER) prevTab else tab }, playlist = { pl, origin -> if (tab == Tab.PLAYER && !detailOverPlayer) tab = prevTab; detailOriginTab = origin; openDetail(pl, pl.songs); if (pl.needsRemoteHydration()) hydrateRemoteDetail(pl) else plDetailLoading = false }, homeSection = { sectionKey -> homePagerSelection.onSectionSettled("hot"); HomeSectionScrollRequest.request(sectionKey); returnToTopLevelTab(Tab.HOME) })
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
@@ -1899,7 +1897,8 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                     detailLoadFailed = live && plDetailLoadFailedId != null && plDetailLoadFailedId == layerDetail.id,
                     onRetryDetail = {
                         val failed = userBundle.playlists.firstOrNull { it.id == layerDetail.id } ?: layerDetail
-                        if (failed.needsRemoteHydration() || failed.isRemoteFavoriteEntry() || failed.isRemoteImportedEntry()) hydrateRemoteDetail(failed)
+                        if (layerDetail.id.startsWith("singer_")) { singerOriginRef[0] = detailOriginTab; openSingerCb(Song(id = layerDetail.remoteId, name = layerDetail.name, singer = layerDetail.author, source = layerDetail.source, cover = layerDetail.cover)) }
+                        else if (failed.needsRemoteHydration() || failed.isRemoteFavoriteEntry() || failed.isRemoteImportedEntry()) hydrateRemoteDetail(failed)
                     },
                     detailCoverStyle = detailCoverStyle,
                     onDetailStatusBarAppearance = { if (live) immersiveDetailStatusBarLight = it },
@@ -2355,7 +2354,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                 )
                                 plDetailSongs = songs
                                 try { HomeFeedCache.saveDetail(context, remotePlaylistId, src0, songs) } catch (_: Exception) {}
-                            }
+                            } else if (seed.isEmpty() && plDetailSongs.isEmpty() && pl.count > 0 && !pl.id.startsWith("rank_") && !pl.id.startsWith("hot_")) plDetailLoadFailedId = remotePlaylistId
                         } finally {
                             if (plDetail?.id == remotePlaylistId) plDetailLoading = false
                         }
@@ -2504,7 +2503,7 @@ fun AppRoot(scriptRuntime: ScriptRuntime) {
                                         fullDetail?.songs.orEmpty().ifEmpty { initialSongs }
                                     }
                                     if (plDetail?.id != pl.id) return@launch
-                                    if (songs.isEmpty()) AppNotice.toast("歌单为空")
+                                    if (songs.isEmpty()) { if (pl.count > 0) plDetailLoadFailedId = pl.id; AppNotice.toast("歌单为空") }
                                     else {
                                         val base = fullDetail ?: pl
                                         val cover = playlistDisplayCover(base, songs)

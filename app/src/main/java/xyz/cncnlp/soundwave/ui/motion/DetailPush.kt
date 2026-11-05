@@ -92,6 +92,16 @@ object DetailPush {
         hasMain -> (progress * (1f - predictive)).coerceIn(0f, 1f)
         else -> 0f
     }
+
+    /**
+     * 纯函数：同键内容采纳（单测钉，见 R657FixHelpersTest）。主层与 current 同键时，
+     * 内容（结构相等口径）已变化则采纳 current，未变化则保留主层原实例（不触发无谓写入）。
+     * 帧转移只按 id 分压栈/弹栈/关闭三路，同 id 的异步回填（详情对象或曲目列表换新）
+     * 若不经此采纳，渲染层永远停在打开瞬间捕获的帧——歌单/专辑/歌手详情「取数成功
+     * 却全空」的统一根因（打开者普遍先开占位空帧、再异步回填 plDetail/plDetailSongs）。
+     */
+    fun <T> adoptSameKeyContent(mainItem: T, current: T, key: (T) -> Any?): T =
+        if (key(mainItem) == key(current) && mainItem != current) current else mainItem
 }
 
 /**
@@ -169,6 +179,11 @@ fun <T : Any> rememberDetailPushFrame(current: T?, underlayItem: T?, key: (T) ->
                     mainItem = current
                     pendingEnter = false
                 }
+            }
+            else -> {
+                // 同键：身份未变，但内容可能被异步回填换新（只换曲目/详情对象、id 不变）——
+                // 必须采纳，否则主层冻结在打开瞬间的占位空帧，详情页永久假空。
+                mainItem = DetailPush.adoptSameKeyContent(m, current, key)
             }
         }
         // 主层身份与 current 一致时记录其下方详情键（下一轮弹栈判定依据）。

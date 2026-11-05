@@ -102,6 +102,24 @@ class R657FixHelpersTest {
         assertEquals(0.25f, DetailPush.coverageFor(hasExit = false, hasMain = true, exitFraction = 0f, hasPushUnder = false, progress = 0.5f, predictive = 0.5f), 0.0001f)
     }
 
+    /** 详情全空回归钉：同 id 的异步回填（打开先落占位空帧、取数后只换曲目/详情对象）
+     *  必须被主层采纳——旧帧转移只认 id 变化，回填永远到不了渲染层（歌单/专辑/歌手全空）。 */
+    @Test fun detailFrameAdoptsSameKeyContentUpdates() {
+        data class Frame(val id: String, val title: String, val songs: List<String>)
+        val key: (Frame) -> Any? = { it.id }
+        val openedEmpty = Frame("pl1", "歌单", emptyList())
+        val filled = Frame("pl1", "歌单", listOf("s1", "s2"))
+        // 同键、曲目由空变有：采纳回填帧。
+        org.junit.Assert.assertSame(filled, DetailPush.adoptSameKeyContent(openedEmpty, filled, key))
+        // 同键、曲目不变但详情对象换新（标题/元数据回填）：同样采纳。
+        val retitled = Frame("pl1", "歌单·全量", listOf("s1", "s2"))
+        org.junit.Assert.assertSame(retitled, DetailPush.adoptSameKeyContent(filled, retitled, key))
+        // 同键、内容结构相等（仅实例不同）：保留主层原实例，不触发无谓写入。
+        org.junit.Assert.assertSame(filled, DetailPush.adoptSameKeyContent(filled, filled.copy(), key))
+        // 异键：不采纳（压栈/弹栈转移另行处理）。
+        org.junit.Assert.assertSame(filled, DetailPush.adoptSameKeyContent(filled, Frame("pl2", "歌单", listOf("s9")), key))
+    }
+
     @Test fun detailUnderlayShiftsAndDims() {
         assertEquals(0f to 0f, DetailPush.underlay(0f))
         val (shift, dim) = DetailPush.underlay(1f)
